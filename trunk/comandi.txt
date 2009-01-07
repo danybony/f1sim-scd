@@ -1,7 +1,0 @@
-commit:
-svn add [nomefile]
-svn commit -m [nomefile] --force-log
-
-
-update:
-svn checkout https://f1sim-scd.googlecode.com/svn/trunk/ --username [user di google]
