@@ -1,7 +1,7 @@
 commit:
-svn add [nomefile]
-svn commit -m [nomefile] --force-log
+~trunk$ svn add [nomefile]
+~trunk$ svn commit -m [nomefile] --force-log
 
 
 update:
-svn checkout https://f1sim-scd.googlecode.com/svn/trunk/ --username [user di google]
+~$ svn checkout https://f1sim-scd.googlecode.com/svn/trunk/ --username [user di google]
