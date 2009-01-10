@@ -1,7 +1,10 @@
+checkout (da fare solo la prima volta):
+~checkout https://f1sim-scd.googlecode.com/svn/trunk/ --username [user di google]
+
 commit:
-~trunk$ svn add [nomefile]
-~trunk$ svn commit -m [nomefile] --force-log
+~trunk$ svn add [nomefile] //solo per file nuovi nn presenti in precedenza nel repo
+~trunk$ svn commit
 
 
 update:
-~$ svn checkout https://f1sim-scd.googlecode.com/svn/trunk/ --username [user di google]
+~trunk$ svn update
