@@ -18,12 +18,10 @@
 --  any later version.                                --
 --------------------------------------------------------
 
---  Package with util type definitions
+with Race.Circuit.Types; use Race.Circuit.Types;
 
-package Circuit.Types is
+package Race.Circuit is
 
-   type String_Ref_T       is access all String;
-   type Integer_Ref_T      is access all Integer;
 
-end Circuit.Types;
 
+end Race.Circuit;
