@@ -20,6 +20,6 @@
 
 package Race.Driver.Types is
 
-	type Positive is subtype Integer range 1..Integer'last;
+
 
 end Race.Driver.Types
