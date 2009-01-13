@@ -29,8 +29,8 @@ package Race.Driver is
 
    task type Driver
      (Name		: String;
-      Car		: Team_ID_T
-      Number		: Positive;
+      Team		: Team_ID_T;
+      Car_Number	: Positive;
       Accel_Coeff	: Accel_Coeff_T;
       Break_Coeff	: Break_Coeff_T;
       Max_Speed		: Real;
