@@ -22,22 +22,23 @@
 --with Race; use Race;
 with Race.Driver.Types; use Race.Driver.Types;
 
---  Questo package contiene la definizione dell'interfaccia del pilota (driver),
---+ rappresentato dal task type "Driver". La definizione del body � contenuta
---+ nel file "driver.adb" presente in src/driver.
+
+--  This package contains driver interface definition.
+
 package Race.Driver is
 
-   task type Driver
-     (Name		: String;
-      Team		: Team_ID_T;
-      Car_Number	: Positive;
-      Accel_Coeff	: Accel_Coeff_T;
-      Break_Coeff	: Break_Coeff_T;
-      Max_Speed		: Real;
-      Strategy		: Strategy_T
-      Position		: Positive;
-      Laps_Done		: Positive;
-      Prior		: Positive;
+  	task type Driver(
+		
+		Name		: String;
+		Team		: Team_ID_T;
+      		Car_Number	: Positive;
+      		Accel_Coeff	: Accel_Coeff_T;
+      		Break_Coeff	: Break_Coeff_T;
+      		Max_Speed	: Real;
+      		Strategy	: Strategy_T
+      		Position	: Positive;
+      		Laps_Done	: Positive;
+      		Prior		: Positive;
      )
 
    end Driver;
