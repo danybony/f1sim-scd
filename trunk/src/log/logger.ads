@@ -18,15 +18,48 @@
 --  any later version.                                --
 --------------------------------------------------------
 
+--  Package that expose the interface for log system.
+--+ Used by packages Race and Race.Circuit
 
 
 package Race.Log is
 
+	--  Procedure called by a driver every time he entered a segment.
+	--+ Update the system log
+
 	procedure updateLog(
+		--Quick identifier for every pilot
 		Driver_ID	:positive;
+
+		--Segment in wich the driver has entered
 		Segment		:positive;
+
+		--Current speed of the driver
 		Speed		:positive;
 		)
+
+	--  Initialization procedure, execute one time at system startup.
+	procedure setEnvironment(
+		--Array with expanded Team names
+		Teams		:TeamName_T_Array_T;
+
+		--Array with expanded Driver names
+		Drivers		:DriverName_T_Array_T;
+
+		--Total number of circuit segments
+		SegmentNumber	:Positive;
+
+		--Numbers of two segments in wich take intermediate times
+		T1		:Positive;
+		T2		:Positive;
+
+		--  Array of lap numbers, one for every driver.
+		--+ Every number correspond to a pit-stop lab
+		Strategies	:Strategy_T_Array_T;
+
+		--Total number of laps of the race
+		RaceLaps	:Positive;
+)
 
 end Race.Log
  
