@@ -17,18 +17,6 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-
-package Race.Types is
-
-	type Positive 		is subtype Integer range 1..Integer'last;
-	type String_Ref_T       is access all String;
-	type Integer_Ref_T      is access all Integer;
-	type Segment_T;
-	type Segment_Ref_T	is access all Segment_T;
-	type Macro_Segment_T;
-   type Macro_Segment_Ref_T is access all Macro_Segment_T;
-   type Teams_array_T is array of String;
-   type Drivers_array_T is array of String;
-
-end Race.Types
-
+package Race is
+   procedure startup();
+end Race;
