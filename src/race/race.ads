@@ -18,5 +18,5 @@
 --  any later version.                                --
 --------------------------------------------------------
 package Race is
-   procedure startup();
+   procedure startup;
 end Race;
