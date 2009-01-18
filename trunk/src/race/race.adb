@@ -20,6 +20,7 @@
 
 -- Using text_io to read the race configuration from file
 with text_io; use text_io;
+with Race.types; use Race.types;
 
 package body Race is
 
@@ -47,14 +48,14 @@ package body Race is
 
    --  Procedure that set up the environment of the system and then start the
    --+ race.
-   procedure startup() is
+   procedure startup is
 
-      Teams:Teams_array_T;
-      Teams_index:integer;
-      Drivers:Drivers_array_T;
+      Teams:Teams_array_T(1..255);
+      Teams_index:integer:=1;
+      Drivers:Drivers_array_T(1..255);
       Drivers_index:integer;
       Teams_file:String:="teams.txt";
-      Drivers_file:String;
+      Drivers_file:String:="drivers.txt";
       --  Temporary input file for every file reading
       input_file:file_type;
       -- Temporary string and char in wich store lines read in from file
@@ -68,15 +69,17 @@ package body Race is
          open(input_file, in_file, Teams_file);
          read_file_loop:
          while not end_of_file(input_file) loop
-            index:=0;
+            index:=1;
             --read one line from file
             read_line_loop:
-            while not end_of_line(input_file) or index > 254 loop
+            while not end_of_line(input_file) or index > 255 loop
                get(input_file,input_char);
                input_string(index):=input_char;
+               index:=index+1;
             end loop read_line_loop;
             --store the line (Team name) in Teams
-            Teams(teams_index):=input_string(0..index);
+            Teams(teams_index)(1..index-1):=input_string(1..index-1);
+            put(Teams(teams_index));
             teams_index:=teams_index+1;
          end loop read_file_loop;
 
