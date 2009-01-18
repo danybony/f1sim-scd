@@ -27,9 +27,8 @@ package Race.Types is
 	--type Segment_Ref_T	is access all Segment_T;
 	--type Macro_Segment_T;
 	--type Macro_Segment_Ref_T is access all Macro_Segment_T;
-	subtype Team_name is String(1..255);
-	type Teams_array_T is array (Positive range <>) of team_name;
-	type Drivers_array_T is array (Positive range <>) of team_name;
+	subtype Substring_T is String(1..255);
+	type Substring_array_T is array (Positive range <>) of Substring_T;
 
 end Race.Types;
 
