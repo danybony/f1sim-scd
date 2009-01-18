@@ -24,7 +24,7 @@ with Race.types; use Race.types;
 
 package body Race is
 
-   --  function that check if a file is avaiable or not.
+   --  Function that check if a file is avaiable or not.
    --+ Return true if the file exists
    --+ Return false otherwise
    function file_exists(
@@ -45,47 +45,64 @@ package body Race is
 
    end file_exists;
 
-
-   --  Procedure that set up the environment of the system and then start the
-   --+ race.
-   procedure startup is
-
-      Teams:Teams_array_T(1..255);
-      Teams_index:integer:=1;
-      Drivers:Drivers_array_T(1..255);
-      Drivers_index:integer;
-      Teams_file:String:="teams.txt";
-      Drivers_file:String:="drivers.txt";
+   --  Procedure that read teams, drivers configurations from file
+   procedure read_configuration (
+                                 text_file:		in	string;
+                                 array_to_configure:	in out	Substring_array_T
+                                ) is
+      array_index:integer:=1;
+      line_index:integer:=1;
       --  Temporary input file for every file reading
       input_file:file_type;
       -- Temporary string and char in wich store lines read in from file
       input_string:string(1..255);
       input_char:character;
-      index:integer;
    begin
 
-      if file_exists(Teams_file) then
-         --read Teams specs
-         open(input_file, in_file, Teams_file);
+      if file_exists(text_file) then
+         --read file specs
+         open(input_file, in_file, text_file);
          read_file_loop:
          while not end_of_file(input_file) loop
-            index:=1;
+            line_index:=1;
             --read one line from file
             read_line_loop:
-            while not end_of_line(input_file) or index > 255 loop
+            while not end_of_line(input_file) or line_index > 255 loop
                get(input_file,input_char);
-               input_string(index):=input_char;
-               index:=index+1;
+               input_string(line_index):=input_char;
+               line_index:=line_index+1;
             end loop read_line_loop;
-            --store the line (Team name) in Teams
-            Teams(teams_index)(1..index-1):=input_string(1..index-1);
-            put(Teams(teams_index));
-            teams_index:=teams_index+1;
+            --store the line in array
+            array_to_configure(array_index)(1..line_index-1):=input_string(1..line_index-1);
+            put(array_to_configure(array_index));new_line;
+            array_index:=array_index+1;
+            skip_line(input_file);
          end loop read_file_loop;
 
 
       end if;
 
+   exception
+      when end_error =>
+         --  No newline at end of file: do nothing.
+         null;
+   end read_configuration;
+
+
+   --  Procedure that set up the environment of the system and then start the
+   --+ race.
+   procedure startup is
+
+      Teams:Substring_array_T(1..255);
+      Drivers:Substring_array_T(1..255);
+      Teams_file:String:="teams.txt";
+      Drivers_file:String:="drivers.txt";
+
+   begin
+      read_configuration(Teams_file,Teams);
+      put("teams: ok");
+      read_configuration(Drivers_file,Drivers);
+      put("drivers: ok");
    end startup;
 
 
