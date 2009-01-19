@@ -28,13 +28,14 @@ with Race.Driver.Types; use Race.Driver.Types;
 package Race.Driver is
 
   	task type Driver(
-		
-		Name		: String;
+
+                Name		: String;
+                ID		: Positive;
 		Team		: Team_ID_T;
       		Car_Number	: Positive;
-      		Accel_Coeff	: Accel_Coeff_T;
-      		Break_Coeff	: Break_Coeff_T;
-      		Max_Speed	: Real;
+      		Accel_Coeff	: Positive;
+      		Break_Coeff	: Positive;
+      		Max_Speed	: Positive;
       		Strategy	: Strategy_T
       		Position	: Positive;
       		Laps_Done	: Positive;
