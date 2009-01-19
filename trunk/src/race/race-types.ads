@@ -28,7 +28,8 @@ package Race.Types is
 	--type Macro_Segment_T;
 	--type Macro_Segment_Ref_T is access all Macro_Segment_T;
 	subtype Substring_T is String(1..255);
-	type Substring_array_T is array (Positive range <>) of Substring_T;
+   	type Substring_array_T is array (Positive range <>) of Substring_T;
+   	type Strategy_T is array (Positive range <>) of Positive;
 
 end Race.Types;
 

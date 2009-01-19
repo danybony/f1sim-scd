@@ -21,6 +21,7 @@
 -- Using text_io to read the race configuration from file
 with text_io; use text_io;
 with Race.types; use Race.types;
+with Ada.Integer_Text_IO;
 
 package body Race is
 
@@ -48,9 +49,10 @@ package body Race is
    --  Procedure that read teams, drivers configurations from file
    procedure read_configuration (
                                  text_file:		in	string;
-                                 array_to_configure:	in out	Substring_array_T
+                                 array_to_configure:	in out	Substring_array_T;
+                                 array_index:		in out	integer
                                 ) is
-      array_index:integer:=1;
+
       line_index:integer:=1;
       --  Temporary input file for every file reading
       input_file:file_type;
@@ -73,9 +75,10 @@ package body Race is
                line_index:=line_index+1;
             end loop read_line_loop;
             --store the line in array
-            array_to_configure(array_index)(1..line_index-1):=input_string(1..line_index-1);
-            put(array_to_configure(array_index));new_line;
             array_index:=array_index+1;
+            array_to_configure(array_index)(1..line_index-1):=input_string(1..line_index-1);
+            --debug: put(array_to_configure(array_index));new_line;
+            --skip to the next text line
             skip_line(input_file);
          end loop read_file_loop;
 
@@ -97,12 +100,21 @@ package body Race is
       Drivers:Substring_array_T(1..255);
       Teams_file:String:="teams.txt";
       Drivers_file:String:="drivers.txt";
+      Teams_total:integer:=0;
+      Drivers_total:integer:=0;
+      --  Integer support value to work with Ada.Integer_Text_IO
+      --  Useless, only for conversion purposes
+      integer_convert_aux:integer:=0;
 
    begin
-      read_configuration(Teams_file,Teams);
-      put("teams: ok");
-      read_configuration(Drivers_file,Drivers);
-      put("drivers: ok");
+      read_configuration(Teams_file,Teams,Teams_total);
+      put("teams: ok");new_line;
+      read_configuration(Drivers_file,Drivers,Drivers_total);
+      put("drivers: ok");new_line;
+      --Ada.Integer_Text_IO.get(drivers(4),debug, debug2);
+      put(teams(teams_total));
+
+
    end startup;
 
 
