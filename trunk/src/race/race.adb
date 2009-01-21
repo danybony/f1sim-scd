@@ -20,8 +20,8 @@
 
 -- Using text_io to read the race configuration from file
 with text_io; use text_io;
-with Race.types; use Race.types;
-with Race.circuit;
+with RaceTypes; use RaceTypes;
+with Circuit; use Circuit;
 with Ada.Integer_Text_IO;
 
 package body Race is
@@ -122,7 +122,7 @@ package body Race is
       read_configuration(Circuit_file,Circuit,Circuit_segments);
       put("circuit: ok");new_line;
       --Ada.Integer_Text_IO.get(drivers(4),debug, debug2);
-      put(teams(teams_total));
+
 
 
    end startup;
