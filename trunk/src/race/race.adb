@@ -21,6 +21,7 @@
 -- Using text_io to read the race configuration from file
 with text_io; use text_io;
 with Race.types; use Race.types;
+with Race.circuit;
 with Ada.Integer_Text_IO;
 
 package body Race is
@@ -71,13 +72,17 @@ package body Race is
             read_line_loop:
             while not end_of_line(input_file) or line_index > 255 loop
                get(input_file,input_char);
+               -- Skip the line if begin with '#'
+               if input_char='#' then skip_line(input_file);
+               else
                input_string(line_index):=input_char;
                line_index:=line_index+1;
+               end if;
             end loop read_line_loop;
             --store the line in array
             array_index:=array_index+1;
             array_to_configure(array_index)(1..line_index-1):=input_string(1..line_index-1);
-            --debug: put(array_to_configure(array_index));new_line;
+            -- debug: put(array_to_configure(array_index));new_line;
             --skip to the next text line
             skip_line(input_file);
          end loop read_file_loop;
@@ -98,10 +103,13 @@ package body Race is
 
       Teams:Substring_array_T(1..255);
       Drivers:Substring_array_T(1..255);
+      Circuit:Substring_array_T(1..255);
       Teams_file:String:="teams.txt";
       Drivers_file:String:="drivers.txt";
+      Circuit_file:String:="circuit.txt";
       Teams_total:integer:=0;
       Drivers_total:integer:=0;
+      Circuit_segments:integer:=0;
       --  Integer support value to work with Ada.Integer_Text_IO
       --  Useless, only for conversion purposes
       integer_convert_aux:integer:=0;
@@ -111,6 +119,8 @@ package body Race is
       put("teams: ok");new_line;
       read_configuration(Drivers_file,Drivers,Drivers_total);
       put("drivers: ok");new_line;
+      read_configuration(Circuit_file,Circuit,Circuit_segments);
+      put("circuit: ok");new_line;
       --Ada.Integer_Text_IO.get(drivers(4),debug, debug2);
       put(teams(teams_total));
 

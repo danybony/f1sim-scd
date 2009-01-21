@@ -1,0 +1,26 @@
+#Ogni quaterna di valori tra #..# definisce un macro segmento (rettilineo/curva)
+#Il primo valore è la lunghezza espressa in metri
+#Il secondo valore è la velocità massima consentita nel macro segmento
+#Il terzo valore è il numero di corsie del macro segmento
+#Il quarto e ultimo valore rappresenta quanti metri prima della fine del
+#macro segmento effettuare una decelelarazione (rettilineo) o accelerazione
+#(curva).
+1000
+350
+2
+200
+#
+200
+100
+1
+50
+#
+1000
+350
+2
+200
+#
+200
+100
+1
+50
