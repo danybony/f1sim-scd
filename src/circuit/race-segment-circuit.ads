@@ -18,19 +18,14 @@
 --  any later version.                                --
 --------------------------------------------------------
 
-package Race is
 
-   subtype Positive 	is Integer range 1..Integer'last;
-   type String_Ref_T       is access all String;
-   type Integer_Ref_T      is access all Integer;
+package Race.Segment.Circuit is
 
-   --type Macro_Segment_T;
-   --type Macro_Segment_Ref_T is access all Macro_Segment_T;
-   subtype Substring_T is String(1..255);
-   type Substring_array_T is array (Positive range <>) of Substring_T;
-   type Strategy_T is array (Positive range <>) of Positive;
+   Segments: Segment_array_T(1..2);
 
+--   function build_track (
+--                          segment_array:substring_array_T;
+--                          number_of_segments:integer
+--                         )return Segment_list_T;
 
-
-end Race;
-
+end Circuit;
