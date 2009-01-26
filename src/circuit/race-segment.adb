@@ -19,13 +19,33 @@
 --------------------------------------------------------
 
 
-package Race.Segment.Circuit is
+package body Race.Segment is
 
-   Segments: Segment_array_T(1..2);
+   --  static variable used as the T0 reference basis for
+   --+ the running counter of the elapsed time
+   --Passed : Time_Span;
 
-   function build_track (
-                          segment_array:substring_array_T;
-                          number_of_segments:integer
-                         )return Segment_list_T;
+   --  Segment_T is a monitor that control access to a segment
+   --  In the other hand, Segment_spec_T contains all the infos
+   --  about a segment i.
+   protected body Segment_T is
 
-end Circuit;
+      --  get the segment
+      entry Enter (Driver_ID	:positive;
+		   Speed	:positive
+                  ) when not in_use is
+      begin
+         in_use:=true;
+      end Enter;
+
+      --  release the segment
+      --+ (formal parameter not used explicitly
+      --+  but needed for distributed dispatching)
+      entry Leave (Driver_ID	:positive) when in_use is
+      begin
+         in_use:=false;
+      end Leave;
+
+   end Segment_T;
+
+end Race.Segment;
