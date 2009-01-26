@@ -59,6 +59,8 @@ package body Race.Startup is
       -- Temporary string and char in wich store lines read in from file
       input_string:string(1..255);
       input_char:character;
+      --  Sentinel for avoid comments
+      sentinel:boolean:=false;
    begin
 
       if file_exists(text_file) then
@@ -67,23 +69,29 @@ package body Race.Startup is
          read_file_loop:
          while not end_of_file(input_file) loop
             line_index:=1;
+            sentinel:=false;
             --read one line from file
             read_line_loop:
-            while not end_of_line(input_file) or line_index > 255 loop
+            while not end_of_line(input_file) and line_index < 256 and not sentinel loop
                get(input_file,input_char);
-               -- Skip the line if begin with '#'
-               if input_char='#' then skip_line(input_file);
+               -- If input_char is '#', skip the rest of the line
+               if input_char='#' then
+               sentinel:=true;
                else
                input_string(line_index):=input_char;
                line_index:=line_index+1;
                end if;
             end loop read_line_loop;
             --store the line in array
+            --skip the line if it start with '#'
+            if line_index=1 then skip_line(input_file);
+            else
             array_index:=array_index+1;
             array_to_configure(array_index)(1..line_index-1):=input_string(1..line_index-1);
-            -- debug: put(array_to_configure(array_index));new_line;
+            put(array_to_configure(array_index));new_line;
             --skip to the next text line
             skip_line(input_file);
+            end if;
          end loop read_file_loop;
 
 

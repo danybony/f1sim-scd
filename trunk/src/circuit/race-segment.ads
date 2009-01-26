@@ -28,27 +28,26 @@ package Race.Segment is
    --  Segment_T is a monitor that control access to a segment
    --  In the other hand, Segment_spec_T contains all the infos
    --  about a segment i.
---   protected type Segment_T
---     (ID   : Positive) is
+   protected type Segment_T is
 
       --  get the segment
---      entry Enter (Driver_ID	:positive;
---		   Speed	:positive
---		  );
+      entry Enter (Driver_ID	:positive;
+		   Speed	:positive
+		  );
 
       --  release the segment
       --+ (formal parameter not used explicitly
       --+  but needed for distributed dispatching)
---      entry Leave (Driver_ID	:positive);
+      entry Leave (Driver_ID	:positive);
 
---      private
+      private
 
---        In_Use : Boolean := False;
+        In_Use : Boolean := False;
 
---   end Segment_T;
+   end Segment_T;
 
---   type Segment_Ref_T	is access all Segment_T;
---   type Segment_array_T is array (Positive range <>) of Segment_Ref_T;
+   type Segment_Ref_T	is access all Segment_T;
+   type Segment_array_T is array (Positive range <>) of Segment_Ref_T;
 
    type Segment_spec_T is
       record
