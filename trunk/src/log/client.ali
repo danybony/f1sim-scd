@@ -1,0 +1,182 @@
+V "GNAT Lib v6.2"
+M P W=b
+P SS ZX
+R nnnnnnnnnnnnvnnvvnvnnnvnnnnnnnvnnnnnnvnvnnnnnnnnnnnnvnnvnnnnnnnnnnnnnnnnnn
+
+U client%b		client.adb		7c18aaff NE OO SU
+W ada%s			ada.ads			ada.ali
+W ada.command_line%s	a-comlin.adb		a-comlin.ali
+W ada.exceptions%s	a-except.adb		a-except.ali
+W ada.tags%s		a-tags.adb		a-tags.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W corba%s		corba.adb		corba.ali
+W corba.orb%s		corba-orb.adb		corba-orb.ali
+W interfaces%s		interfac.ads		interfac.ali
+W log_viewer%s		log_viewer.adb		log_viewer.ali
+W polyorb%s		polyorb.ads		polyorb.ali
+W polyorb.setup%s	polyorb-setup.ads	polyorb-setup.ali
+W polyorb.setup.client%s  polyorb-setup-client.adb  polyorb-setup-client.ali
+W polyorb.utils%s	polyorb-utils.adb	polyorb-utils.ali
+W polyorb.utils.report%s  polyorb-utils-report.adb  polyorb-utils-report.ali
+W system%s		system.ads		system.ali
+W system.finalization_implementation%s  s-finimp.adb  s-finimp.ali
+W system.finalization_root%s  s-finroo.adb	s-finroo.ali
+W system.img_enum_new%s	s-imenne.adb		s-imenne.ali
+W system.img_uns%s	s-imguns.adb		s-imguns.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+W system.soft_links%s	s-soflin.adb		s-soflin.ali
+W system.standard_library%s  s-stalib.adb	s-stalib.ali
+W system.unsigned_types%s  s-unstyp.ads		s-unstyp.ali
+
+D ada.ads		20080522031727 9c7dd3ea
+D a-charac.ads		20080522031637 506ce725
+D a-chlat1.ads		20080522031637 e9ee6d0a
+D a-comlin.ads		20080522031641 3b71d99c
+D a-except.ads		20080522031647 b54b55de
+D a-finali.ads		20080522031650 9eaacebd
+D a-filico.ads		20080522031649 9299732a
+D a-ioexce.ads		20080522031652 be0900a0
+D a-stream.ads		20080522031703 34aca5be
+D a-string.ads		20080522031704 87b4230b
+D a-strmap.ads		20080522031704 5253a637
+D a-strsup.ads		20080522031705 9dd84fea
+D a-strunb.ads		20080522031705 f0549c04
+D a-stwima.ads		20080522031707 0d039275
+D a-stwisu.ads		20080522031707 74300244
+D a-stwiun.ads		20080522031707 adf95c8d
+D a-tags.ads		20080522031712 bfa07446
+D a-textio.ads		20080522031713 bc6e78fe
+D a-unccon.ads		20080522031717 51e09df2
+D a-uncdea.ads		20080522031717 dc667e6d
+D client.adb		20090127094220 1f857abc
+D corba.ads		20090119192039 a230b8d7
+D corba-abstractbase.ads  20090119192039 bcaa1ca6
+D corba-context.ads	20090119192039 92ee4b15
+D corba-contextlist.ads	20090119192040 742f1a3a
+D corba-exceptionlist.ads  20090119192039 1e7f3caf
+D corba-impl.ads	20090119192039 2287ebe0
+D corba-nvlist.ads	20090119192039 d286f45c
+D corba-object.ads	20090119192039 f73805fd
+D corba-orb.ads		20090119192039 765fbaa7
+D corba-policy.ads	20090119192039 bf594dcc
+D corba-request.ads	20090119192039 0f3259d2
+D corba-sequences.ads	20090119192040 ceb9475e
+D corba-sequences-unbounded.ads  20090119192039 cc7e0677
+D interfac.ads		20080522031816 a69cad5c
+D i-cstrea.ads		20080522031813 e1e064a9
+D log_viewer.ads	20090127092744 1de31149
+D polyorb.ads		20090119192040 e06b6eb2
+D polyorb-annotations.ads  20090119192039 19469752
+D polyorb-any.ads	20090119192038 5a5f748d
+D polyorb-any-exceptionlist.ads  20090119192038 313b6428
+D polyorb-any-nvlist.ads  20090119192038 7e26b2a0
+D polyorb-asynch_ev.ads	20090119192038 d35d95eb
+D polyorb-binding_data.ads  20090119192038 c3ff2756
+D polyorb-binding_objects.ads  20090119192037 81ec2b92
+D polyorb-buffers.ads	20090119192038 6c9476ea
+D polyorb-components.ads  20090119192039 968ae926
+D polyorb-errors.ads	20090119192037 b246ae62
+D polyorb-filters.ads	20090119192040 246bc72a
+D polyorb-jobs.ads	20090119192037 3aa11ce7
+D polyorb-log.ads	20090119192038 582c7161
+D polyorb-obj_adapters.ads  20090119192040 7b14b4a2
+D polyorb-objects.ads	20090119192038 85f5eda6
+D polyorb-opaque.ads	20090119192037 709bce1c
+D polyorb-opaque-chunk_pools.ads  20090119192040 475f91ab
+D polyorb-orb.ads	20090119192037 fe615a6c
+D polyorb-orb_controller.ads  20090119192040 d2bdeb75
+D polyorb-qos.ads	20090119192040 da123a35
+D polyorb-references.ads  20090119192037 43914ab4
+D polyorb-request_scheduler.ads  20090119192039 7785fac1
+D polyorb-requests.ads	20090119192040 2436b17d
+D polyorb-sequences.ads	20090119192040 f3a1f9a7
+D polyorb-sequences-unbounded.ads  20090119192037 ca0ccbf5
+D polyorb-servants.ads	20090119192040 81ee7436
+D polyorb-setup.ads	20090119192040 d5b0010b
+D polyorb-setup-client.ads  20090119192037 533b3ec4
+D polyorb-smart_pointers.ads  20090119192038 cc326cbe
+D polyorb-std.ads	20090119192040 58d75503
+D polyorb-task_info.ads	20090119192040 5d85328a
+D polyorb-tasking.ads	20090119192040 9de59f65
+D polyorb-tasking-condition_variables.ads  20090119192038 52a276ca
+D polyorb-tasking-idle_tasks_managers.ads  20090119192037 c85e8118
+D polyorb-tasking-mutexes.ads  20090119192039 d43c248d
+D polyorb-tasking-threads.ads  20090119192038 ba4ec90f
+D polyorb-transport.ads	20090119192037 337632a6
+D polyorb-types.ads	20090119192037 290f100c
+D polyorb-utils.ads	20090119192040 6d0ce22a
+D polyorb-utils-chained_lists.ads  20090119192037 5871d3bb
+D polyorb-utils-report.ads  20090119192040 dc05e40b
+D polyorb-utils-simple_flags.ads  20090119192039 486672dc
+D polyorb-utils-strings.ads  20090119192037 ccdff46d
+D system.ads		20080522032001 5deadad1
+D s-crtl.ads		20080522031842 997234a1
+D s-exctab.ads		20080522031843 5c1c61ae
+D s-ficobl.ads		20080522031845 8bb681e5
+D s-finimp.ads		20080522031846 9449f4cb
+D s-finroo.ads		20080522031846 1408f9d1
+D s-imenne.ads		20080522031849 97a402ea
+D s-imguns.ads		20080522031852 f4154b29
+D s-parame.ads		20080522031916 f32e56e9
+D s-secsta.ads		20080522031919 7bae3621
+D s-soflin.ads		20080522031920 0c6fd39d
+D s-stache.ads		20080522031922 257b3be8
+D s-stalib.ads		20080522031922 52b793d5
+D s-stoele.ads		20080522031923 ed966df3
+D s-stoele.adb		20080522031923 e9998c78
+D s-stratt.ads		20080522031924 fef7c1da
+D s-traent.ads		20080522031936 bd5f2753
+D s-unstyp.ads		20080522031937 c0f9fae5
+D s-wchcon.ads		20080522031943 ab028799
+X 1 ada.ads
+16K9*Ada 19e8 21|22r16 23r16 34r18 35r18 52r40
+X 4 a-comlin.ads
+39K13*Command_Line 137e21 21|22w20 34r22 52r44
+42V13*Argument_Count{natural} 21|44r17
+49V13*Argument{string} 21|52r57
+X 18 a-textio.ads
+51K13*Text_IO 483e16 21|23w20 35r22
+245U14*Put 21|81r20 82r20 83r20
+266U14*Put_Line 21|45r17 57r17 67r14 71r14 84r20
+X 21 client.adb
+33U21*Client 33b21 88l15 88t21
+38r14 remoteLog_viewer{37|18R9} 52m72 56r36 63r36 69r34
+76r19 E{5|69R9} 80r39
+78r20 Memb{22|242R9} 80m42 82r52 84r61
+X 22 corba.ads
+51K9*CORBA 21|24r16 43r14 51r14 52r17 76r23 78r27 80r20 82r25 84r30 22|1030e10
+66M12*Unsigned_Long<35|60M9> 21|82r31
+74B12*Boolean{boolean}
+136V13*To_CORBA_String{76+9} 21|52r23
+186E9*Completion_Status<48|66E9> 21|84r36
+218X4*Transient 21|76r29
+242R9*System_Exception_Members<48|52R9> 21|78r33 22|246e16
+244m9*Minor{66M12} 21|82r57
+245e9*Completed{186E9} 21|84r66
+248U14*Get_Members 21|80r26
+X 29 corba-object.ads
+58V13*Is_Nil{22|74E12}<59|56p9> 21|56r28
+X 30 corba-orb.ads
+51K15*ORB 21|24w22 43r20 51r20 30|259e14
+116U14*String_To_Object 21|51r24
+231U14*Initialize 21|43r24
+X 35 interfac.ads
+60M9*Unsigned_32
+X 37 log_viewer.ads
+16K9*Log_viewer 21|26w16 38r33 56r17 63r14 69r14 37|49e15
+18R9*Ref<29|52R9> 21|38r44 37|18e53
+20U14*updateLog 21|63r25
+29U14*endRace 21|69r25
+X 38 polyorb.ads
+37K9*PolyORB 21|28r16 29r33 31r16 36r18 38|42e12
+X 65 polyorb-setup.ads
+39K17*Setup 21|28r24 29r41 65|46e18
+X 66 polyorb-setup-client.ads
+37K23*Client 21|28w30 29r47 66|41e25
+X 77 polyorb-utils.ads
+39K17*Utils 21|31r24 36r26 77|145e18
+X 79 polyorb-utils-report.ads
+38K23*Report 21|31w30 36r32 79|99e25
+40U14*New_Test 21|41r14
+46U14*End_Report 21|73r14 86r20
+
