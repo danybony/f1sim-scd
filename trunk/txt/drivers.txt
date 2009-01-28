@@ -4,7 +4,8 @@
 #Il terzo valore è il numero della vettura (ID) del pilota
 #Il quarto valore è il coefficiente di accelerazione, con range [1..100]
 #Il quinto valore è il coefficiente di decelerazione, con range [1..100]
-#Il sesto valore è un insieme di valori che indicano la strategia:
+#Il sesto valore rappresenta la velocità massima della vettura in Km/h
+#Il settimo valore è un insieme di valori che indicano la strategia:
 #ogni numero, separato da una virgola, rappresenta un giro durante il quale
 #il pilota si fermerà ai box.
 Micheal Schumacher
