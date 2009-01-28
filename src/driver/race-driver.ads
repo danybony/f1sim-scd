@@ -18,16 +18,16 @@
 --  any later version.                                --
 --------------------------------------------------------
 
---with Race.Types; use Race.Types;
---with Race; use Race;
-with Race.Driver.Types; use Race.Driver.Types;
+
+with Race.Segment; use Race.Segment;
 
 
 --  This package contains driver interface definition.
 
 package Race.Driver is
 
-  	task type Driver(
+
+   task type Driver(
 
                 Name		: String;
                 ID		: Positive;
@@ -36,14 +36,19 @@ package Race.Driver is
       		Accel_Coeff	: Positive;
       		Break_Coeff	: Positive;
       		Max_Speed	: Positive;
-      		Strategy	: Strategy_T
+      		Strategy	: Strategy_T;
       		Position	: Positive;
       		Laps_Done	: Positive;
-      		Prior		: Positive;
-     )
-
-   end Driver;
+      		Prior		: Positive
+                   );
 
    type Driver_Ref_T is access all Driver;
+
+
+   procedure Driver_init(
+                         param		: Substring_array_T;
+                         position	: Positive;
+                        );
+
 
 end Race.Driver;

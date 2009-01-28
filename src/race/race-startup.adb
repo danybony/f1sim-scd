@@ -20,7 +20,8 @@
 
 -- Using text_io to read the race configuration from file
 with text_io; use text_io;
-with Race.Segment;
+with Race.Circuit;
+with Race.Driver;
 with Ada.Integer_Text_IO;
 
 package body Race.Startup is
@@ -110,25 +111,46 @@ package body Race.Startup is
 
       Teams:Substring_array_T(1..255);
       Drivers:Substring_array_T(1..255);
-      Circuit:Substring_array_T(1..255);
+      MacroSegments:Substring_array_T(1..255);
       Teams_file:String:="teams.txt";
       Drivers_file:String:="drivers.txt";
-      Circuit_file:String:="circuit.txt";
+      MacroSegments_file:String:="circuit.txt";
       Teams_total:integer:=0;
       Drivers_total:integer:=0;
-      Circuit_segments:integer:=0;
+      MacroSegments_total:integer:=0;
       --  Integer support value to work with Ada.Integer_Text_IO
       --  Useless, only for conversion purposes
       integer_convert_aux:integer:=0;
+      track:Race.Segment.segment_list_T;
+      index:integer:=1;
 
    begin
+      -- Read Team, Driver and Track configurations from file
       read_configuration(Teams_file,Teams,Teams_total);
       put("teams: ok");new_line;
       read_configuration(Drivers_file,Drivers,Drivers_total);
       put("drivers: ok");new_line;
-      read_configuration(Circuit_file,Circuit,Circuit_segments);
+      read_configuration(MacroSegments_file,MacroSegments,MacroSegments_total);
       put("circuit: ok");new_line;
       --Ada.Integer_Text_IO.get(drivers(4),debug, debug2);
+
+      -- Build the track (create segments)
+      track:=Race.Circuit.build_track(MacroSegments, MacroSegments_total);
+
+      -- Lock first segment for driver initializations
+      track(1).enter(0);
+      track(1).enter(0);
+
+      -- Create drivers and align them as per config file's order
+      -- 7 is the number of the parameters for every driver
+      for index in 1..drivers_total mod 7 loop
+         Race.Driver.Driver_init(Drivers((((index-1)*7)+1)..(index*7)), index);
+
+      end loop;
+
+      -- Realese the lock in the first segment: Start the Race!
+      track(1).leave(0);
+      track(1).leave(0);
 
 
 
