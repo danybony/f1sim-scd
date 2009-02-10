@@ -31,22 +31,20 @@ package Race.Driver is
 
                 Name		: String;
                 ID		: Positive;
-		Team		: Team_ID_T;
-      		Car_Number	: Positive;
+		Team		: String;
       		Accel_Coeff	: Positive;
       		Break_Coeff	: Positive;
       		Max_Speed	: Positive;
       		Strategy	: Strategy_T;
       		Position	: Positive;
-      		Laps_Done	: Positive;
-      		Prior		: Positive
+      		Laps_Done	: Positive
                    );
 
    type Driver_Ref_T is access all Driver;
 
 
    procedure Driver_init(
-                         param		: Substring_array_T;
+                         params		: Substring_array_T;
                          position	: Positive;
                         );
 
