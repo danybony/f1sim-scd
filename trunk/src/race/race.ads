@@ -20,7 +20,7 @@
 
 package Race is
 
-   subtype Positive 	is Integer range 1..Integer'last;
+   --subtype Positive 	is Integer range 1..Integer'last;
    type String_Ref_T       is access all String;
    type Integer_Ref_T      is access all Integer;
 
@@ -29,6 +29,8 @@ package Race is
    subtype Substring_T is String(1..255);
    type Substring_array_T is array (Positive range <>) of Substring_T;
    type Strategy_T is array (Positive range <>) of Positive;
+   type Strategy_Ref_T is access Strategy_T;
+   type String_array_T is array (Positive range <>, Positive range <>) of character;
 
 
 
