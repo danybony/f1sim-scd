@@ -20,6 +20,7 @@
 
 
 with Race.Segment; use Race.Segment;
+with text_io; use text_io;
 
 
 --  This package contains driver interface definition.
@@ -27,18 +28,26 @@ with Race.Segment; use Race.Segment;
 package body Race.Driver is
 
 
-   task type Driver(
+   task body Driver is
+   --  		(
 
-                Name		: String;
-                ID		: Positive;
-		Team		: String;
-      		Accel_Coeff	: Positive;
-      		Brake_Coeff	: Positive;
-      		Max_Speed	: Positive;
-      		Strategy	: Strategy_T;
-      		Position	: Positive;
-      		Laps_Done	: Positive
-                   );
+   --             Name		: String;
+   --             ID		: Positive;
+   --		Team		: String;
+   --   		Accel_Coeff	: Positive;
+   --   		Brake_Coeff	: Positive;
+   --   		Max_Speed	: Positive;
+   --   		Strategy	: Strategy_T;
+   --   		Position	: Positive;
+   --   		Laps_Done	: Positive
+   --                )is
+   begin
+      loop
+         put(Name.all);
+         delay 10.0;
+      end loop;
+   end Driver;
+
 
    procedure Driver_init(
                          params		: Substring_array_T;
@@ -49,8 +58,8 @@ package body Race.Driver is
       string_buffer:String(1..2);
       index:integer:=1;
       buffer_index:integer:=0;
-      strategy_index:Positive:=0;
-      driver:Driver;
+      strategy_index:integer:=0;
+      driver:Driver_Ref_T;
    begin
       Strategy_string := params(7);
       -- read strategy (lap numbers)  from params. Assume at least 1 pit stop.

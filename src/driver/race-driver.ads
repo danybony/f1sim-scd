@@ -29,13 +29,13 @@ package Race.Driver is
 
    task type Driver(
 
-                Name		: String;
+                Name		: String_Ref_T;
                 ID		: Positive;
-		Team		: String;
+		Team		: String_Ref_T;
       		Accel_Coeff	: Positive;
       		Break_Coeff	: Positive;
       		Max_Speed	: Positive;
-      		Strategy	: Strategy_T;
+      		Strategy	: Strategy_Ref_T;
       		Position	: Positive;
       		Laps_Done	: Positive
                    );
@@ -45,7 +45,7 @@ package Race.Driver is
 
    procedure Driver_init(
                          params		: Substring_array_T;
-                         position	: Positive;
+                         position	: Positive
                         );
 
 
