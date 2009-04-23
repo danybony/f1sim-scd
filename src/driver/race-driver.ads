@@ -20,6 +20,7 @@
 
 
 with Race.Segment; use Race.Segment;
+with Ada.Strings.Unbounded;
 
 
 --  This package contains driver interface definition.
@@ -27,26 +28,30 @@ with Race.Segment; use Race.Segment;
 package Race.Driver is
 
 
-   task type Driver(
+   task type Driver is
+      entry init(params		: Substring_array_T;
+                 position	: Positive);
+   end driver;
+     --(
 
-                Name		: String_Ref_T;
-                ID		: Positive;
-		Team		: String_Ref_T;
-      		Accel_Coeff	: Positive;
-      		Break_Coeff	: Positive;
-      		Max_Speed	: Positive;
-      		Strategy	: Strategy_Ref_T;
-      		Position	: Positive;
-      		Laps_Done	: Positive
-                   );
+     --           Name		: Ada.Strings.Unbounded.String_Access;
+     --           ID		: Positive;
+     --		Team		: Ada.Strings.Unbounded.String_Access;
+     -- 		Accel_Coeff	: Positive;
+     -- 		Brake_Coeff	: Positive;
+     -- 		Max_Speed	: Positive;
+     -- 		Strategy	: Strategy_T;
+     -- 		Position	: Positive;
+     -- 		Laps_Done	: Positive
+     --              );
 
    type Driver_Ref_T is access all Driver;
 
 
-   procedure Driver_init(
-                         params		: Substring_array_T;
-                         position	: Positive
-                        );
+   --procedure Driver_init(
+    --                     params		: Substring_array_T;
+    --                     position	: Positive
+    --                    );
 
 
 end Race.Driver;
