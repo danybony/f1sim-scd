@@ -27,31 +27,11 @@ with Ada.Strings.Unbounded;
 
 package Race.Driver is
 
-
    task type Driver is
       entry init(params		: Substring_array_T;
                  position	: Positive);
-   end driver;
-     --(
-
-     --           Name		: Ada.Strings.Unbounded.String_Access;
-     --           ID		: Positive;
-     --		Team		: Ada.Strings.Unbounded.String_Access;
-     -- 		Accel_Coeff	: Positive;
-     -- 		Brake_Coeff	: Positive;
-     -- 		Max_Speed	: Positive;
-     -- 		Strategy	: Strategy_T;
-     -- 		Position	: Positive;
-     -- 		Laps_Done	: Positive
-     --              );
+   end Driver;
 
    type Driver_Ref_T is access all Driver;
-
-
-   --procedure Driver_init(
-    --                     params		: Substring_array_T;
-    --                     position	: Positive
-    --                    );
-
 
 end Race.Driver;
