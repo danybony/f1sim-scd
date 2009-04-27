@@ -11,17 +11,30 @@ pragma Style_Checks ("NM32766");
 with PolyORB.Std;
 with CORBA;
 pragma Elaborate_All (CORBA);
+with log_viewer_IDL_File;
 with CORBA.Object;
 
 package Log_viewer is
 
    type Ref is new CORBA.Object.Ref with null record;
 
+   procedure setEnvironment
+     (Self : Ref;
+      Teams : log_viewer_IDL_File.Strings;
+      Drivers : log_viewer_IDL_File.Strings;
+      SegmentNumber : CORBA.Short;
+      T1 : CORBA.Short;
+      T2 : CORBA.Short;
+      RaceLaps : CORBA.Short);
+
+   setEnvironment_Repository_Id : constant PolyORB.Std.String
+     := "IDL:Log_viewer/setEnvironment:1.0";
+
    procedure updateLog
      (Self : Ref;
-      Driver_ID : CORBA.Long;
-      Segment : CORBA.Long;
-      Speed : CORBA.Long);
+      Driver_ID : CORBA.Short;
+      Segment : CORBA.Short;
+      Speed : CORBA.Short);
 
    updateLog_Repository_Id : constant PolyORB.Std.String
      := "IDL:Log_viewer/updateLog:1.0";
