@@ -12,6 +12,7 @@ with PolyORB.Utils.Strings;
 with PolyORB.Initialization;
 pragma Elaborate_All (PolyORB.Initialization);
 with PolyORB.QoS.Exception_Informations;
+with log_viewer_IDL_File.Helper;
 with PolyORB.Any;
 with PolyORB.CORBA_P.Domain_Management;
 with PolyORB.CORBA_P.IR_Hooks;
@@ -44,6 +45,19 @@ package body Log_viewer.Skel is
 
    Is_A_Arg_Name_Ü_Type_Id : constant CORBA.Identifier
    := CORBA.To_CORBA_String ("Type_Id");
+
+   setEnvironment_Arg_Name_Ü_Teams : constant CORBA.Identifier :=
+     CORBA.To_CORBA_String ("Teams");
+   setEnvironment_Arg_Name_Ü_Drivers : constant CORBA.Identifier :=
+     CORBA.To_CORBA_String ("Drivers");
+   setEnvironment_Arg_Name_Ü_SegmentNumber : constant CORBA.Identifier :=
+     CORBA.To_CORBA_String ("SegmentNumber");
+   setEnvironment_Arg_Name_Ü_T1 : constant CORBA.Identifier :=
+     CORBA.To_CORBA_String ("T1");
+   setEnvironment_Arg_Name_Ü_T2 : constant CORBA.Identifier :=
+     CORBA.To_CORBA_String ("T2");
+   setEnvironment_Arg_Name_Ü_RaceLaps : constant CORBA.Identifier :=
+     CORBA.To_CORBA_String ("RaceLaps");
 
    updateLog_Arg_Name_Ü_Driver_ID : constant CORBA.Identifier :=
      CORBA.To_CORBA_String ("Driver_ID");
@@ -127,26 +141,112 @@ package body Log_viewer.Skel is
             PolyORB.CORBA_P.Domain_Management.Get_Domain_Managers
             (Self));
 
+      elsif Operation = "setEnvironment" then
+
+         declare
+            Argument_Ü_Teams        : log_viewer_IDL_File.Strings;
+            pragma Warnings (Off, Argument_Ü_Teams);
+            Arg_CC_Ü_Teams          : aliased PolyORB.Any.Content'Class :=
+               log_viewer_IDL_File.Helper.Wrap (log_viewer_IDL_File.IDL_SEQUENCE_string.Sequence (Argument_Ü_Teams)'Unrestricted_Access);
+            Arg_Any_Ü_Teams         : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (log_viewer_IDL_File.Helper.TC_Strings, Arg_CC_Ü_Teams'Unchecked_Access);
+
+            Argument_Ü_Drivers      : log_viewer_IDL_File.Strings;
+            pragma Warnings (Off, Argument_Ü_Drivers);
+            Arg_CC_Ü_Drivers        : aliased PolyORB.Any.Content'Class :=
+               log_viewer_IDL_File.Helper.Wrap (log_viewer_IDL_File.IDL_SEQUENCE_string.Sequence (Argument_Ü_Drivers)'Unrestricted_Access);
+            Arg_Any_Ü_Drivers       : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (log_viewer_IDL_File.Helper.TC_Strings, Arg_CC_Ü_Drivers'Unchecked_Access);
+
+            Argument_Ü_SegmentNumber : CORBA.Short;
+            pragma Warnings (Off, Argument_Ü_SegmentNumber);
+            Arg_CC_Ü_SegmentNumber  : aliased PolyORB.Any.Content'Class :=
+               CORBA.Wrap (Argument_Ü_SegmentNumber'Unrestricted_Access);
+            Arg_Any_Ü_SegmentNumber : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_SegmentNumber'Unchecked_Access);
+
+            Argument_Ü_T1           : CORBA.Short;
+            pragma Warnings (Off, Argument_Ü_T1);
+            Arg_CC_Ü_T1             : aliased PolyORB.Any.Content'Class :=
+               CORBA.Wrap (Argument_Ü_T1'Unrestricted_Access);
+            Arg_Any_Ü_T1            : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_T1'Unchecked_Access);
+
+            Argument_Ü_T2           : CORBA.Short;
+            pragma Warnings (Off, Argument_Ü_T2);
+            Arg_CC_Ü_T2             : aliased PolyORB.Any.Content'Class :=
+               CORBA.Wrap (Argument_Ü_T2'Unrestricted_Access);
+            Arg_Any_Ü_T2            : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_T2'Unchecked_Access);
+
+            Argument_Ü_RaceLaps     : CORBA.Short;
+            pragma Warnings (Off, Argument_Ü_RaceLaps);
+            Arg_CC_Ü_RaceLaps       : aliased PolyORB.Any.Content'Class :=
+               CORBA.Wrap (Argument_Ü_RaceLaps'Unrestricted_Access);
+            Arg_Any_Ü_RaceLaps      : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_RaceLaps'Unchecked_Access);
+
+         begin
+            CORBA.NVList.Add_Item
+              (Arg_List_Ü,
+               setEnvironment_Arg_Name_Ü_Teams,
+               Arg_Any_Ü_Teams,
+               CORBA.ARG_IN);
+            CORBA.NVList.Add_Item
+              (Arg_List_Ü,
+               setEnvironment_Arg_Name_Ü_Drivers,
+               Arg_Any_Ü_Drivers,
+               CORBA.ARG_IN);
+            CORBA.NVList.Add_Item
+              (Arg_List_Ü,
+               setEnvironment_Arg_Name_Ü_SegmentNumber,
+               Arg_Any_Ü_SegmentNumber,
+               CORBA.ARG_IN);
+            CORBA.NVList.Add_Item
+              (Arg_List_Ü,
+               setEnvironment_Arg_Name_Ü_T1,
+               Arg_Any_Ü_T1,
+               CORBA.ARG_IN);
+            CORBA.NVList.Add_Item
+              (Arg_List_Ü,
+               setEnvironment_Arg_Name_Ü_T2,
+               Arg_Any_Ü_T2,
+               CORBA.ARG_IN);
+            CORBA.NVList.Add_Item
+              (Arg_List_Ü,
+               setEnvironment_Arg_Name_Ü_RaceLaps,
+               Arg_Any_Ü_RaceLaps,
+               CORBA.ARG_IN);
+
+            CORBA.ServerRequest.Arguments (Request, Arg_List_Ü);
+
+            begin
+               Log_viewer.Impl.setEnvironment
+                 (Log_viewer.Impl.Object'Class (Self.all)'Access,
+                  Argument_Ü_Teams,
+                  Argument_Ü_Drivers,
+                  Argument_Ü_SegmentNumber,
+                  Argument_Ü_T1,
+                  Argument_Ü_T2,
+                  Argument_Ü_RaceLaps);
+            end;
+            return;
+         end;
+
       elsif Operation = "updateLog" then
 
          declare
-            Argument_Ü_Driver_ID : CORBA.Long;
+            Argument_Ü_Driver_ID : CORBA.Short;
             pragma Warnings (Off, Argument_Ü_Driver_ID);
             Arg_CC_Ü_Driver_ID  : aliased PolyORB.Any.Content'Class :=
                CORBA.Wrap (Argument_Ü_Driver_ID'Unrestricted_Access);
-            Arg_Any_Ü_Driver_ID : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Long, Arg_CC_Ü_Driver_ID'Unchecked_Access);
+            Arg_Any_Ü_Driver_ID : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_Driver_ID'Unchecked_Access);
 
-            Argument_Ü_Segment  : CORBA.Long;
+            Argument_Ü_Segment  : CORBA.Short;
             pragma Warnings (Off, Argument_Ü_Segment);
             Arg_CC_Ü_Segment    : aliased PolyORB.Any.Content'Class :=
                CORBA.Wrap (Argument_Ü_Segment'Unrestricted_Access);
-            Arg_Any_Ü_Segment   : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Long, Arg_CC_Ü_Segment'Unchecked_Access);
+            Arg_Any_Ü_Segment   : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_Segment'Unchecked_Access);
 
-            Argument_Ü_Speed    : CORBA.Long;
+            Argument_Ü_Speed    : CORBA.Short;
             pragma Warnings (Off, Argument_Ü_Speed);
             Arg_CC_Ü_Speed      : aliased PolyORB.Any.Content'Class :=
                CORBA.Wrap (Argument_Ü_Speed'Unrestricted_Access);
-            Arg_Any_Ü_Speed     : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Long, Arg_CC_Ü_Speed'Unchecked_Access);
+            Arg_Any_Ü_Speed     : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_Speed'Unchecked_Access);
 
          begin
             CORBA.NVList.Add_Item

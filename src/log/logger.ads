@@ -41,10 +41,10 @@ package Race.Log is
 	--  Initialization procedure, execute one time at system startup.
 	procedure setEnvironment(
 		--Array with expanded Team names
-		Teams		:TeamName_T_Array_T;
+		Teams		:Substring_array_T(1..255);
 
 		--Array with expanded Driver names
-		Drivers		:DriverName_T_Array_T;
+		Drivers		:Substring_array_T(1..255);
 
 		--Total number of circuit segments
 		SegmentNumber	:Positive;
@@ -52,10 +52,6 @@ package Race.Log is
 		--Numbers of two segments in wich take intermediate times
 		T1		:Positive;
 		T2		:Positive;
-
-		--  Array of lap numbers, one for every driver.
-		--+ Every number correspond to a pit-stop lab
-		Strategies	:Strategy_T_Array_T;
 
 		--Total number of laps of the race
 		RaceLaps	:Positive;

@@ -9,24 +9,6 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 
 
-
-
-class Log_viewerImpl extends Log_viewerPOA {
-  private ORB orb;
-
-  public void setORB(ORB orb_val) {
-    orb = orb_val;
-  }
-
-  public void updateLog(int Driver_ID, int Segment, int Speed) {
-      System.out.println("Ricevuto: "+Driver_ID+" - "+Segment+ " - "+Speed);
-  }
-
-  public void endRace() {
-      orb.shutdown(false);
-  }
-}
-
 public class Server {
 
   public static void main(String args[]) {
