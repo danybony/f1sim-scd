@@ -23,6 +23,7 @@ with text_io; use text_io;
 with Race.Circuit;
 with Race.Driver;
 with Ada.Integer_Text_IO;
+with Ada.Strings.Unbounded;
 
 package body Race.Startup is
 
@@ -50,9 +51,10 @@ package body Race.Startup is
    --  Procedure that read teams, drivers configurations from file
    procedure read_configuration (
                                  text_file:		in	string;
-                                 array_to_configure:	in out	Substring_array_T;
+                                 array_to_configure:	in out	String_Array_T;
                                  array_index:		in out	integer
                                 ) is
+      use Ada.Strings.Unbounded;
 
       line_index:integer:=1;
       --  Temporary input file for every file reading
@@ -88,7 +90,7 @@ package body Race.Startup is
             if line_index=1 then skip_line(input_file);
             else
             array_index:=array_index+1;
-            array_to_configure(array_index)(1..line_index-1):=input_string(1..line_index-1);
+            array_to_configure(array_index):=To_unbounded_string(input_string(1..line_index-1));
             put(array_to_configure(array_index));new_line;
             --skip to the next text line
             skip_line(input_file);
@@ -109,9 +111,9 @@ package body Race.Startup is
    --+ race.
    procedure startup is
 
-      Teams:Substring_array_T(1..255);
-      Drivers:Substring_array_T(1..255);
-      MacroSegments:Substring_array_T(1..255);
+      Teams:String_array_T;
+      Drivers:String_array_T;
+      MacroSegments:String_array_T;
       Teams_file:String:="teams.txt";
       Drivers_file:String:="drivers.txt";
       MacroSegments_file:String:="circuit.txt";
@@ -120,7 +122,6 @@ package body Race.Startup is
       MacroSegments_total:integer:=0;
       --  Integer support value to work with Ada.Integer_Text_IO
       --  Useless, only for conversion purposes
-      integer_convert_aux:integer:=0;
       track:Race.Segment.segment_list_T;
       index:integer:=1;
 
@@ -132,7 +133,6 @@ package body Race.Startup is
       put("drivers: ok");new_line;
       read_configuration(MacroSegments_file,MacroSegments,MacroSegments_total);
       put("circuit: ok");new_line;
-      --Ada.Integer_Text_IO.get(drivers(4),debug, debug2);
 
       -- Build the track (create segments)
       track:=Race.Circuit.build_track(MacroSegments, MacroSegments_total);

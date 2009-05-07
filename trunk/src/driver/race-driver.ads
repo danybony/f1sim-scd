@@ -22,16 +22,17 @@
 with Race.Segment; use Race.Segment;
 with Ada.Strings.Unbounded;
 
-
 --  This package contains driver interface definition.
 
 package Race.Driver is
 
    task type Driver is
-      entry init(params		: Substring_array_T;
-                 position	: Positive);
+      entry init(params		: String_array_T;
+                 position	: Positive;
+                 segments	: Positive;
+                 laps		: Positive);
    end Driver;
 
-   type Driver_Ref_T is access all Driver;
+   type Driver_Ref_T is access Driver;
 
 end Race.Driver;
