@@ -21,8 +21,8 @@
 
 with Race.Segment; use Race.Segment;
 with Ada.Integer_Text_IO;
-with text_io;
-
+with Text_IO;
+with Ada.Strings.unbounded;
 
 --  This package contains driver interface definition.
 
@@ -30,61 +30,81 @@ package body Race.Driver is
 
 
    task body Driver is
-   use text_io;
+      use Text_IO;
+      Name: Ada.Strings.Unbounded.Unbounded_String;
+      ID: Positive;
+      Team: Ada.Strings.Unbounded.Unbounded_String;
+      Accel: Positive;
+      Break: Positive;
+      MSpeed: Positive;
+      Strategy: Strategy_T(0..5);--max 5 pit stops
+      Strategy_lenght: Natural := 0;
+      Laps_Done: Natural := 0;
+      Tot_Segments: Positive;
+      Tot_Laps: Positive;
 
    begin
-      accept init (params	: Substring_array_T;
-                   position	: Positive)
+      Text_IO.put_line("Driver started");
+      accept init (params	: String_array_T;
+                   position	: Positive;
+                   Segments	: Positive;
+                   laps		: Positive)
       do
          declare
-	   use Ada.Integer_Text_IO;
-	   Strategy:Strategy_T(1..5);--max 5 pit stops
-	   Strategy_string:String(params(7)'Range);
-	   string_buffer:String:="00";--max 2 digits in lap number
-	   buffer_index:integer:=0;--string_buffer index
-	   index:integer:=1;--strategy string array index
-	   strategy_index:integer:=0;--strategy array index
-	   --driver:Driver_Ref_T;
-	   last:Positive;
+            use Ada.Integer_Text_IO;
+            use Ada.Strings.unbounded;
+	    Strategy_string:String:=to_String(params(7));
+            buffer_index_first: Natural:=1;
+            buffer_index_last: Natural:=0;
+	    buffer_index:integer:=0;--string_buffer index
+	    index:integer:=1;--strategy string array index
+	    --driver:Driver_Ref_T;
+            last:Positive;
          begin
-	   Strategy_string := params(7);
+
       	   -- read strategy (lap numbers)  from params. Assume at least 1 pit stop.
-      	   while (index<Strategy_string'last) loop
-		if strategy_string(index)=',' then
-            	-- convert string to lap number and flush the buffer
-		   if buffer_index>0 then
-			strategy_index := strategy_index +1;
-               		get(string_buffer,Strategy(strategy_index), Last);
-               		string_buffer := "00";
-               		buffer_index := 0;
-               		index := index + 1;
-		   end if;
-         	else
-            	   if strategy_string(index)>='0' and strategy_string(index)<='9' then
-               		-- accumulate digits in the buffer
-               		buffer_index := buffer_index + 1;
-               		string_buffer(buffer_index) := strategy_string(index);
-            	   end if;
-         	end if;
-	   end loop;
-      --driver := new Driver(
-      --           params(1), -- Driver's name
-      --           params(3), -- ID (Car number)
-      --           params(2), -- Driver Team's name
-      --          params(4), -- Accel coefficient
-      --           params(5), -- Brake coefficient
-      --           params(6), -- Max Speed
-      --           strategy,  -- Strategy (list of pit stop laps)
-      --           position,  -- Start position
-      --           0	    -- Laps done so far
-      --          );
+      	   while (index<=Strategy_string'last) loop
+
+		if strategy_string(index)>='0' and strategy_string(index)<='9' then
+               	    -- accumulate digits in the buffer
+		    buffer_index_last := buffer_index_last + 1;
+                    index:=index+1;
+                else
+                    -- convert string to lap number and flush the buffer
+		    strategy_lenght := strategy_lenght +1;
+                  get(strategy_string(buffer_index_first..buffer_index_last),
+                      Strategy(strategy_lenght), Last);
+                    put("Lap number: ");
+                    put(Strategy(strategy_lenght));new_line;
+                    buffer_index_first := index + 1;
+                    buffer_index_last := index;
+               	    index := index + 1;
+                end if;
+
+            end loop;
+
+            -- finally, convert last string to lap number and flush the buffer
+	    strategy_lenght := strategy_lenght +1;
+            get(strategy_string(buffer_index_first..buffer_index_last),
+                Strategy(strategy_lenght), Last);
+            put("Lap number: ");
+            put(Strategy(strategy_lenght));new_line;
+
+      -- initialize all other parameters
+            Name := params(1);
+            get(to_String(params(2)),ID,Last);
+            Team := params(3);
+            get(to_String(params(4)),Accel,Last);
+            get(to_String(params(5)),Break,Last);
+            get(to_String(params(6)),MSpeed,Last);
+            Tot_Segments := Segments;
+            Tot_Laps := Laps;
          end;
       end init;
 
-      loop
-         --put(Name.all);
-         delay 10.0;
-      end loop;
+      -- main loop of driver
+      -- end of main loop
+
    end Driver;
 
 end Race.Driver;

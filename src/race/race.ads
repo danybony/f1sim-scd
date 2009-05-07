@@ -17,10 +17,10 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
+with Ada.strings.unbounded;
 
 package Race is
 
-   --subtype Positive 	is Integer range 1..Integer'last;
    type String_Ref_T       is access all String;
    type Integer_Ref_T      is access all Integer;
 
@@ -28,10 +28,10 @@ package Race is
    --type Macro_Segment_Ref_T is access all Macro_Segment_T;
    subtype Substring_T is String(1..255);
    type Substring_array_T is array (Positive range <>) of Substring_T;
-   type Strategy_T is array (Positive range <>) of Positive;
+   type Strategy_T is array (Natural range <>) of Positive;
    type Strategy_Ref_T is access Strategy_T;
-   type String_array_T is array (Positive range <>, Positive range <>) of character;
 
+   type String_array_T is array (Positive range <>) of ada.strings.Unbounded.unbounded_string;
 
 
 end Race;
