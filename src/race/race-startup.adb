@@ -27,7 +27,7 @@ with Ada.Strings.Unbounded;
 
 package body Race.Startup is
 
-   --  Function that check if a file is avaiable or not.
+   --  This function check if a file is avaiable or not.
    --+ Return true if the file exists
    --+ Return false otherwise
    function file_exists(
@@ -48,6 +48,8 @@ package body Race.Startup is
 
    end file_exists;
 
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
    --  Procedure that read teams, drivers configurations from file
    procedure read_configuration (
                                  text_file:		in	string;
@@ -106,36 +108,100 @@ package body Race.Startup is
          null;
    end read_configuration;
 
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
+   procedure build_track (MacroSegments		:String_array_T;
+                          MacroSegments_total	:integer;
+                          track			:LP.list)
+   is
+      use Ada.Strings.Unbounded;
+      use Ada.Integer_Text_IO;
+      segment_lenght: constant Positive:=1;--lenght(in meters) of one segment
+      index: Positive := 1;
+      segments_index : Positive := 1;
+      macro_lenght : Positive;
+      macro_first_lenght : Positive;
+      macro_first_speed : Positive;
+      macro_last_lenght : Positive;
+      macro_last_speed : Positive;
+      macro_change_line : Positive;
 
+      break_coeff: integer;
+      last : Positive;
+      segment_temp := Segment_properties_ref_T;
+
+   begin
+      while index <= MacroSegments_total loop
+         get(To_String(MacroSegments(index)),macro_lenght,last);
+         get(To_String(MacroSegments(index+3)),macro_change_line,last);
+         macro_first_lenght := macro_change_line/segment_lenght;
+         macro_last_lenght := (macro_lenght-macro_change_line)/segment_lenght;
+         get(To_String(MacroSegments(index+1)),macro_first_speed,last);
+         get(To_String(MacroSegments(index+2)),macro_last_speed,last);
+
+         while segments_index <= macro_first_lenght loop
+            segment_temp := new Segment_properties_T;
+            segment_temp.speed := macro_first_speed;
+            Append(track, segment_temp);
+         end loop;
+
+         break_coeff := (macro_first_speed - macro_last_speed) /
+           macro_last_lenght;
+
+         while segment_index <= macro_lenght loop
+            segment_temp := new Segment_properties_T;
+            segment_temp.speed := macro_first_speed -
+              (break_coeff*(segment_index-macro_first_lenght));
+            Append(track, segment_temp)
+         end loop;
+
+
+
+         index := index + 4;--skip to next macro segment
+
+      end loop;
+
+   end build_track;
+
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
    --  Procedure that set up the environment of the system and then start the
    --+ race.
    procedure startup is
 
-      Teams:String_array_T;
-      Drivers:String_array_T;
-      MacroSegments:String_array_T;
-      Teams_file:String:="teams.txt";
-      Drivers_file:String:="drivers.txt";
+      Teams		:String_array_T;
+      Drivers		:String_array_T;
+      MacroSegments	:String_array_T;
+      Teams_file	:String:="teams.txt";
+      Drivers_file	:String:="drivers.txt";
       MacroSegments_file:String:="circuit.txt";
-      Teams_total:integer:=0;
-      Drivers_total:integer:=0;
+      Teams_total	:integer:=0;
+      Drivers_total	:integer:=0;
       MacroSegments_total:integer:=0;
-      --  Integer support value to work with Ada.Integer_Text_IO
-      --  Useless, only for conversion purposes
-      track:Race.Segment.segment_list_T;
-      index:integer:=1;
+      track		:LP.List;
+      index		:integer:=1;
 
    begin
       -- Read Team, Driver and Track configurations from file
       read_configuration(Teams_file,Teams,Teams_total);
       put("teams: ok");new_line;
+
       read_configuration(Drivers_file,Drivers,Drivers_total);
       put("drivers: ok");new_line;
+
       read_configuration(MacroSegments_file,MacroSegments,MacroSegments_total);
       put("circuit: ok");new_line;
 
-      -- Build the track (create segments)
-      track:=Race.Circuit.build_track(MacroSegments, MacroSegments_total);
+      -- Build the track
+      -- This function creates 2 array: one is the list of properties for every
+      --+segments (we will call this "LP" from now on); the other is a list of
+      --+protected types (we will call this "LR" from now on).
+      --+Each driver needs LP to "know" the track (i.e. calculate speed in the
+      --+current segment) and LR to "drive" (access the next segment).
+      --+Variable "track" is LP and will be distributed and stored to any driver
+      --+LR will be stored in "Circuit" machine and freely accessible to any
+      --+driver.
+      build_track(MacroSegments, MacroSegments_total, track);
 
       -- Lock first segment for driver initializations
       track(1).enter(0);
