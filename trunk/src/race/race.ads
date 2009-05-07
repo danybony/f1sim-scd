@@ -18,6 +18,7 @@
 --  any later version.                                --
 --------------------------------------------------------
 with Ada.strings.unbounded;
+with Ada.Containers.Doubly_Linked_Lists;
 
 package Race is
 
@@ -26,13 +27,24 @@ package Race is
 
    --type Macro_Segment_T;
    --type Macro_Segment_Ref_T is access all Macro_Segment_T;
-   subtype Substring_T is String(1..255);
-   type Substring_array_T is array (Positive range <>) of Substring_T;
+   --subtype Substring_T is String(1..255);
+   --type Substring_array_T is array (Positive range <>) of Substring_T;
    type Strategy_T is array (Natural range <>) of Positive;
    type Strategy_Ref_T is access Strategy_T;
 
    type String_array_T is array (Positive range <>) of ada.strings.Unbounded.unbounded_string;
 
+   type Segment_Properties_T is
+   --  info about a single segment
+      record
+         Speed: Positive;
+      end record;
+
+   type Segment_properties_Ref_T is access Segment_Properties_T;
+
+
+   package LP is new Ada.Containers.Doubly_Linked_Lists
+     (Element_Type => Segment_Properties_T);
 
 end Race;
 
