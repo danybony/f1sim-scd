@@ -152,7 +152,7 @@ package body Race.Startup is
             segment_temp := new Segment_properties_T;
             segment_temp.speed := macro_first_speed -
               (break_coeff*(segment_index-macro_first_lenght));
-            Append(track, segment_temp)
+            Append(track, segment_temp);
          end loop;
 
 
@@ -178,7 +178,7 @@ package body Race.Startup is
       Teams_total	:integer:=0;
       Drivers_total	:integer:=0;
       MacroSegments_total:integer:=0;
-      track		:LP.List;
+      track		:LP.Vector;
       index		:integer:=1;
 
    begin
@@ -204,22 +204,19 @@ package body Race.Startup is
       build_track(MacroSegments, MacroSegments_total, track);
 
       -- Lock first segment for driver initializations
-      track(1).enter(0);
-      track(1).enter(0);
+      --track(1).enter(0);
+      --track(1).enter(0);
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
-      for index in 1..drivers_total mod 7 loop
-         Race.Driver.Driver_init(Drivers((((index-1)*7)+1)..(index*7)), index);
+      --for index in 1..drivers_total mod 7 loop
+      --   Race.Driver.Driver_init(Drivers((((index-1)*7)+1)..(index*7)), index);
 
-      end loop;
+      --end loop;
 
       -- Realese the lock in the first segment: Start the Race!
-      track(1).leave(0);
-      track(1).leave(0);
-
-
-
+      --track(1).leave(0);
+      --track(1).leave(0);
    end startup;
 
 
