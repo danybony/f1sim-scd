@@ -18,7 +18,7 @@
 --  any later version.                                --
 --------------------------------------------------------
 with Ada.strings.unbounded;
-with Ada.Containers.Doubly_Linked_Lists;
+with Ada.Containers.Vectors;
 
 package Race is
 
