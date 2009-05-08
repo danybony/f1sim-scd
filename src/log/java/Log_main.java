@@ -1,3 +1,4 @@
+import java.io.FileWriter;
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
@@ -9,9 +10,22 @@ import org.omg.PortableServer.POA;
  */
 public class Log_main extends javax.swing.JFrame {
 
+   // private Log_viewerImpl log_viewerImpl;
+
+   // private ORB orb;
+
+    static String args[];
+    private static final String IORFILE = "../../../txt/IOR.txt";
+
+    private void startORB(){
+         
+    }
+
+
     /** Creates new form Log_Frame */
     public Log_main() {
         initComponents();
+        
     }
 
     /** This method is called from within the constructor to
@@ -25,13 +39,31 @@ public class Log_main extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextAreaConsole = new javax.swing.JTextArea();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("F1Sim SCD");
+        addMouseWheelListener(new java.awt.event.MouseWheelListener() {
+            public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) {
+                formMouseWheelMoved(evt);
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jTextAreaConsole.setColumns(20);
         jTextAreaConsole.setRows(5);
         jScrollPane1.setViewportView(jTextAreaConsole);
+
+        jButton1.setText("jButton1");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -39,19 +71,43 @@ public class Log_main extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(111, 111, 111))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(175, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 204, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(58, 58, 58)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formMouseWheelMoved(java.awt.event.MouseWheelEvent evt) {//GEN-FIRST:event_formMouseWheelMoved
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formMouseWheelMoved
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        //orb.shutdown(false);
+    }//GEN-LAST:event_formWindowClosing
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new Runnable() {
+            public void run() {
+                startORB();
+            }
+
+            }.run();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
     * @param args the command line arguments
@@ -62,10 +118,10 @@ public class Log_main extends javax.swing.JFrame {
                 new Log_main().setVisible(true);
             }
         });
-        
-      try{
+
+        try{
           // create and initialize the ORB
-          ORB orb = ORB.init(args, null);
+          ORB orb = ORB.init(args,null);
 
           // get reference to rootpoa & activate the POAManager
           POA rootpoa = POAHelper.narrow(orb.resolve_initial_references("RootPOA"));
@@ -79,11 +135,15 @@ public class Log_main extends javax.swing.JFrame {
           org.omg.CORBA.Object ref = rootpoa.servant_to_reference(log_viewerImpl);
           Log_viewer href = Log_viewerHelper.narrow(ref);
 
-          System.out.println("HelloServer ready and waiting ...");
-          
+          System.out.println("Logger ready and waiting ...");
+
 
           String ior = orb.object_to_string(href);
-          System.out.println(ior);
+          FileWriter fileOut = new FileWriter(IORFILE,true);
+          fileOut.write(ior);
+          fileOut.close();
+          System.out.println("Logger IOR saved to file: "+IORFILE);
+          System.out.println("IOR: "+ior);
 
           // wait for invocations from client
           orb.run();
@@ -91,13 +151,17 @@ public class Log_main extends javax.swing.JFrame {
 
       catch (Exception e) {
         System.err.println("ERROR: " + e);
+
         e.printStackTrace(System.out);
       }
 
-      System.out.println("HelloServer Exiting ...");
+      System.out.println("Logger Exiting ...");
+
+       
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaConsole;
     // End of variables declaration//GEN-END:variables

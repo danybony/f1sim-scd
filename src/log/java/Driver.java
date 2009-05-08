@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /**
  *
@@ -16,6 +12,8 @@ public class Driver{
     private short currentLap;
     private short currentSegment;   
     private short maxSpeed;
+    private long lastT1, lastT2, lastEndLap;
+    private long bestT1, bestT2, bestLap;
 
     public Driver(String name, short id, String team, short position, short currentSegment) {
         this.name = name;
@@ -25,6 +23,7 @@ public class Driver{
         this.currentSegment = currentSegment;
         this.currentLap = 0;
         this.maxSpeed = 0;
+        this.lastT1 = this.lastT2 = this.lastEndLap = 0;
     }
 
     public void setCurrentSegment(short Segment) {
@@ -35,6 +34,30 @@ public class Driver{
         if(Speed > maxSpeed){
             maxSpeed = Speed;
         }
+    }
+
+    public void setLastEndLap(long lastEndLap) {
+        long timeBetween = lastEndLap - this.lastEndLap;
+        if(timeBetween < bestLap){
+            bestLap = timeBetween;
+        }
+        this.lastEndLap = lastEndLap;
+    }
+
+    public void setLastT1(long lastT1) {
+        long timeBetween = lastT1 - this.lastT1;
+        if(timeBetween < bestT1){
+            bestT1 = timeBetween;
+        }
+        this.lastT1 = lastT1;
+    }
+
+    public void setLastT2(long lastT2) {
+        long timeBetween = lastT2 - this.lastT2;
+        if(timeBetween < bestT2){
+            bestT2 = timeBetween;
+        }
+        this.lastT2 = lastT2;
     }
 
     public void setCurrentLap(short currentLap) {
@@ -74,4 +97,4 @@ public class Driver{
     }
         
         
-    }
+}
