@@ -1,7 +1,6 @@
 
+import java.util.Date;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.omg.CORBA.ORB;
 
 /**
@@ -65,6 +64,15 @@ public class Log_viewerImpl extends Log_viewerPOA {
         /* extracts drivers infos from array Drivers and put them into vector
            Drivers */
         drivers = extractDriversInfos(Drivers);
+
+        for(int i = 0; i< drivers.size(); i++){
+            System.out.println();
+            System.out.println("--- Driver "+i);
+            System.out.println("------ Name: "+drivers.elementAt(i).getName());
+            System.out.println("------ Team: "+drivers.elementAt(i).getTeam());
+            System.out.println("------ ID: "+drivers.elementAt(i).getId());
+            System.out.println("------ Position: "+drivers.elementAt(i).getPosition());
+        }
     }
 
     public void updateLog(short Driver_ID, short Segment, short Speed) {
@@ -79,6 +87,13 @@ public class Log_viewerImpl extends Log_viewerPOA {
             /* Check if the current lap has finisced */
             if(Segment==0){
                 currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() - 1));
+                currentDriver.setLastEndLap(new Date().getTime());
+            }
+            else if(Segment == T1){
+                currentDriver.setLastT1(new Date().getTime());
+            }
+            else if(Segment == T2){
+                currentDriver.setLastT2(new Date().getTime());
             }
 
             currentDriver.updateMaxSpeed(Speed);
@@ -131,6 +146,14 @@ public class Log_viewerImpl extends Log_viewerPOA {
     }
     
     private Vector<Driver> extractDriversInfos(String[] Drivers) {
-        throw new UnsupportedOperationException("Not yet implemented");
+        int numDrivers = Drivers.length / 7;
+        Vector<Driver> driversTemp = new Vector<Driver>();
+        for(int i=0; i<numDrivers; i++){
+            String name = Drivers[i*7];
+            String team = Drivers[i*7+1];
+            short id = (short)Integer.parseInt(Drivers[i*7+2]);
+            driversTemp.add(new Driver(name, id, team,(short) i, (short)3));
+        }
+        return driversTemp;
     }
 }
