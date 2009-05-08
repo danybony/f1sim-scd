@@ -41,10 +41,12 @@ package Race is
       end record;
 
    type Segment_properties_Ref_T is access Segment_Properties_T;
+   subtype LP_lenght is Positive range 1..Positive'last;
 
 
-   package LP is new Ada.Containers.Doubly_Linked_Lists
-     (Element_Type => Segment_Properties_T);
+   package LP is new Ada.Containers.Vectors
+     (Element_Type => Segment_Properties_T,
+      Index_Type => LP_lenght);
 
 end Race;
 
