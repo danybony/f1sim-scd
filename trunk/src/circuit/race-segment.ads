@@ -46,23 +46,31 @@ package Race.Segment is
 
    end Segment_T;
 
-   type Segment_Ref_T	is access all Segment_T;
-   type Segment_array_T is array (Positive range <>) of Segment_Ref_T;
+   type Segment_Ref_T is access Segment_T;
 
-   type Segment_spec_T is
-      record
-         max_speed:integer;
-         max_lanes:integer;
-      end record;
+   subtype LR_lenght is Positive range 1..Positive'last;
 
-   type Segment_spec_ref_T is access all Segment_spec_T;
+   package LR is new Ada.Containers.Vectors
+     (Element_Type => Segment_T,
+      Index_Type => LR_lenght);
 
-   type Segment_list_T is
-      record
-         Segment: Segment_spec_T;
-         Next: Segment_spec_ref_T;
+
+   --type Segment_array_T is array (Positive range <>) of Segment_Ref_T;
+
+   --type Segment_spec_T is
+   --   record
+   --      max_speed:integer;
+   --      max_lanes:integer;
+   --   end record;
+
+   --type Segment_spec_ref_T is access all Segment_spec_T;
+
+   --type Segment_list_T is
+   --   record
+   --      Segment: Segment_spec_T;
+   --      Next: Segment_spec_ref_T;
          --  This pointer is in most cases equal to null
-         Box: Segment_spec_ref_T;
-      end record;
+   --      Box: Segment_spec_ref_T;
+   --   end record;
 
 end Race.Segment;
