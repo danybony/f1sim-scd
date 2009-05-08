@@ -24,6 +24,7 @@ with Race.Circuit;
 with Race.Driver;
 with Ada.Integer_Text_IO;
 with Ada.Strings.Unbounded;
+with Ada.Containers.Vectors;
 
 package body Race.Startup is
 
@@ -67,8 +68,9 @@ package body Race.Startup is
       --  Sentinel for avoid comments
       sentinel:boolean:=false;
    begin
-
+      put("reading...");
       if file_exists(text_file) then
+         put("file present!");
          --read file specs
          open(input_file, in_file, text_file);
          read_file_loop:
@@ -93,7 +95,7 @@ package body Race.Startup is
             else
             array_index:=array_index+1;
             array_to_configure(array_index):=To_unbounded_string(input_string(1..line_index-1));
-            put(array_to_configure(array_index));new_line;
+            put(to_string(array_to_configure(array_index)));new_line;
             --skip to the next text line
             skip_line(input_file);
             end if;
@@ -110,11 +112,12 @@ package body Race.Startup is
 
    -----------------------------------------------------------------------------
    -----------------------------------------------------------------------------
-   procedure build_track (MacroSegments		:String_array_T;
-                          MacroSegments_total	:integer;
-                          track			:LP.list)
+   procedure build_track (MacroSegments		:in String_array_T;
+                          MacroSegments_total	:in integer;
+                          track			:in out LP.Vector)
    is
       use Ada.Strings.Unbounded;
+      use LP;
       use Ada.Integer_Text_IO;
       segment_lenght: constant Positive:=1;--lenght(in meters) of one segment
       index: Positive := 1;
@@ -128,7 +131,7 @@ package body Race.Startup is
 
       break_coeff: integer;
       last : Positive;
-      segment_temp := Segment_properties_ref_T;
+      segment_temp : Segment_properties_ref_T;
 
    begin
       while index <= MacroSegments_total loop
@@ -142,22 +145,23 @@ package body Race.Startup is
          while segments_index <= macro_first_lenght loop
             segment_temp := new Segment_properties_T;
             segment_temp.speed := macro_first_speed;
-            Append(track, segment_temp);
+            LP.Append(track, segment_temp.all);
+            segments_index := segments_index + 1;
          end loop;
 
          break_coeff := (macro_first_speed - macro_last_speed) /
            macro_last_lenght;
 
-         while segment_index <= macro_lenght loop
+         while segments_index <= macro_lenght loop
             segment_temp := new Segment_properties_T;
             segment_temp.speed := macro_first_speed -
-              (break_coeff*(segment_index-macro_first_lenght));
-            Append(track, segment_temp);
+              (break_coeff*(segments_index-macro_first_lenght));
+            LP.Append(track, segment_temp.all);
+            segments_index := segments_index + 1;
          end loop;
 
-
-
-         index := index + 4;--skip to next macro segment
+         segments_index := 1;
+         index := index + 5;--skip to next macro segment
 
       end loop;
 
@@ -169,12 +173,12 @@ package body Race.Startup is
    --+ race.
    procedure startup is
 
-      Teams		:String_array_T;
-      Drivers		:String_array_T;
-      MacroSegments	:String_array_T;
-      Teams_file	:String:="teams.txt";
-      Drivers_file	:String:="drivers.txt";
-      MacroSegments_file:String:="circuit.txt";
+      Teams		:String_array_T(1..20);
+      Drivers		:String_array_T(1..20);
+      MacroSegments	:String_array_T(1..20);
+      Teams_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/teams.txt";
+      Drivers_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/drivers.txt";
+      MacroSegments_file:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/circuit.txt";
       Teams_total	:integer:=0;
       Drivers_total	:integer:=0;
       MacroSegments_total:integer:=0;

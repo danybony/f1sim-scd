@@ -24,9 +24,9 @@ package Race.Circuit is
    Segments: Segment_array_T(1..2);
 
    --Function that build all the segments (monitor) of the track and return it
-   function build_track (
-                          segment_array:substring_array_T;
-                          number_of_segments:integer
-                         )return Segment_list_T;
+   --function build_track (
+   --                       segment_array:substring_array_T;
+   --                       number_of_segments:integer
+   --                      )return Segment_list_T;
 
 end Race.Circuit;
