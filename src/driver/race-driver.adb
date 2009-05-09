@@ -40,14 +40,14 @@ package body Race.Driver is
       Strategy: Strategy_T(0..5);--max 5 pit stops
       Strategy_lenght: Natural := 0;
       Laps_Done: Natural := 0;
-      Tot_Segments: Positive;
       Tot_Laps: Positive;
+      LP_track: LP.Vector;
 
    begin
       Text_IO.put_line("Driver started");
       accept init (params	: String_array_T;
                    position	: Positive;
-                   Segments	: Positive;
+                   track	: LP.Vector;
                    laps		: Positive)
       do
          declare
@@ -84,7 +84,7 @@ package body Race.Driver is
             end loop;
 
             -- finally, convert last string to lap number and flush the buffer
-	    strategy_lenght := strategy_lenght +1;
+            strategy_lenght := strategy_lenght +1;
             get(strategy_string(buffer_index_first..buffer_index_last),
                 Strategy(strategy_lenght), Last);
             put("Lap number: ");
@@ -92,12 +92,12 @@ package body Race.Driver is
 
       -- initialize all other parameters
             Name := params(1);
-            get(to_String(params(2)),ID,Last);
-            Team := params(3);
+            get(to_String(params(3)),ID,Last);
+            Team := params(2);
             get(to_String(params(4)),Accel,Last);
             get(to_String(params(5)),Break,Last);
             get(to_String(params(6)),MSpeed,Last);
-            Tot_Segments := Segments;
+            LP_track := track;
             Tot_Laps := Laps;
          end;
       end init;

@@ -185,8 +185,12 @@ package body Race.Startup is
       Teams_total	:integer:=0;
       Drivers_total	:integer:=0;
       MacroSegments_total:integer:=0;
-      track		:LP.Vector;
+      LP_track		:LP.Vector;
       index		:integer:=1;
+      Micheal		:Race.Driver.Driver;
+      Alonso		:Race.Driver.Driver;
+
+      new_string: String_array_T(1..20);
 
    begin
       -- Read Team, Driver and Track configurations from file
@@ -205,16 +209,17 @@ package body Race.Startup is
       --+protected types (we will call this "LR" from now on).
       --+Each driver needs LP to "know" the track (i.e. calculate speed in the
       --+current segment) and LR to "drive" (access the next segment).
-      --+Variable "track" is LP and will be distributed and stored to any driver
+      --+Variable "LP_track" is LP and will be distributed and stored to any
+      --+driver
       --+LR will be stored in "Circuit" machine and freely accessible to any
       --+driver.
-      build_track(MacroSegments, MacroSegments_total, track);
+      build_track(MacroSegments, MacroSegments_total, LP_track);
 
       Ada.Integer_Text_IO.put(Item => Race.Circuit.LR_Track.Last_Index);
 
       -- Lock first segment for driver initializations
-      --track(1).enter(0);
-      --track(1).enter(0);
+      Race.Circuit.LR_track.Element(1).all.enter(1,1);
+      Race.Circuit.LR_track.Element(1).all.enter(1,1);
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
@@ -223,9 +228,14 @@ package body Race.Startup is
 
       --end loop;
 
+      new_string(1..7):=Drivers(1..7);
+      Micheal.init(Drivers(1..7), 1, LP_track, 3);
+      new_string(1..7):=Drivers(8..14);
+      Alonso.init(new_string, 1, LP_track, 3);
+
       -- Realese the lock in the first segment: Start the Race!
-      --track(1).leave(0);
-      --track(1).leave(0);
+      Race.Circuit.LR_track.Element(1).all.leave(1);
+      Race.Circuit.LR_track.Element(1).all.leave(1);
    end startup;
 
 
