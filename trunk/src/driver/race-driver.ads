@@ -29,7 +29,7 @@ package Race.Driver is
    task type Driver is
       entry init(params		: String_array_T;
                  position	: Positive;
-                 segments	: Positive;
+                 track		: LP.Vector;
                  laps		: Positive);
    end Driver;
 

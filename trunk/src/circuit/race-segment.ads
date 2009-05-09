@@ -42,7 +42,7 @@ package Race.Segment is
 
    private
 
-      In_Use : Positive := lanes;
+      In_Use : Natural := lanes;
 
    end Segment_T;
 
