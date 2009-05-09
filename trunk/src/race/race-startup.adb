@@ -165,6 +165,9 @@ package body Race.Startup is
 
       end loop;
 
+      -- build 2nd vector: LR
+      Race.Circuit.build_track(MacroSegments, MacroSegments_total);
+
    end build_track;
 
    -----------------------------------------------------------------------------
@@ -206,6 +209,8 @@ package body Race.Startup is
       --+LR will be stored in "Circuit" machine and freely accessible to any
       --+driver.
       build_track(MacroSegments, MacroSegments_total, track);
+
+      Ada.Integer_Text_IO.put(Item => Race.Circuit.LR_Track.Last_Index);
 
       -- Lock first segment for driver initializations
       --track(1).enter(0);
