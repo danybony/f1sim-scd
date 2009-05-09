@@ -17,7 +17,7 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-
+with Ada.Containers.Vectors;
 
 package Race.Segment is
 
@@ -28,7 +28,7 @@ package Race.Segment is
    --  Segment_T is a monitor that control access to a segment
    --  In the other hand, Segment_spec_T contains all the infos
    --  about a segment i.
-   protected type Segment_T is
+   protected type Segment_T (lanes :Positive) is
 
       --  get the segment
       entry Enter (Driver_ID	:positive;
@@ -40,9 +40,9 @@ package Race.Segment is
       --+  but needed for distributed dispatching)
       entry Leave (Driver_ID	:positive);
 
-      private
+   private
 
-        In_Use : Boolean := False;
+      In_Use : Positive := lanes;
 
    end Segment_T;
 
@@ -51,7 +51,7 @@ package Race.Segment is
    subtype LR_lenght is Positive range 1..Positive'last;
 
    package LR is new Ada.Containers.Vectors
-     (Element_Type => Segment_T,
+     (Element_Type => Segment_Ref_T,
       Index_Type => LR_lenght);
 
 
