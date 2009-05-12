@@ -12,8 +12,7 @@ import org.omg.CORBA.ORB;
 public class Log_viewerImpl extends Log_viewerPOA {
 
     
-    class InvalidDriverID extends Exception{} 
-    class InvalidDriverPosition extends Exception{}
+    class InvalidDriverID extends Exception{}
     
     private ORB orb;
 
@@ -100,24 +99,24 @@ public class Log_viewerImpl extends Log_viewerPOA {
             
             /* Check if the current driver is not the first*/
             if(currentDriver.getPosition() != 1){
-                try {
-                    /* If so check if it overlap other drivers */
-                    Driver previousDriver = driverByPosition(currentDriver.getPosition() - 1);
-                    
-                    //-------------------------ATTENZIONE NEL CASO DI PIMO SEGMENTO ALL'INIZIO GIRO!!
-                    while(currentDriver.getPosition() != 1 && previousDriver.getCurrentSegment() == (Segment-1)){
-                        System.out.println(currentDriver.getName() + " ha sorpassato " 
-                                + driverByPosition(currentDriver.getPosition() - 1).getName() + 
-                                " nel segmento " + Segment);
-                        
-                        /* Updates the positions */
-                        previousDriver.setPosition((short) (previousDriver.getPosition() + 1));
-                        currentDriver.setPosition((short) (currentDriver.getPosition() - 1));
-                        previousDriver = driverByPosition(currentDriver.getPosition() - 1);
-                    }
-                } catch (InvalidDriverPosition ex) {
-                    System.err.println("Invalid driver position: "+ (currentDriver.getPosition() - 1));
+                
+                /* If so check if it overlap other drivers */
+                Driver previousDriver = drivers.elementAt(currentDriver.getPosition() - 2);
+
+                //-------------------------ATTENZIONE NEL CASO DI PIMO SEGMENTO ALL'INIZIO GIRO!!
+                while(currentDriver.getPosition() != 1 && previousDriver.getCurrentSegment() == (Segment-1)){
+                    System.out.println(currentDriver.getName() + " ha sorpassato "
+                            + previousDriver.getName() +
+                            " nel segmento " + Segment);
+
+                    /* Updates the positions */
+                    previousDriver.setPosition((short) (previousDriver.getPosition() + 1));
+                    currentDriver.setPosition((short) (currentDriver.getPosition() - 1));
+                    Driver temp = drivers.remove(currentDriver.getPosition() - 1);
+                    drivers.add(previousDriver.getPosition()-1, temp);
+                    previousDriver = drivers.elementAt(currentDriver.getPosition() - 2);
                 }
+                
             }
             
             
@@ -136,15 +135,6 @@ public class Log_viewerImpl extends Log_viewerPOA {
     }
     
     
-    private Driver driverByPosition(int position) throws InvalidDriverPosition {
-        for(int i=0; i<drivers.size(); i++){
-            if(drivers.elementAt(i).getPosition() == position){
-                return drivers.elementAt(i);
-            }
-        }
-        throw new InvalidDriverPosition();
-    }
-    
     private Vector<Driver> extractDriversInfos(String[] Drivers) {
         int numDrivers = Drivers.length / 7;
         Vector<Driver> driversTemp = new Vector<Driver>();
@@ -152,6 +142,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
             String name = Drivers[i*7];
             String team = Drivers[i*7+1];
             short id = (short)Integer.parseInt(Drivers[i*7+2]);
+            //da aggiornare il numero del segmento di partenza!!!!
             driversTemp.add(new Driver(name, id, team,(short) i, (short)3));
         }
         return driversTemp;
