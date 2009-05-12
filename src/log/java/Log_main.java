@@ -1,4 +1,5 @@
 import java.io.FileWriter;
+import java.util.Vector;
 import org.omg.CORBA.*;
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
@@ -15,7 +16,7 @@ public class Log_main extends javax.swing.JFrame {
    // private ORB orb;
 
     static String args[];
-    private static final String IORFILE = "../../../txt/IOR.txt";
+    private static final String IORFILE = "/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/txt/IOR.txt";
 
     private void startORB(){
          
@@ -38,8 +39,7 @@ public class Log_main extends javax.swing.JFrame {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextAreaConsole = new javax.swing.JTextArea();
-        jButton1 = new javax.swing.JButton();
+        jTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("F1Sim SCD");
@@ -54,16 +54,8 @@ public class Log_main extends javax.swing.JFrame {
             }
         });
 
-        jTextAreaConsole.setColumns(20);
-        jTextAreaConsole.setRows(5);
-        jScrollPane1.setViewportView(jTextAreaConsole);
-
-        jButton1.setText("jButton1");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
+        jTable.setModel(new DriversTableModel(new Vector<Driver>()));
+        jScrollPane1.setViewportView(jTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -71,21 +63,14 @@ public class Log_main extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 666, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(111, 111, 111))))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 621, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(58, 58, 58)
-                .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 164, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -99,15 +84,6 @@ public class Log_main extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         //orb.shutdown(false);
     }//GEN-LAST:event_formWindowClosing
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        new Runnable() {
-            public void run() {
-                startORB();
-            }
-
-            }.run();
-    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
     * @param args the command line arguments
@@ -139,7 +115,7 @@ public class Log_main extends javax.swing.JFrame {
 
 
           String ior = orb.object_to_string(href);
-          FileWriter fileOut = new FileWriter(IORFILE,true);
+          FileWriter fileOut = new FileWriter(IORFILE,false);
           fileOut.write(ior);
           fileOut.close();
           System.out.println("Logger IOR saved to file: "+IORFILE);
@@ -161,9 +137,8 @@ public class Log_main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextAreaConsole;
+    private javax.swing.JTable jTable;
     // End of variables declaration//GEN-END:variables
 
 

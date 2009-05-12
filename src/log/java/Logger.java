@@ -9,7 +9,7 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 
 
-public class Server {
+public class Logger {
 
   public static void main(String args[]) {
     try{

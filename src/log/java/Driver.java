@@ -72,6 +72,10 @@ public class Driver{
         return currentLap;
     }
 
+    public long getBestLap() {
+        return bestLap;
+    }
+
     public short getCurrentSegment() {
         return currentSegment;
     }
