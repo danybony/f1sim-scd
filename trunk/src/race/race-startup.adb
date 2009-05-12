@@ -178,6 +178,7 @@ package body Race.Startup is
 
       Teams		:String_array_T(1..20);
       Drivers		:String_array_T(1..20);
+      Driver_Vector	:Race.Driver.Driver_Vector.Vector;
       MacroSegments	:String_array_T(1..20);
       Teams_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/teams.txt";
       Drivers_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/drivers.txt";
@@ -187,10 +188,9 @@ package body Race.Startup is
       MacroSegments_total:integer:=0;
       LP_track		:LP.Vector;
       index		:integer:=1;
-      Micheal		:Race.Driver.Driver;
-      Alonso		:Race.Driver.Driver;
 
-      new_string: String_array_T(1..20);
+      Driver_properties_aux: String_array_T(1..20);
+      laps		:Positive:=2;
 
    begin
       -- Read Team, Driver and Track configurations from file
@@ -223,15 +223,17 @@ package body Race.Startup is
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
-      --for index in 1..drivers_total mod 7 loop
-      --   Race.Driver.Driver_init(Drivers((((index-1)*7)+1)..(index*7)), index);
+      while index < drivers_total loop
+         Driver_properties_aux(1..7):=Drivers(index..(index+6));
+         Driver_Vector.Append(new Race.Driver.Driver);
+         Driver_Vector.Last_Element.all.init(Driver_properties_aux,
+                                             Driver_Vector.Last_Index,
+                                             LP_track,
+                                             laps);
+         index := index + 7;
 
-      --end loop;
+      end loop;
 
-      new_string(1..7):=Drivers(1..7);
-      Micheal.init(Drivers(1..7), 1, LP_track, 3);
-      new_string(1..7):=Drivers(8..14);
-      Alonso.init(new_string, 1, LP_track, 3);
 
       -- Realese the lock in the first segment: Start the Race!
       Race.Circuit.LR_track.Element(1).all.leave(1);

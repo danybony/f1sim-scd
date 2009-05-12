@@ -34,5 +34,10 @@ package Race.Driver is
    end Driver;
 
    type Driver_Ref_T is access Driver;
+   subtype Driver_lenght is Positive range 1..20;
+
+   package Driver_Vector is new Ada.Containers.Vectors
+     (Element_type => Driver_Ref_T,
+      Index_type => Driver_lenght);
 
 end Race.Driver;
