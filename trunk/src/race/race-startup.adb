@@ -23,8 +23,10 @@ with text_io; use text_io;
 with Race.Circuit;
 with Race.Driver;
 with Ada.Integer_Text_IO;
+with Ada.Float_Text_IO;
 with Ada.Strings.Unbounded;
 with Ada.Containers.Vectors;
+with Ada.Numerics.Elementary_Functions;
 
 package body Race.Startup is
 
@@ -119,6 +121,7 @@ package body Race.Startup is
       use Ada.Strings.Unbounded;
       use LP;
       use Ada.Integer_Text_IO;
+      use Ada.Numerics.Elementary_Functions;
       segment_lenght: constant Positive:=1;--lenght(in meters) of one segment
       index: Positive := 1;
       segments_index : Positive := 1;
@@ -128,10 +131,12 @@ package body Race.Startup is
       macro_last_lenght : Positive;
       macro_last_speed : Positive;
       macro_change_line : Positive;
+      macro_diff_speed : Positive;
 
-      break_coeff: integer;
+      break_coeff: float;
       last : Positive;
       segment_temp : Segment_properties_ref_T;
+      last_exp : float;
 
    begin
       while index <= MacroSegments_total loop
@@ -144,21 +149,28 @@ package body Race.Startup is
 
          while segments_index <= macro_first_lenght loop
             segment_temp := new Segment_properties_T;
-            segment_temp.speed := macro_first_speed;
+            segment_temp.speed := float(macro_first_speed);
             LP.Append(track, segment_temp.all);
             segments_index := segments_index + 1;
          end loop;
 
-         break_coeff := (macro_first_speed - macro_last_speed) /
-           macro_last_lenght;
+         if (macro_last_speed < macro_first_speed) then
 
-         while segments_index <= macro_lenght loop
-            segment_temp := new Segment_properties_T;
-            segment_temp.speed := macro_first_speed -
-              (break_coeff*(segments_index-macro_first_lenght));
-            LP.Append(track, segment_temp.all);
-            segments_index := segments_index + 1;
-         end loop;
+            macro_diff_speed  := (macro_first_speed-macro_last_speed);
+            last_exp := Log(float(macro_diff_speed), Ada.Numerics.e);
+            Ada.Float_Text_IO.put(last_exp);
+            Ada.Float_Text_IO.put(Ada.Numerics.e**last_exp);
+            break_coeff := last_exp / float(macro_last_lenght);
+
+            while segments_index <= macro_lenght loop
+               segment_temp := new Segment_properties_T;
+               segment_temp.speed := float(macro_first_speed) -
+                 (Ada.Numerics.e**(float(segments_index-macro_lenght)*break_coeff));
+               LP.Append(track, segment_temp.all);
+               segments_index := segments_index + 1;
+            end loop;
+         end if;
+
 
          segments_index := 1;
          index := index + 5;--skip to next macro segment
@@ -172,30 +184,45 @@ package body Race.Startup is
 
    -----------------------------------------------------------------------------
    -----------------------------------------------------------------------------
+   procedure build_race(Race_params: 	in String_array_T;
+                        laps: 		in out Positive)
+   is
+      use Ada.Integer_Text_IO;
+      use Ada.Strings.Unbounded;
+      last: integer;
+   begin
+      get(to_string(Race_params(1)), laps, last);
+   end build_race;
+
+
+   -----------------------------------------------------------------------------
+   -----------------------------------------------------------------------------
    --  Procedure that set up the environment of the system and then start the
    --+ race.
    procedure startup is
 
-      Teams		:String_array_T(1..20);
+      Race_params	:String_array_T(1..20);
       Drivers		:String_array_T(1..20);
       Driver_Vector	:Race.Driver.Driver_Vector.Vector;
       MacroSegments	:String_array_T(1..20);
-      Teams_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/teams.txt";
+      Race_file 	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/race.txt";
       Drivers_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/drivers.txt";
       MacroSegments_file:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/circuit.txt";
-      Teams_total	:integer:=0;
+      Race_total	:integer:=0;
       Drivers_total	:integer:=0;
       MacroSegments_total:integer:=0;
       LP_track		:LP.Vector;
       index		:integer:=1;
 
       Driver_properties_aux: String_array_T(1..20);
-      laps		:Positive:=2;
+      laps		:Positive:=1;
 
    begin
-      -- Read Team, Driver and Track configurations from file
-      read_configuration(Teams_file,Teams,Teams_total);
-      put("teams: ok");new_line;
+      -- Read Race, Driver and Track configurations from file
+      read_configuration(Race_file,Race_params,Race_total);
+      build_race(Race_Params, laps);
+      put("race: ok");new_line;
+
 
       read_configuration(Drivers_file,Drivers,Drivers_total);
       put("drivers: ok");new_line;
@@ -215,11 +242,14 @@ package body Race.Startup is
       --+driver.
       build_track(MacroSegments, MacroSegments_total, LP_track);
 
-      Ada.Integer_Text_IO.put(Item => Race.Circuit.LR_Track.Last_Index);
-
       -- Lock first segment for driver initializations
       Race.Circuit.LR_track.Element(1).all.enter(1,1);
       Race.Circuit.LR_track.Element(1).all.enter(1,1);
+
+      for index in 800..LP_track.Last_Index loop
+         Ada.float_Text_IO.put(LP_track.element(index).speed);
+      end loop;
+
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver

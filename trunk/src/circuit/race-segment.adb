@@ -33,17 +33,17 @@ package body Race.Segment is
       --  get the segment
       entry Enter (Driver_ID	:positive;
 		   Speed	:positive
-                  ) when in_use > 0 is
+                  ) when in_use >= 0 and in_use < lanes is
       begin
-         in_use := in_use - 1;
+         in_use := in_use + 1;
       end Enter;
 
       --  release the segment
       --+ (formal parameter not used explicitly
       --+  but needed for distributed dispatching)
-      entry Leave (Driver_ID	:positive) when in_use < 2 is
+      entry Leave (Driver_ID	:positive) when in_use > 0 and in_use <= lanes is
       begin
-         in_use := in_use + 1;
+         in_use := in_use - 1;
       end Leave;
 
    end Segment_T;

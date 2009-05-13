@@ -28,7 +28,7 @@ package Race.Segment is
    --  Segment_T is a monitor that control access to a segment
    --  In the other hand, Segment_spec_T contains all the infos
    --  about a segment i.
-   protected type Segment_T (lanes :Positive) is
+   protected type Segment_T (tot_lanes :Positive) is
 
       --  get the segment
       entry Enter (Driver_ID	:positive;
@@ -42,7 +42,8 @@ package Race.Segment is
 
    private
 
-      In_Use : Natural := lanes;
+      In_Use : Natural := 0;
+      Lanes : Positive := tot_lanes;
 
    end Segment_T;
 
