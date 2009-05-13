@@ -137,6 +137,8 @@ package body Race.Startup is
       last : Positive;
       segment_temp : Segment_properties_ref_T;
       last_exp : float;
+      more_precision : float := 1.00000E+00;
+      exponent : float;
 
    begin
       while index <= MacroSegments_total loop
@@ -158,17 +160,25 @@ package body Race.Startup is
 
             macro_diff_speed  := (macro_first_speed-macro_last_speed);
             last_exp := Log(float(macro_diff_speed), Ada.Numerics.e);
-            Ada.Float_Text_IO.put(last_exp);
-            Ada.Float_Text_IO.put(Ada.Numerics.e**last_exp);
             break_coeff := last_exp / float(macro_last_lenght);
 
             while segments_index <= macro_lenght loop
                segment_temp := new Segment_properties_T;
+               exponent := (float(segments_index-macro_first_lenght)*break_coeff);
                segment_temp.speed := float(macro_first_speed) -
-                 (Ada.Numerics.e**(float(segments_index-macro_lenght)*break_coeff));
+                 (Ada.Numerics.e**exponent);
                LP.Append(track, segment_temp.all);
                segments_index := segments_index + 1;
             end loop;
+         else
+
+            while segments_index <= macro_lenght loop
+               segment_temp := new Segment_properties_T;
+               segment_temp.speed := float(macro_first_speed);
+               LP.Append(track, segment_temp.all);
+               segments_index := segments_index + 1;
+            end loop;
+
          end if;
 
 
