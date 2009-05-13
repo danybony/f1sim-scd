@@ -37,7 +37,7 @@ package Race is
    type Segment_Properties_T is
    --  info about a single segment
       record
-         Speed: Positive;
+         Speed: Float;
       end record;
 
    type Segment_properties_Ref_T is access Segment_Properties_T;
