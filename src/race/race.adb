@@ -17,9 +17,9 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-with Ada.Containers.Vectors;
 
-package Race.Segment is
+
+package body Race is
 
    --  static variable used as the T0 reference basis for
    --+ the running counter of the elapsed time
@@ -28,50 +28,22 @@ package Race.Segment is
    --  Segment_T is a monitor that control access to a segment
    --  In the other hand, Segment_spec_T contains all the infos
    --  about a segment i.
-   protected type Segment_T (tot_lanes :Positive) is
+   protected body Segment_T is
 
       --  get the segment
-      entry Enter (Driver_ID	:positive;
-		   Speed	:positive
-		  );
+      entry Enter when in_use >= 0 and in_use < lanes is
+      begin
+         in_use := in_use + 1;
+      end Enter;
 
       --  release the segment
       --+ (formal parameter not used explicitly
       --+  but needed for distributed dispatching)
-      entry Leave (Driver_ID	:positive);
-
-   private
-
-      In_Use : Natural := 0;
-      Lanes : Positive := tot_lanes;
+      entry Leave when in_use > 0 and in_use <= lanes is
+      begin
+         in_use := in_use - 1;
+      end Leave;
 
    end Segment_T;
 
-   type Segment_Ref_T is access Segment_T;
-
-   subtype LR_lenght is Positive range 1..Positive'last;
-
-   package LR is new Ada.Containers.Vectors
-     (Element_Type => Segment_Ref_T,
-      Index_Type => LR_lenght);
-
-
-   --type Segment_array_T is array (Positive range <>) of Segment_Ref_T;
-
-   --type Segment_spec_T is
-   --   record
-   --      max_speed:integer;
-   --      max_lanes:integer;
-   --   end record;
-
-   --type Segment_spec_ref_T is access all Segment_spec_T;
-
-   --type Segment_list_T is
-   --   record
-   --      Segment: Segment_spec_T;
-   --      Next: Segment_spec_ref_T;
-         --  This pointer is in most cases equal to null
-   --      Box: Segment_spec_ref_T;
-   --   end record;
-
-end Race.Segment;
+end Race;
