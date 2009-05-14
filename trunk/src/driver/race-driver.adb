@@ -18,8 +18,6 @@
 --  any later version.                                --
 --------------------------------------------------------
 
-
-with Race.Segment; use Race.Segment;
 with Ada.Integer_Text_IO;
 with Text_IO;
 with Ada.Strings.unbounded;

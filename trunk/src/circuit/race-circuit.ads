@@ -17,17 +17,10 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-with Race.Segment;
 
 package Race.Circuit is
 
-   LR_Track: Race.Segment.LR.Vector;
-
-   --Function that build all the segments (monitor) of the track and return it
-   --function build_track (
-   --                       segment_array:substring_array_T;
-   --                       number_of_segments:integer
-   --                      )return Segment_list_T;
+   LR_Track: LR.Vector;
 
    procedure build_track (MacroSegments		:in String_array_T;
                           MacroSegments_total	:in integer);

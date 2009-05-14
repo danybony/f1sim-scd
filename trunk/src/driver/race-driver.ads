@@ -18,8 +18,6 @@
 --  any later version.                                --
 --------------------------------------------------------
 
-
-with Race.Segment; use Race.Segment;
 with Ada.Strings.Unbounded;
 
 --  This package contains driver interface definition.

@@ -17,27 +17,18 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-with Race.Segment;
+
 with Ada.Integer_Text_IO;
 
 package body Race.Circuit is
-
-
-   --Function that build all the segments (monitor) of the track and return it
-   --function build_track (
-   --                       segment_array:substring_array_T;
-   --                       number_of_segments:integer
-   --                      )return Segment_list_T;
 
    procedure build_track (MacroSegments		:in String_array_T;
                           MacroSegments_total	:in integer)
    is
       use Ada.Strings.Unbounded;
-
-      use Race.Segment;
       use Ada.Integer_Text_IO;
       segment_lenght: constant Positive:=1;--lenght(in meters) of one segment
-      index: Positive := 1;
+      main_loop_index: Positive := 1;
       segments_index : Positive := 1;
       macro_lenght : Positive;
       macro_lanes : Positive;
@@ -46,9 +37,9 @@ package body Race.Circuit is
       segment_temp : Segment_ref_T;
 
    begin
-      while index <= MacroSegments_total loop
-         get(To_String(MacroSegments(index)),macro_lenght,last);
-         get(To_String(MacroSegments(index+4)),macro_lanes,last);
+      while main_loop_index <= MacroSegments_total loop
+         get(To_String(MacroSegments(main_loop_index)),macro_lenght,last);
+         get(To_String(MacroSegments(main_loop_index+4)),macro_lanes,last);
 
          macro_lenght := macro_lenght/segment_lenght;
 
@@ -59,7 +50,7 @@ package body Race.Circuit is
          end loop;
 
          segments_index := 1;
-         index := index + 5;--skip to next macro segment
+         main_loop_index := main_loop_index + 5;--skip to next macro segment
 
       end loop;
 
