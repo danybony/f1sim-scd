@@ -22,18 +22,14 @@ with Ada.Containers.Vectors;
 
 package Race is
 
-   type String_Ref_T       is access all String;
-   type Integer_Ref_T      is access all Integer;
-
-   --type Macro_Segment_T;
-   --type Macro_Segment_Ref_T is access all Macro_Segment_T;
-   --subtype Substring_T is String(1..255);
-   --type Substring_array_T is array (Positive range <>) of Substring_T;
    type Strategy_T is array (Natural range <>) of Positive;
    type Strategy_Ref_T is access Strategy_T;
 
-   type String_array_T is array (Positive range <>) of ada.strings.Unbounded.unbounded_string;
+   type String_array_T is array (Positive range <>) of
+     ada.strings.Unbounded.unbounded_string;
 
+   --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+   --++++++	LP-related definitions		++++++++++++++++++++++++++++++--
    type Segment_Properties_T is
    --  info about a single segment
       record
@@ -47,6 +43,34 @@ package Race is
    package LP is new Ada.Containers.Vectors
      (Element_Type => Segment_Properties_T,
       Index_Type => LP_lenght);
+
+
+   --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+   --++++++	LR-related definitions		++++++++++++++++++++++++++++++--
+   protected type Segment_T (tot_lanes :Positive) is
+
+      --  get the segment
+      entry Enter;
+
+      --  release the segment
+      --+ (formal parameter not used explicitly
+      --+  but needed for distributed dispatching)
+      entry Leave;
+
+   private
+
+      In_Use : Natural := 0;
+      Lanes : Positive := tot_lanes;
+
+   end Segment_T;
+
+   type Segment_Ref_T is access Segment_T;
+
+   subtype LR_lenght is Positive range 1..Positive'Last;
+
+   package LR is new Ada.Containers.Vectors
+     (Element_Type => Segment_Ref_T,
+      Index_Type => LR_lenght);
 
 end Race;
 

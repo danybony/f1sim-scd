@@ -19,7 +19,7 @@
 --------------------------------------------------------
 
 -- Using text_io to read the race configuration from file
-with text_io; use text_io;
+with text_io;
 with Race.Circuit;
 with Race.Driver;
 with Ada.Integer_Text_IO;
@@ -36,6 +36,7 @@ package body Race.Startup is
    function file_exists(
                         name:string
                        ) return boolean is
+      use text_io;
       input_file:file_type;
 
    begin
@@ -60,7 +61,7 @@ package body Race.Startup is
                                  array_index:		in out	integer
                                 ) is
       use Ada.Strings.Unbounded;
-
+      use text_io;
       line_index:integer:=1;
       --  Temporary input file for every file reading
       input_file:file_type;
@@ -97,7 +98,7 @@ package body Race.Startup is
             else
             array_index:=array_index+1;
             array_to_configure(array_index):=To_unbounded_string(input_string(1..line_index-1));
-            put(to_string(array_to_configure(array_index)));new_line;
+            --put(to_string(array_to_configure(array_index)));new_line;
             --skip to the next text line
             skip_line(input_file);
             end if;
@@ -137,7 +138,6 @@ package body Race.Startup is
       last : Positive;
       segment_temp : Segment_properties_ref_T;
       last_exp : float;
-      more_precision : float := 1.00000E+00;
       exponent : float;
 
    begin
@@ -211,37 +211,39 @@ package body Race.Startup is
    --+ race.
    procedure startup is
 
+      use text_io;
       Race_params	:String_array_T(1..20);
-      Drivers		:String_array_T(1..20);
-      Driver_Vector	:Race.Driver.Driver_Vector.Vector;
-      MacroSegments	:String_array_T(1..20);
+      Drivers_params	:String_array_T(1..20);
+      Drivers   	:Race.Driver.Driver_Vector.Vector;
+      MacroSegments_params :String_array_T(1..20);
       Race_file 	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/race.txt";
       Drivers_file	:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/drivers.txt";
       MacroSegments_file:String:="/home/ilzatto/Desktop/Progetto_SCD/f1sim-scd/txt/circuit.txt";
-      Race_total	:integer:=0;
-      Drivers_total	:integer:=0;
-      MacroSegments_total:integer:=0;
+      Race_file_lines	:integer:=0;
+      Drivers_file_lines:integer:=0;
+      MacroSegments_file_lines:integer:=0;
       LP_track		:LP.Vector;
-      index		:integer:=1;
-
+      Drivers_index	:integer:=1;
       Driver_properties_aux: String_array_T(1..20);
       laps		:Positive:=1;
 
    begin
       -- Read Race, Driver and Track configurations from file
-      read_configuration(Race_file,Race_params,Race_total);
-      build_race(Race_Params, laps);
+      read_configuration(Race_file,Race_params,Race_file_lines);
       put("race: ok");new_line;
 
-
-      read_configuration(Drivers_file,Drivers,Drivers_total);
+      read_configuration(Drivers_file,Drivers_params,Drivers_file_lines);
       put("drivers: ok");new_line;
 
-      read_configuration(MacroSegments_file,MacroSegments,MacroSegments_total);
+      read_configuration(MacroSegments_file,MacroSegments_params,MacroSegments_file_lines);
       put("circuit: ok");new_line;
 
+
+      -- Get race properties from configuration
+      build_race(Race_Params, laps);
+
       -- Build the track
-      -- This function creates 2 array: one is the list of properties for every
+      -- This function creates 2 vectors: one is the list of properties for every
       --+segments (we will call this "LP" from now on); the other is a list of
       --+protected types (we will call this "LR" from now on).
       --+Each driver needs LP to "know" the track (i.e. calculate speed in the
@@ -250,34 +252,30 @@ package body Race.Startup is
       --+driver
       --+LR will be stored in "Circuit" machine and freely accessible to any
       --+driver.
-      build_track(MacroSegments, MacroSegments_total, LP_track);
+      build_track(MacroSegments_params, MacroSegments_file_lines, LP_track);
 
       -- Lock first segment for driver initializations
-      Race.Circuit.LR_track.Element(1).all.enter(1,1);
-      Race.Circuit.LR_track.Element(1).all.enter(1,1);
-
-      for index in 800..LP_track.Last_Index loop
-         Ada.float_Text_IO.put(LP_track.element(index).speed);
-      end loop;
-
+      Race.Circuit.LR_track.Element(1).all.enter;
+      Race.Circuit.LR_track.Element(1).all.enter;
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
-      while index < drivers_total loop
-         Driver_properties_aux(1..7):=Drivers(index..(index+6));
-         Driver_Vector.Append(new Race.Driver.Driver);
-         Driver_Vector.Last_Element.all.init(Driver_properties_aux,
-                                             Driver_Vector.Last_Index,
-                                             LP_track,
-                                             laps);
-         index := index + 7;
+      while Drivers_index < drivers_file_lines loop
+         Driver_properties_aux(1..7):=Drivers_params(Drivers_index..(Drivers_index+6));
+         Drivers.Append(new Race.Driver.Driver);
+         Drivers.Last_Element.all.init(Driver_properties_aux,
+                                       Drivers.Last_Index,
+                                       LP_track,
+                                       laps);
+
+         Drivers_index := Drivers_index + 7;
 
       end loop;
 
 
       -- Realese the lock in the first segment: Start the Race!
-      Race.Circuit.LR_track.Element(1).all.leave(1);
-      Race.Circuit.LR_track.Element(1).all.leave(1);
+      Race.Circuit.LR_track.Element(1).all.leave;
+      Race.Circuit.LR_track.Element(1).all.leave;
    end startup;
 
 
