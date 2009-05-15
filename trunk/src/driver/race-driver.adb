@@ -21,14 +21,19 @@
 with Ada.Integer_Text_IO;
 with Text_IO;
 with Ada.Strings.unbounded;
-
---  This package contains driver interface definition.
+with Race.Circuit;
+with Ada.Calendar;
+with Ada.Numerics;
 
 package body Race.Driver is
 
 
    task body Driver is
       use Text_IO;
+      use Race.Circuit;
+      use Ada.Strings.Unbounded;
+      use ada.Calendar;
+      use Ada.Numerics;
       Name: Ada.Strings.Unbounded.Unbounded_String;
       ID: Positive;
       Team: Ada.Strings.Unbounded.Unbounded_String;
@@ -40,6 +45,11 @@ package body Race.Driver is
       Laps_Done: Natural := 0;
       Tot_Laps: Positive;
       LP_track: LP.Vector;
+      Initial_Position: Positive;
+      Position: Positive;
+      Wake : Time;
+      Speed : float := 0.00000E+00;
+      Speed_exp : float := 0.00000E+00;
 
    begin
       Text_IO.put_line("Driver started");
@@ -97,11 +107,41 @@ package body Race.Driver is
             get(to_String(params(6)),MSpeed,Last);
             LP_track := track;
             Tot_Laps := Laps;
+            Initial_Position := Position;
          end;
       end init;
 
+      -- line up driver
+      --Position := (LR_track.Last_Index-Initial_Position)+1;
+      --LR_track.Element(Position).all.enter;
+      Position := 1;
+      put(to_string(Name));
+      put(" lined up!");new_line;
+
       -- main loop of driver
-      -- end of main loop
+      while laps_done <= tot_laps loop
+         while Position <= LP_track.Last_Index loop
+            LR_track.Element(Position).all.enter;
+            put(to_string(Name));
+            put(" is in segment ");
+            if speed < LP_track.Element(Position).speed then
+               -- calc new speed with Accel modifier
+               speed_exp := speed_exp + accel_coeff;
+               speed := e**speed_exp;
+            else
+               speed := LP_track.Element(Position).speed;
+            end if;
+
+
+            ada.Integer_Text_IO.put(Position);new_line;
+            Wake := clock + duration(Accel/10);
+            delay until Wake;
+            LR_track.Element(Position).all.leave;
+            Position := Position +1;
+         end loop;
+         laps_done := laps_done + 1;
+      end loop;
+      --end of main loop
 
    end Driver;
 
