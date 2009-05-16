@@ -1,30 +1,30 @@
 #Ogni quaterna di valori tra #..# definisce un macro segmento (rettilineo/curva)
-#Il primo valore è la lunghezza espressa in metri
+#Il primo valore è la lunghezza
 #Il secondo valore è la velocità massima all'inizio del macro segmento
 #Il terzo valore è la velocità massima alla fine del macro segmento
 #Il quarto valore rappresenta dopo quanti metri passare dalla prima velocità alla seconda
 #Il quinto valore è il numero di corsie del macro segmento
 #(curva).
-1000
+15
 350
 100
-800
+10
 2
 #
-200
+10
 100
 100
-50
+1
 1
 #
-1000
+15
 350
 100
-800
+10
 2
 #
-200
+10
 100
 100
-50
+1
 1
