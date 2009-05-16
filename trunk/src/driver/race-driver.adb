@@ -51,11 +51,11 @@ package body Race.Driver is
       Wake : Time;
       Speed : float := 0.00000E+00;
       mspeed_exp : float := 0.00000E+00;
-      speed_exp : float := 0.00000E+00;
+      speed_exp : float := 1.00000E+00;
       time_to_mspeed : float;
       accel_coeff : float;
       log_base : float := 1.07300E+00;
-      min_time_per_segment : duration := 0.7;
+      min_time_per_segment : duration := 0.0;
       segment_max_speed : float;
 
    begin
@@ -135,7 +135,7 @@ package body Race.Driver is
       Ada.Float_Text_IO.put(log(time_to_mspeed, log_base));new_line;
 
       -- calculate acceleration coefficient, in respect of driver's skills
-      accel_coeff := time_to_mspeed/(float(Accel/10));
+      accel_coeff := (time_to_mspeed-float(1))/(float(100)+float(100-(Accel/10)));
       Ada.Float_Text_IO.put(accel_coeff);
 
       -- main loop of driver
@@ -153,17 +153,14 @@ package body Race.Driver is
             -- if driver can accelerate
             if speed < segment_max_speed then
                -- calc new speed with acceleration coefficient
-               speed_exp := speed_exp + accel_coeff;
-               speed := log((speed_exp), log_base)*float(10);
+               if speed < float(mspeed) then
+                  speed_exp := speed_exp + accel_coeff;
+                  speed := log((speed_exp), log_base)*float(10);
 
-               if speed > float(mspeed) then
-                  speed := float(mspeed);
-                  speed_exp := mspeed_exp;
-               end if;
-
-               if speed > segment_max_speed then
-                  speed := segment_max_speed;
-                  speed_exp := log_base**(speed/float(10));
+                  if speed > segment_max_speed then
+                     speed := segment_max_speed;
+                     speed_exp := log_base**(speed/float(10));
+                  end if;
                end if;
 
                put(" Speed: ");
