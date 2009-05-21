@@ -50,16 +50,20 @@ package body Race.Driver is
       Position: Positive;
       Wake : Time;
       Speed : float := 0.00000E+00;
+      mspeed_f : float;
       mspeed_exp : float := 0.00000E+00;
       speed_exp : float := 1.00000E+00;
       time_to_mspeed : float;
       lenght_to_mspeed : float;
       avg_speed : float;
       --accel_coeff : float;
-      log_t_base : float := 1.07850E+00;
+      -- log base for km/h
+      --log_t_base : float := 1.07850E+00;
+      -- log base for m/s
+      log_t_base : float := 1.02790E+00;
       log_m_base : float := 1.00000E+00;
       min_time_per_segment : duration := 0.0;
-      --segment_max_speed : float;
+      segment_max_speed : float;
       lenght_time_tax : float;
       accel_lenght : float:=0.00000E+00;
       --c_time : duration;
@@ -128,50 +132,109 @@ package body Race.Driver is
       put(" lined up!");new_line;
 
       -- calculate log base with respect to driver's accel coeff
-      log_t_base := log_t_base - float(accel)/float(10_000);
+      -- less log_t_base = more acceleration
+      log_t_base := log_t_base - (float(accel)/float(10_000));
       put("Log_t_base: ");
       Ada.Float_Text_IO.put(log_t_base);new_line;
 
-      -- avoid float overflow
-      mspeed_exp := float(mspeed)/float(10);
+      -- convert mspeed from km/h to m/s
+      mspeed_f := (float(mspeed)/float(3_600))*float(1_000);
 
-      -- calculate how much time takes to achive max speed
-      time_to_mspeed := log_t_base**mspeed_exp;
+      -- avoid float overflow
+      --mspeed_exp := float(mspeed)/float(10);
+
+      -- calculate how much time takes to achieve 300 km/h (83,33 m/s)
+      time_to_mspeed := log_t_base**8.33333E+01;
       put("Time_to_mspeed: ");
       Ada.Float_Text_IO.put(time_to_mspeed);new_line;
 
       put("Test mspeed: ");
       Ada.Float_Text_IO.put(log(time_to_mspeed, log_t_base));new_line;
 
-      avg_speed := float(mspeed)/float(2);
-      -- transform avg_speed from km/h to m/s
-      avg_speed := (avg_speed/float(3_600))*float(1_000);
+      avg_speed := 8.33333E+01/float(2);
+      -- convert avg_speed from km/h to m/s
+      --avg_speed := (avg_speed/float(3_600))*float(1_000);
       put("avg_speed: ");
       Ada.Float_Text_IO.put(avg_speed);new_line;
 
       -- calculate at wich lenght driver achieve max speed
-      lenght_to_mspeed := avg_speed * time_to_mspeed;
+      lenght_to_mspeed := avg_speed * (time_to_mspeed - float(1));
       put("lenght_to_mspeed: ");
       Ada.Float_Text_IO.put(lenght_to_mspeed);new_line;
 
       -- calculate lenght/time conversion
-      lenght_time_tax := lenght_to_mspeed/time_to_mspeed;
+      lenght_time_tax := (time_to_mspeed - float(1)) / lenght_to_mspeed;
       put("lenght/time: ");
       Ada.Float_Text_IO.put(lenght_time_tax);new_line;
 
       -- First segment of the race
       LR_track.Element(Position).all.enter;
       put(to_string(name));put(":");new_line;
+      -- 10 meters of acceleration
       accel_lenght := accel_lenght + float(10);
-      speed := (log(float(1)+(accel_lenght/lenght_time_tax), log_t_base));
+      speed := (log(float(1)+(accel_lenght * lenght_time_tax), log_t_base));
       put("speed: ");
-      ada.Float_Text_IO.put(speed*float(10));new_line;
-      wake := clock + duration(accel_lenght/lenght_time_tax);
+      ada.Float_Text_IO.put(speed);new_line;
+      put("speed (km/h): ");
+      ada.Float_Text_IO.put(speed*float(3600)/float(1000));new_line;
+      wake := clock + duration(float(10)/speed);
       put("Wake: ");
-      ada.Float_Text_IO.put(accel_lenght/lenght_time_tax);new_line;
+      ada.Float_Text_IO.put(float(10)/speed);new_line;
       delay until wake;
       LR_track.Element(Position).all.leave;
       -- end first segment of the race
+
+      -- main loop of driver
+
+      while laps_done <= tot_laps loop
+         while Position <= LP_track.Last_Index loop
+            LR_track.Element(Position).all.enter;
+            put(to_string(Name));
+            put(" is in segment ");
+            ada.Integer_Text_IO.put(Position);
+
+            -- current segment max speed plus driver skill
+            segment_max_speed := LP_track.Element(Position).speed*float(1000)/float(3600);
+
+
+            -- if driver can accelerate
+            if speed < segment_max_speed then
+               -- calc new speed with acceleration coefficient
+               if speed < mspeed_f then
+                  -- 10 meters of acceleration
+                  accel_lenght := accel_lenght + float(10);
+                  speed := (log(float(1)+(accel_lenght*lenght_time_tax), log_t_base));
+
+                  -- driver reach max speed!
+                  if speed > segment_max_speed then
+                     speed := segment_max_speed;
+                     accel_lenght := lenght_to_mspeed;
+                  end if;
+               end if;
+
+               put(" Speed: ");
+               Ada.Integer_Text_IO.put(integer(speed*float(3600)/float(1000)));new_line;
+            else
+               -- if driver cannot accelerate, keeps max speed available and
+               -- update current accel_lenght
+               speed := LP_track.Element(Position).speed *float(1000)/float(3600);
+               put(" Speed: ");
+               Ada.Integer_Text_IO.put(integer(speed*float(3600)/float(1000)));new_line;
+               accel_lenght := ((log_t_base**speed) - float(1)) / lenght_time_tax;
+            end if;
+            -- calc wake time with respect to current driver speed
+            wake := clock + duration(float(10)/speed);
+            put("Wake: ");
+            ada.Float_Text_IO.put(float(10)/speed);new_line;
+            delay until Wake;
+            LR_track.Element(Position).all.leave;
+            Position := Position +1;
+         end loop;
+         laps_done := laps_done + 1;
+      end loop;
+      --end of main loop
+
+
 
 
       -- calculate acceleration coefficient, in respect of driver's skills
