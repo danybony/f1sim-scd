@@ -27,7 +27,7 @@ package Race.Driver is
    task type Driver is
       entry init(params		: String_array_T;
                  position	: Positive;
-                 track		: LP.Vector;
+                 track		: LP_track_T;
                  laps		: Positive);
    end Driver;
 
@@ -37,5 +37,10 @@ package Race.Driver is
    package Driver_Vector is new Ada.Containers.Vectors
      (Element_type => Driver_Ref_T,
       Index_type => Driver_lenght);
+
+   -- Brake points array
+   -- For every macro segment, this array indicates when start braking
+   type brake_points_T is array (Positive range <>) of Natural;
+   type brake_points_Ref_T is access brake_points_T;
 
 end Race.Driver;

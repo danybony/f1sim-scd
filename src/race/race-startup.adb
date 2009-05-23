@@ -117,74 +117,49 @@ package body Race.Startup is
    -----------------------------------------------------------------------------
    procedure build_track (MacroSegments		:in String_array_T;
                           MacroSegments_total	:in integer;
-                          track			:in out LP.Vector)
+                          LP_track		:in out LP_track_ref_T)
    is
       use Ada.Strings.Unbounded;
       use LP;
-      use Ada.Integer_Text_IO;
+      use Ada.Float_Text_IO;
       use Ada.Numerics.Elementary_Functions;
-      segment_lenght: constant Positive:=1;--lenght(in meters) of one segment
       index: Positive := 1;
       segments_index : Positive := 1;
       macro_lenght : Positive;
-      macro_first_lenght : Positive;
-      macro_first_speed : Positive;
-      macro_last_lenght : Positive;
-      macro_last_speed : Positive;
-      macro_change_line : Positive;
-      macro_diff_speed : Positive;
+      macro_first_speed : float;
+      macro_last_speed : float;
 
-      break_coeff: float;
       last : Positive;
       segment_temp : Segment_properties_ref_T;
-      last_exp : float;
-      exponent : float;
+
+      track : LP.Vector;
 
    begin
       while index <= MacroSegments_total loop
-         get(To_String(MacroSegments(index)),macro_lenght,last);
-         get(To_String(MacroSegments(index+3)),macro_change_line,last);
-         macro_first_lenght := macro_change_line/segment_lenght;
-         macro_last_lenght := (macro_lenght-macro_change_line)/segment_lenght;
+         Ada.Integer_Text_IO.get(To_String(MacroSegments(index)),macro_lenght,last);
          get(To_String(MacroSegments(index+1)),macro_first_speed,last);
          get(To_String(MacroSegments(index+2)),macro_last_speed,last);
 
-         while segments_index <= macro_first_lenght loop
-            segment_temp := new Segment_properties_T;
-            segment_temp.speed := float(macro_first_speed);
-            LP.Append(track, segment_temp.all);
-            segments_index := segments_index + 1;
-         end loop;
+         -- convert speed from km/h to m/s
+         macro_first_speed := macro_first_speed * float(1_000) / float(3_600);
+         macro_last_speed := macro_last_speed * float(1_000) / float(3_600);
 
-         if (macro_last_speed < macro_first_speed) then
+         -- populate LP vector
+         segment_temp := new Segment_properties_T;
+         segment_temp.Starting_Speed := macro_first_speed;
+         segment_temp.Leaving_Speed := macro_last_speed;
+         segment_temp.Segments := macro_lenght;
+         LP.Append(track, segment_temp.all);
 
-            macro_diff_speed  := (macro_first_speed-macro_last_speed);
-            last_exp := Log(float(macro_diff_speed), Ada.Numerics.e);
-            break_coeff := last_exp / float(macro_last_lenght);
+         index := index + 4;--skip to next macro segment
 
-            while segments_index <= macro_lenght loop
-               segment_temp := new Segment_properties_T;
-               exponent := (float(segments_index-macro_first_lenght)*break_coeff);
-               segment_temp.speed := float(macro_first_speed) -
-                 (Ada.Numerics.e**exponent);
-               LP.Append(track, segment_temp.all);
-               segments_index := segments_index + 1;
-            end loop;
-         else
+      end loop;
 
-            while segments_index <= macro_lenght loop
-               segment_temp := new Segment_properties_T;
-               segment_temp.speed := float(macro_first_speed);
-               LP.Append(track, segment_temp.all);
-               segments_index := segments_index + 1;
-            end loop;
-
-         end if;
-
-
-         segments_index := 1;
-         index := index + 5;--skip to next macro segment
-
+      LP_track := new LP_track_T(1..track.Last_Index);
+      index := 1;
+      while index <= track.Last_Index loop
+         LP_track(index) := track.Element(index);
+         index := index + 1;
       end loop;
 
       -- build 2nd vector: LR
@@ -222,7 +197,7 @@ package body Race.Startup is
       Race_file_lines	:integer:=0;
       Drivers_file_lines:integer:=0;
       MacroSegments_file_lines:integer:=0;
-      LP_track		:LP.Vector;
+      LP_track		:LP_track_Ref_T;
       Drivers_index	:integer:=1;
       Driver_properties_aux: String_array_T(1..20);
       laps		:Positive:=1;
@@ -265,7 +240,7 @@ package body Race.Startup is
          Drivers.Append(new Race.Driver.Driver);
          Drivers.Last_Element.all.init(Driver_properties_aux,
                                        Drivers.Last_Index,
-                                       LP_track,
+                                       LP_track.all,
                                        laps);
 
          Drivers_index := Drivers_index + 7;

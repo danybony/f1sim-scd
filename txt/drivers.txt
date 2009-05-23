@@ -2,8 +2,8 @@
 #Il primo valore è il nome del pilota
 #Il secondo valore è la scuderia per la quale il pilota corre
 #Il terzo valore è il numero della vettura (ID) del pilota
-#Il quarto valore è il coefficiente di accelerazione, con range [0..9]
-#Il quinto valore è il coefficiente di decelerazione, con range [0..9]
+#Il quarto valore è il coefficiente di accelerazione, con range [1..10]
+#Il quinto valore è il coefficiente di decelerazione, con range [1..10]
 #Il sesto valore rappresenta la velocità massima della vettura in Km/h
 #Il settimo valore è un insieme di valori che indicano la strategia:
 #ogni numero, separato da una virgola, rappresenta un giro durante il quale
@@ -11,8 +11,8 @@
 Micheal Schumacher
 Ferrari
 1
-9
-9
+10
+10
 340
 2,4
 #
@@ -20,6 +20,6 @@ Fernando Alonso
 Renault
 2
 6
-7
+1
 320
 4,6
