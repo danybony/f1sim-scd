@@ -31,9 +31,11 @@ package Race is
    --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
    --++++++	LP-related definitions		++++++++++++++++++++++++++++++--
    type Segment_Properties_T is
-   --  info about a single segment
+   --  info about a macro segment
       record
-         Speed: Float;
+         Starting_Speed: Float;
+         Leaving_Speed: Float;
+         Segments: Positive;
       end record;
 
    type Segment_properties_Ref_T is access Segment_Properties_T;
@@ -43,6 +45,11 @@ package Race is
    package LP is new Ada.Containers.Vectors
      (Element_Type => Segment_Properties_T,
       Index_Type => LP_lenght);
+
+   type LP_track_T is array (Positive range <>) of Segment_Properties_T;
+   type LP_track_Ref_T is access LP_track_T;
+
+
 
 
    --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--

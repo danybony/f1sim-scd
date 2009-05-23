@@ -39,7 +39,7 @@ package body Race.Circuit is
    begin
       while main_loop_index <= MacroSegments_total loop
          get(To_String(MacroSegments(main_loop_index)),macro_lenght,last);
-         get(To_String(MacroSegments(main_loop_index+4)),macro_lanes,last);
+         get(To_String(MacroSegments(main_loop_index+3)),macro_lanes,last);
 
          macro_lenght := macro_lenght/segment_lenght;
 
@@ -50,7 +50,7 @@ package body Race.Circuit is
          end loop;
 
          segments_index := 1;
-         main_loop_index := main_loop_index + 5;--skip to next macro segment
+         main_loop_index := main_loop_index + 4;--skip to next macro segment
 
       end loop;
 
