@@ -1,6 +1,8 @@
-import java.io.FileWriter;
-import java.util.Vector;
+import java.io.FileReader;
 import org.omg.CORBA.*;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextHelper;
 import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 
@@ -16,7 +18,7 @@ public class Log_main extends javax.swing.JFrame {
    // private ORB orb;
 
     static String args[];
-    private static final String IORFILE = "/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/txt/IOR.txt";
+    private static final String IORFILE = "/home/daniele/SCD/f1-export/txt/ior.txt";
 
     private void startORB(){
          
@@ -54,7 +56,7 @@ public class Log_main extends javax.swing.JFrame {
             }
         });
 
-        jTable.setModel(new DriversTableModel(new Vector<Driver>()));
+       // jTable.setModel(new DriversTableModel(new Vector<Driver>()));
         jScrollPane1.setViewportView(jTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -110,16 +112,34 @@ public class Log_main extends javax.swing.JFrame {
           // get object reference from the servant
           org.omg.CORBA.Object ref = rootpoa.servant_to_reference(log_viewerImpl);
           Log_viewer href = Log_viewerHelper.narrow(ref);
+          
+          //get NameService
+          FileReader fileIn = new FileReader(IORFILE);
+          String ior = "";
+          while(fileIn.ready()){
+              char c = (char)fileIn.read();
+              if(c!= '\n'){
+                 ior = ior + c;
+              }
+          }
+          fileIn.close();
+          System.out.println("NameService IOR readed from file: "+IORFILE);
+          System.out.println("NameService: -"+ior+"-");
+
+
+        
+          //If resolve_initial_references don't work, need to use ior readed from file
+          //resolve_initial_references("NameService");
+          org.omg.CORBA.Object ncobj = orb.string_to_object(ior);
+          NamingContext rootNC = NamingContextHelper.narrow(ncobj);
+
+          NameComponent[] name = new NameComponent[1];
+          name[0] = new NameComponent("Logger","");
+
+          rootNC.bind(name, ref);
 
           System.out.println("Logger ready and waiting ...");
 
-
-          String ior = orb.object_to_string(href);
-          FileWriter fileOut = new FileWriter(IORFILE,false);
-          fileOut.write(ior);
-          fileOut.close();
-          System.out.println("Logger IOR saved to file: "+IORFILE);
-          System.out.println("IOR: "+ior);
 
           // wait for invocations from client
           orb.run();
