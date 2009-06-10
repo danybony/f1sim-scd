@@ -62,25 +62,32 @@ package body Race.Driver is
 
       -- log base for acceleration
       -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
-      -- less log_a_base = more acceleration
-      log_a_base : float := 1.15050E+00;
+      -- less log_a_base = more acceleration 1.15050E+00;
+      log_a_base : float := 1.10050E+00;
 
-      -- exp base for deceleration
+      -- log base for deceleration
       -- deceleration is usually 4 g (39 m/s^2) in F1
-      -- more exp_d_base = more brake power = delayed brakes
-      exp_d_base : float := 1.03800E+00;
+      -- less log_d_base = more brake power = delayed brakes
+      log_d_base : float := 1.05450E+00;
 
-      brake_points : brake_points_Ref_T;
+      --brake_points : brake_points_Ref_T;
 
       --min_time_per_segment : duration := 0.0;
       --segment_max_speed : float;
       --lenght_time_tax : float;
       accel_lenght : float:=0.00000E+00;
+      decel_lenght : float:=0.00000E+00;
       --c_time : duration;
       entering_speed : float;
       leaving_speed : float;
       avg_speed : float;
       meters_per_segment : constant float := 1.00000E+01;
+      macro_index : Positive := 1;
+      segment_index : Positive := 1;
+      meters_so_far : Natural := 0;
+      current_accel_lenght : float;
+      next_segment_accel_lenght : float;
+      brake_point : Natural;
 
    begin
       Text_IO.put_line("Driver started");
@@ -99,26 +106,24 @@ package body Race.Driver is
 	    index:integer:=1;--strategy string array index
 	    --driver:Driver_Ref_T;
             last:Positive;
-            brake_point_accel : float;
-            next_segment_accel : float;
-            brake_point : float;
+
          begin
 
       	   -- read strategy (lap numbers)  from params. Assume at least 1 pit stop.
       	   while (index<=Strategy_string'last) loop
 
 		if strategy_string(index)>='0' and strategy_string(index)<='9' then
-               	    -- accumulate digits in the buffer
-		    buffer_index_last := buffer_index_last + 1;
-                    index:=index+1;
+                  -- accumulate digits in the buffer
+                  buffer_index_last := buffer_index_last + 1;
+                  index:=index+1;
                 else
                     -- convert string to lap number and flush the buffer
-		    strategy_lenght := strategy_lenght +1;
+                  strategy_lenght := strategy_lenght +1;
                   get(strategy_string(buffer_index_first..buffer_index_last),
                       Strategy(strategy_lenght), Last);
-                    buffer_index_first := index + 1;
-                    buffer_index_last := index;
-               	    index := index + 1;
+                  buffer_index_first := index + 1;
+                  buffer_index_last := index;
+                  index := index + 1;
                 end if;
 
             end loop;
@@ -140,6 +145,14 @@ package body Race.Driver is
             index := 1;
             while index <= track'last loop
                LP_track(index) := track(index);
+--                 put("Macro_segment");
+--                 Ada.Integer_Text_IO.put(index);new_line;
+--                 put("Entering speed:");
+--                 Ada.float_Text_IO.put(LP_track(index).Starting_Speed);new_line;
+--                 put("Leaving speed:");
+--                 Ada.float_Text_IO.put(LP_track(index).Leaving_Speed);new_line;
+--                 put("Segments:");
+--                 Ada.Integer_Text_IO.put(LP_track(index).Segments);new_line;
                index := index + 1;
             end loop;
 
@@ -150,18 +163,18 @@ package body Race.Driver is
             mspeed := mspeed / float(3_600) * float(1_000);
 
             -- calculate brake points for every macro segment
-            brake_points := new brake_points_T(track'range);
-            for index in LP_track'range loop
-               if LP_track(index).Leaving_Speed < LP_track(index).Starting_Speed then
-                  brake_point_accel := log(LP_track(index).Starting_Speed, exp_d_base);
-                  next_segment_accel := log(LP_track(index).Leaving_Speed, exp_d_base);
-                  brake_point := brake_point_accel - next_segment_accel;
-                  brake_points(index) := LP_track(index).Segments - integer(brake_point / float(10));
-               else
-                  brake_points(index) := 0;
-               end if;
-               Ada.Integer_Text_IO.put(brake_points(index));new_line;
-            end loop;
+--              brake_points := new brake_points_T(track'range);
+--              for index in LP_track'range loop
+--                 if LP_track(index).Leaving_Speed < LP_track(index).Starting_Speed then
+--                    brake_point_accel := log(LP_track(index).Starting_Speed, exp_d_base);
+--                    next_segment_accel := log(LP_track(index).Leaving_Speed, exp_d_base);
+--                    brake_point := brake_point_accel - next_segment_accel;
+--                    brake_points(index) := LP_track(index).Segments - integer(brake_point / float(10));
+--                 else
+--                    brake_points(index) := 0;
+--                 end if;
+--                 Ada.Integer_Text_IO.put(brake_points(index));new_line;
+--              end loop;
 
          end;
       end init;
@@ -174,10 +187,10 @@ package body Race.Driver is
       put(" lined up!");new_line;
 
           -- doppio dell'accelerazione che diminuisce la quarta cifra decimale
---        log_a_base := 1.14850E+00;
---        speed := log_a_base**float(42);
+--        log_d_base := 1.05450E+00;
+--        avg_speed := log_d_base**float(83);
 --        put("Meters: ");
---        Ada.Float_Text_IO.put(speed);new_line;
+--        Ada.Float_Text_IO.put(avg_speed);new_line;
           --
 --        -- frenata che aumenta la terza cifra decimale
 --        exp_d_base := 1.04700E+00;
@@ -191,11 +204,11 @@ package body Race.Driver is
       put("Log_a_base: ");
       Ada.Float_Text_IO.put(log_a_base);new_line;
 
-      --calculate deceleration exp base with respect to driver's brake coeff
-      --more exp_d_base = more brake power = delayed brakes
-      exp_d_base := exp_d_base + (float(brake)/float(1_000));
-      put("exp_d_base: ");
-      Ada.Float_Text_IO.put(exp_d_base);new_line;
+      --calculate deceleration log base with respect to driver's brake coeff
+      --less log_d_base = more brake power = delayed brakes
+      log_d_base := log_d_base - (float(brake)/float(10_000));
+      put("log_d_base: ");
+      Ada.Float_Text_IO.put(log_d_base);new_line;
 
 
       -- First segment of the race
@@ -216,113 +229,106 @@ package body Race.Driver is
       delay until wake;
       LR_track.Element(Position).all.leave;
       Position := Position + 1;
+      segment_index := segment_index + 1;
+      --calculate when driver must brake to enter next macro segment
+      if leaving_speed > LP_track(1).Leaving_Speed then
+         current_accel_lenght := log_d_base**leaving_speed;
+         next_segment_accel_lenght := log_d_base**LP_track(1).Leaving_Speed;
+         brake_point := LP_track(1).Segments -
+           integer((current_accel_lenght - next_segment_accel_lenght) / meters_per_segment);
+      else
+         brake_point := LP_track(1).Segments;
+      end if;
+      entering_speed := leaving_speed;
       --end first segment of the race
 
      -- main loop of driver
+      while laps_done <= tot_laps loop
+         while macro_index <= LP_track'Last loop
+            while segment_index < brake_point loop
+               LR_track.Element(Position).all.enter;
+               put(to_string(Name));
+               put(" is in segment ");
+               ada.Integer_Text_IO.put(Position);new_line;
 
---        while laps_done <= tot_laps loop
---           while Position <= LP_track.Last_Index loop
---              LR_track.Element(Position).all.enter;
---              put(to_string(Name));
---              put(" is in segment ");
---              ada.Integer_Text_IO.put(Position);
---
---              -- current segment max speed plus driver skill
---              segment_max_speed := LP_track.Element(Position).speed*float(1000)/float(3600);
---
---
---              -- if driver can accelerate
---              if speed < segment_max_speed then
---                 -- calc new speed with acceleration coefficient
---                 if speed < mspeed_f then
---                    -- 10 meters of acceleration
---                    accel_lenght := accel_lenght + float(10);
---                    speed := (log(float(1)+(accel_lenght*lenght_time_tax), log_t_base));
---                    ----------------------Ricalcolare con velocità media!!!!!!!!!!
---                    ----------------------Se ho superato la mia velocità max!!!!!!
---                    -- driver reach max speed!
---                    if speed > segment_max_speed then
---                       speed := segment_max_speed;
---                       accel_lenght := lenght_to_mspeed;
---                    end if;
---                 end if;
---
---                 put(" Speed: ");
---                 Ada.Integer_Text_IO.put(integer(speed*float(3600)/float(1000)));new_line;
---              else
---                 -- if driver cannot accelerate, keeps max speed available and
---                 -- update current accel_lenght
---                 speed := LP_track.Element(Position).speed *float(1000)/float(3600);
---                 put(" Speed: ");
---                 Ada.Integer_Text_IO.put(integer(speed*float(3600)/float(1000)));new_line;
---                 accel_lenght := ((log_t_base**speed) - float(1)) / lenght_time_tax;
---              end if;
---              -- calc wake time with respect to current driver speed
---              wake := clock + duration(float(10)/speed);
---              put("Wake: ");
---              ada.Float_Text_IO.put(float(10)/speed);new_line;
---              delay until Wake;
---              LR_track.Element(Position).all.leave;
---              Position := Position +1;
---           end loop;
---           laps_done := laps_done + 1;
---           Position := 1;
---        end loop;
+               -- calc new speed with acceleration coefficient
+               if leaving_speed < mspeed and leaving_speed < LP_track(macro_index).Starting_Speed then
+                  --  one segment of acceleration
+                  accel_lenght := accel_lenght + meters_per_segment;
+                  leaving_speed := log(accel_lenght, log_a_base);
+                  avg_speed := ( entering_speed + leaving_speed )/ float(2);
+
+                  decel_lenght := log_d_base**leaving_speed;
+               end if;
+
+               -- calc wake time with respect to current driver speed
+               wake := clock + duration(meters_per_segment/avg_speed);
+--                 put("Wake: ");
+--                 ada.Float_Text_IO.put(meters_per_segment/avg_speed);new_line;
+               delay until Wake;
+               LR_track.Element(Position).all.leave;
+
+               put(" Speed: ");
+               Ada.Integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
+
+               --calculate when driver must brake to enter next macro segment
+               if leaving_speed > LP_track(macro_index).Leaving_Speed then
+                  current_accel_lenght := log_d_base**leaving_speed;
+                  next_segment_accel_lenght := log_d_base**LP_track(macro_index).Leaving_Speed;
+                  brake_point := LP_track(macro_index).Segments -
+                    integer((current_accel_lenght - next_segment_accel_lenght) / meters_per_segment);
+               else
+                  brake_point := LP_track(macro_index).Segments;
+               end if;
+
+               entering_speed := leaving_speed;
+               segment_index := segment_index + 1;
+               Position := Position + 1;
+            end loop;
+
+            while segment_index < LP_track(macro_index).Segments loop
+               LR_track.Element(Position).all.enter;
+               put(to_string(Name));
+               put(" is in segment ");
+               ada.Integer_Text_IO.put(Position);
+               -- driver brakes
+               -- calc new speed with deceleration coefficient
+               if leaving_speed > float(0) then
+                  --  one segment of deceleration
+                  decel_lenght := decel_lenght - meters_per_segment;
+                  leaving_speed := log(decel_lenght, log_d_base);
+                  avg_speed := ( entering_speed + leaving_speed )/ float(2);
+
+                  accel_lenght := log_a_base**leaving_speed;
+               end if;
+               -- calc wake time with respect to current driver speed
+               wake := clock + duration(meters_per_segment/avg_speed);
+--                 put("Wake: ");
+--                 ada.Float_Text_IO.put(meters_per_segment/avg_speed);new_line;
+               delay until Wake;
+               LR_track.Element(Position).all.leave;
+
+               put("Speed: ");
+               Ada.Integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
+
+               entering_speed := leaving_speed;
+               Position := Position + 1;
+               segment_index := segment_index + 1;
+            end loop;
+
+            macro_index := macro_index + 1;
+            segment_index := 1;
+            put("Entering macro_segment: ");
+            Ada.Integer_Text_IO.put(macro_index);new_line;
+
+
+         end loop;
+
+         laps_done := laps_done + 1;
+         macro_index := 1;
+         Position := 1;
+      end loop;
     --end of main loop
-
-
-
-
-      -- calculate acceleration coefficient, in respect of driver's skills
-      --accel_coeff := (time_to_mspeed-float(1))/(float(100)+float(100-(Accel/10)));
-      --Ada.Float_Text_IO.put(accel_coeff);
-
---        while index <= MacroSegments_total loop
---           get(To_String(MacroSegments(index)),macro_lenght,last);
---           get(To_String(MacroSegments(index+3)),macro_change_line,last);
---           macro_first_lenght := macro_change_line/segment_lenght;
---           macro_last_lenght := (macro_lenght-macro_change_line)/segment_lenght;
---           get(To_String(MacroSegments(index+1)),macro_first_speed,last);
---           get(To_String(MacroSegments(index+2)),macro_last_speed,last);
---
---           while segments_index <= macro_first_lenght loop
---              segment_temp := new Segment_properties_T;
---              segment_temp.speed := float(macro_first_speed);
---              LP.Append(track, segment_temp.all);
---              segments_index := segments_index + 1;
---           end loop;
---
---           if (macro_last_speed < macro_first_speed) then
---
---              macro_diff_speed  := (macro_first_speed-macro_last_speed);
---              last_exp := Log(float(macro_diff_speed), Ada.Numerics.e);
---              break_coeff := last_exp / float(macro_last_lenght);
---
---              while segments_index <= macro_lenght loop
---                 segment_temp := new Segment_properties_T;
---                 exponent := (float(segments_index-macro_first_lenght)*break_coeff);
---                 segment_temp.speed := float(macro_first_speed) -
---                   (Ada.Numerics.e**exponent);
---                 LP.Append(track, segment_temp.all);
---                 segments_index := segments_index + 1;
---              end loop;
---           else
---
---              while segments_index <= macro_lenght loop
---                 segment_temp := new Segment_properties_T;
---                 segment_temp.speed := float(macro_first_speed);
---                 LP.Append(track, segment_temp.all);
---                 segments_index := segments_index + 1;
---              end loop;
---
---           end if;
---
---
---           segments_index := 1;
---           index := index + 5;--skip to next macro segment
---
---        end loop;
-
-   end Driver;
+end Driver;
 
 end Race.Driver;
