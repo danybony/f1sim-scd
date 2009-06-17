@@ -59,7 +59,7 @@ package Race is
 
       --  request the segment
       entry Enter(speed : in out float;
-                  lane : positive);
+                  lane : in out positive);
 
       --  release the segment
       procedure Leave (lane : positive);
@@ -67,10 +67,10 @@ package Race is
    private
 
       entry lane_one(speed : in out float;
-                     lane : positive);
+                     lane : in out positive);
 
       entry lane_two(speed : in out float;
-                     lane : positive);
+                     lane : in out positive);
 
       Lanes : Positive := tot_lanes;
 
