@@ -22,6 +22,8 @@ package Race.Circuit is
 
    LR_Track: LR.Vector;
 
+   LR_Box: LR.Vector;
+
    procedure build_track (MacroSegments		:in String_array_T;
                           MacroSegments_total	:in integer);
 

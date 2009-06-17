@@ -37,6 +37,22 @@ package body Race.Circuit is
       segment_temp : Segment_ref_T;
 
    begin
+
+      -- box macro segment
+      get(To_String(MacroSegments(1)),macro_lenght,last);
+      get(To_String(MacroSegments(4)),macro_lanes,last);
+      macro_lenght := macro_lenght/segment_lenght;
+
+      while segments_index <= macro_lenght loop
+         segment_temp := new Segment_T(macro_lanes);
+         LR.Append(LR_box, segment_temp);
+         segments_index := segments_index + 1;
+      end loop;
+
+      segments_index := 1;
+      main_loop_index := main_loop_index + 4;--skip to next macro segment
+
+      -- track macro segments
       while main_loop_index <= MacroSegments_total loop
          get(To_String(MacroSegments(main_loop_index)),macro_lenght,last);
          get(To_String(MacroSegments(main_loop_index+3)),macro_lanes,last);

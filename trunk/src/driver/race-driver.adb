@@ -42,7 +42,9 @@ package body Race.Driver is
       Brake: Positive;
       MSpeed: float;
       Strategy: Strategy_T(0..5);--max 5 pit stops
-      Strategy_lenght: Natural := 0;
+      Strategy_lenght : Natural := 0;
+      Strategy_index : Natural := 0;
+      go_box : Integer := -1;
       Laps_Done: Natural := 0;
       Tot_Laps: Positive;
       LP_track: LP_Track_Ref_T;
@@ -52,7 +54,7 @@ package body Race.Driver is
 
       -- log base for acceleration
       -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
-      -- less log_a_base = more acceleration 1.15050E+00;
+      -- less log_a_base = more acceleration
       log_a_base : float := 1.07500E+00;
 
       -- log base for deceleration
@@ -75,12 +77,16 @@ package body Race.Driver is
       max_leaving_speed : float;
       brake_point_f : float;
       --brake_point_i : integer;
+      box_index : positive := 1;
+      LP_box: LP_Track_Ref_T;
+
 
    begin
       Text_IO.put_line("Driver started");
       accept init (params	: String_array_T;
                    position	: Positive;
                    track	: LP_track_T;
+                   box		: LP_track_T;
                    laps		: Positive)
       do
          declare
@@ -130,14 +136,13 @@ package body Race.Driver is
             index := 1;
             while index <= track'last loop
                LP_track(index) := track(index);
---                 put("Macro_segment");
---                 Ada.Integer_Text_IO.put(index);new_line;
---                 put("Entering speed:");
---                 Ada.float_Text_IO.put(LP_track(index).Starting_Speed);new_line;
---                 put("Leaving speed:");
---                 Ada.float_Text_IO.put(LP_track(index).Leaving_Speed);new_line;
---                 put("Segments:");
---                 Ada.Integer_Text_IO.put(LP_track(index).Segments);new_line;
+               index := index + 1;
+            end loop;
+
+            LP_box := new LP_track_T(box'range);
+            index := 1;
+            while index <= box'last loop
+               LP_box(index) := box(index);
                index := index + 1;
             end loop;
 
@@ -155,6 +160,11 @@ package body Race.Driver is
             --calculate deceleration log base with respect to driver's brake coeff
             --less log_d_base = more brake power = delayed brakes
             log_d_base := log_d_base - (float(brake)/float(10_000));
+
+            if strategy_lenght > 0 then
+               strategy_index := strategy_index + 1;
+               go_box := strategy(strategy_index);
+            end if;
 
          end;
       end init;
@@ -193,6 +203,27 @@ package body Race.Driver is
 
      -- main loop of driver
       while laps_done < tot_laps loop
+         if laps_done = go_box then
+            -- driver go to box, return to race in next macro segment
+            while box_index <= LP_box(1).Segments loop
+               -- perform a "drive through"
+               LR_box.Element(box_index).all.enter;
+               wake := clock + duration(meters_per_segment/LP_box(1).Starting_Speed);
+               delay until Wake;
+               LR_box.Element(box_index).all.leave;
+               box_index := box_index + 1;
+            end loop;
+            Position := Position + LP_track(macro_index).Segments;
+            macro_index := macro_index + 1;
+
+            if strategy_index < strategy_lenght then
+               -- next pit stop
+               strategy_index := strategy_index + 1;
+               go_box := strategy(strategy_index);
+            end if;
+
+         end if;
+
          while macro_index <= LP_track'Last loop
             --calculate macro segment max speed with respect to driver skills
             max_starting_speed := LP_track(macro_index).Starting_Speed + (float(accel) / float(3_600) * float(1_000));

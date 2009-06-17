@@ -28,6 +28,7 @@ package Race.Driver is
       entry init(params		: String_array_T;
                  position	: Positive;
                  track		: LP_track_T;
+                 box		: LP_track_T;
                  laps		: Positive);
    end Driver;
 

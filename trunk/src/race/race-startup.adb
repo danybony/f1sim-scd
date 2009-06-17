@@ -117,7 +117,9 @@ package body Race.Startup is
    -----------------------------------------------------------------------------
    procedure build_track (MacroSegments		:in String_array_T;
                           MacroSegments_total	:in integer;
-                          LP_track		:in out LP_track_ref_T)
+                          LP_track		:in out LP_track_ref_T;
+                          LP_box		:in out LP_track_ref_T)
+
    is
       use Ada.Strings.Unbounded;
       use LP;
@@ -155,8 +157,13 @@ package body Race.Startup is
 
       end loop;
 
-      LP_track := new LP_track_T(1..track.Last_Index);
-      index := 1;
+      LP_track := new LP_track_T(1..track.Last_Index-1);
+      LP_box := new LP_track_T(1..1);
+      -- populate property list of box
+      LP_box(1) := track.Element(1);
+
+      -- populate property list of track
+      index := 2;
       while index <= track.Last_Index loop
          LP_track(index) := track.Element(index);
          index := index + 1;
@@ -198,9 +205,11 @@ package body Race.Startup is
       Drivers_file_lines:integer:=0;
       MacroSegments_file_lines:integer:=0;
       LP_track		:LP_track_Ref_T;
+      LP_box		:LP_track_Ref_T;
       Drivers_index	:integer:=1;
       Driver_properties_aux: String_array_T(1..20);
       laps		:Positive:=1;
+      blocking_speed	:float := 0.00000E+00;
 
    begin
       -- Read Race, Driver and Track configurations from file
@@ -227,11 +236,11 @@ package body Race.Startup is
       --+driver
       --+LR will be stored in "Circuit" machine and freely accessible to any
       --+driver.
-      build_track(MacroSegments_params, MacroSegments_file_lines, LP_track);
+      build_track(MacroSegments_params, MacroSegments_file_lines, LP_track, LP_box);
 
       -- Lock first segment for driver initializations
-      Race.Circuit.LR_track.Element(1).all.enter;
-      Race.Circuit.LR_track.Element(1).all.enter;
+      Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, 1);
+      Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, 2);
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
@@ -241,6 +250,7 @@ package body Race.Startup is
          Drivers.Last_Element.all.init(Driver_properties_aux,
                                        Drivers.Last_Index,
                                        LP_track.all,
+                                       LP_box.all,
                                        laps);
 
          Drivers_index := Drivers_index + 7;
@@ -249,8 +259,8 @@ package body Race.Startup is
 
 
       -- Realese the lock in the first segment: Start the Race!
-      Race.Circuit.LR_track.Element(1).all.leave;
-      Race.Circuit.LR_track.Element(1).all.leave;
+      Race.Circuit.LR_track.Element(1).all.leave(1);
+      Race.Circuit.LR_track.Element(1).all.leave(2);
    end startup;
 
 
