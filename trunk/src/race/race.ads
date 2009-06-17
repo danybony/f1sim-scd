@@ -80,6 +80,9 @@ package Race is
       lane_one_speed : float := 0.00000E+00;
       lane_two_speed : float := 0.00000E+00;
 
+      lane_one_queue : integer := 0;
+      lane_two_queue : integer := 0;
+
 
    end Segment_T;
 

@@ -33,21 +33,120 @@ package body Race is
       --  get the segment
       entry Enter ( speed : in out float; lane : positive ) when true is
       begin
-         if lane > lanes then
+         -----------------------------------------------------------------------
+         -------------------CASE 1: SEGMENT WITH ONE LANE-----------------------
+         -----------------------------------------------------------------------
+         if lanes = 1 then
             -- only one lane in this segment
-            if lane_one_is_free then
-               lane_one_speed := speed;
-               requeue lane_one
+
+               if lane_one_is_free then
+                  -- take the segment
+                  lane_one_speed := speed;
+                  requeue lane_one;
+               else
+                  -- the segment is taken: brake if necessary
+                  if speed > lane_one_speed then
+                     speed := lane_one_speed;
+                  end if;
+                  requeue lane_one;
+               end if;
+
+         end if;
+
+         -----------------------------------------------------------------------
+         -------------------CASE 2: SEGMENT WITH TWO LANES----------------------
+         -----------------------------------------------------------------------
+         if lanes = 2 then
+            -- two lanes in this segment
+            if lane = 1 then
+               -----------------------------------------------------------------
+               -----------------CASE 2.1: DRIVER IN LANE ONE--------------------
+               -----------------------------------------------------------------
+               if lane_one_is_free then
+                  -- continue in this lane
+                  lane_one_speed := speed;
+                  requeue lane_one;
+               else
+                  if lane_two_is_free then
+                     -- try to pass!
+                     lane_two_speed := speed;
+                     requeue lane_two;
+                  else
+                     -- choose the lane with less drivers
+                     if lane_one_queue <= lane_two_queue then
+                        -- brake if necessary
+                        lane_one_queue := lane_one_queue + 1;
+                        if speed > lane_one_speed then
+                           speed := lane_one_speed;
+                           requeue lane_one;
+                        end if;
+                     else
+                        lane_two_queue := lane_two_queue + 1;
+                        if speed > lane_two_speed then
+                           speed := lane_two_speed;
+                           requeue lane_two;
+                        end if;
+                     end if;
+
+                  end if;
+
+               end if;
+
+            end if;
+
+            if lane = 2 then
+               -----------------------------------------------------------------
+               -----------------CASE 2.2: DRIVER IN LANE TWO--------------------
+               -----------------------------------------------------------------
+               if lane_one_is_free then
+                  -- continue in this lane
+                  lane_one_speed := speed;
+                  requeue lane_one;
+               else
+                  if lane_two_is_free then
+                     -- try to pass!
+                     lane_two_speed := speed;
+                     requeue lane_two;
+                  else
+                     -- choose the lane with less drivers
+                     if lane_one_queue <= lane_two_queue then
+                        -- brake if necessary
+                        lane_one_queue := lane_one_queue + 1;
+                        if speed > lane_one_speed then
+                           speed := lane_one_speed;
+                           requeue lane_one;
+                        end if;
+                     else
+                        lane_two_queue := lane_two_queue + 1;
+                        if speed > lane_two_speed then
+                           speed := lane_two_speed;
+                           requeue lane_two;
+                        end if;
+                     end if;
+
+                  end if;
+
+               end if;
+            end if;
+
+
+         end if;
+
+
       end Enter;
 
       --  release the segment
-      --+ (formal parameter not used explicitly
-      --+  but needed for distributed dispatching)
       procedure Leave ( lane : positive ) is
       begin
          if lane = 1 then
+            if lane_one_queue > 0 then
+               lane_one_queue := lane_one_queue - 1;
+            end if;
             lane_one_is_free := true;
          else
+            if lane_two_queue > 0 then
+               lane_two_queue := lane_two_queue - 1;
+            end if;
             lane_two_is_free := true;
          end if;
       end Leave;
