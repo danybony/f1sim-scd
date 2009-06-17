@@ -54,20 +54,32 @@ package Race is
 
    --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
    --++++++	LR-related definitions		++++++++++++++++++++++++++++++--
+
    protected type Segment_T (tot_lanes :Positive) is
 
-      --  get the segment
-      entry Enter;
+      --  request the segment
+      entry Enter(speed : in out float;
+                  lane : positive);
 
       --  release the segment
-      --+ (formal parameter not used explicitly
-      --+  but needed for distributed dispatching)
-      entry Leave;
+      procedure Leave (lane : positive);
 
    private
 
-      In_Use : Natural := 0;
+      entry lane_one(speed : in out float;
+                     lane : positive);
+
+      entry lane_two(speed : in out float;
+                     lane : positive);
+
       Lanes : Positive := tot_lanes;
+
+      lane_one_is_free : boolean := true;
+      lane_two_is_free : boolean := true;
+
+      lane_one_speed : float := 0.00000E+00;
+      lane_two_speed : float := 0.00000E+00;
+
 
    end Segment_T;
 

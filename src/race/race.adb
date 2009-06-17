@@ -31,18 +31,39 @@ package body Race is
    protected body Segment_T is
 
       --  get the segment
-      entry Enter when in_use >= 0 and in_use < lanes is
+      entry Enter ( speed : in out float; lane : positive ) when true is
       begin
-         in_use := in_use + 1;
+         if lane > lanes then
+            -- only one lane in this segment
+            if lane_one_is_free then
+               lane_one_speed := speed;
+               requeue lane_one
       end Enter;
 
       --  release the segment
       --+ (formal parameter not used explicitly
       --+  but needed for distributed dispatching)
-      entry Leave when in_use > 0 and in_use <= lanes is
+      procedure Leave ( lane : positive ) is
       begin
-         in_use := in_use - 1;
+         if lane = 1 then
+            lane_one_is_free := true;
+         else
+            lane_two_is_free := true;
+         end if;
       end Leave;
+
+      entry lane_one ( speed : in out float; lane : positive )
+        when lane_one_is_free is
+      begin
+         lane_one_is_free := false;
+      end lane_one;
+
+      entry lane_two ( speed : in out float; lane : positive )
+        when lane_two_is_free is
+      begin
+         lane_two_is_free := false;
+      end lane_two;
+
 
    end Segment_T;
 
