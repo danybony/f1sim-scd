@@ -165,7 +165,7 @@ package body Race.Startup is
       -- populate property list of track
       index := 2;
       while index <= track.Last_Index loop
-         LP_track(index) := track.Element(index);
+         LP_track(index-1) := track.Element(index);
          index := index + 1;
       end loop;
 
@@ -210,6 +210,8 @@ package body Race.Startup is
       Driver_properties_aux: String_array_T(1..20);
       laps		:Positive:=1;
       blocking_speed	:float := 0.00000E+00;
+      blocking_lane_one	:Positive := 1;
+      blocking_lane_two	:Positive := 2;
 
    begin
       -- Read Race, Driver and Track configurations from file
@@ -239,8 +241,8 @@ package body Race.Startup is
       build_track(MacroSegments_params, MacroSegments_file_lines, LP_track, LP_box);
 
       -- Lock first segment for driver initializations
-      Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, 1);
-      Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, 2);
+      Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, blocking_lane_one);
+      Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, blocking_lane_two);
 
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
