@@ -51,6 +51,7 @@ package body Race.Driver is
       Initial_Position: Positive;
       Position: Positive;
       Wake : Time;
+      lane : Positive := 1;
 
       -- log base for acceleration
       -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
@@ -64,7 +65,7 @@ package body Race.Driver is
 
       accel_lenght : float:=1.00000E+00;
       decel_lenght : float:=1.00000E+00;
-      entering_speed : float;
+      entering_speed : float := 0.00000E+00;
       leaving_speed : float;
       avg_speed : float;
       meters_per_segment : constant float := 1.00000E+01;
@@ -175,9 +176,8 @@ package body Race.Driver is
       put(" lined up!");new_line;
 
       -- First segment of the race
-      LR_track.Element(Position).all.enter;
+      LR_track.Element(Position).all.enter(entering_speed, lane);
       put(to_string(name));put(":");new_line;
-      entering_speed := 0.00000E+00;
       -- 10 meters of acceleration
       accel_lenght := accel_lenght + meters_per_segment;
       leaving_speed := log(accel_lenght, log_a_base);
@@ -186,7 +186,7 @@ package body Race.Driver is
       avg_speed := ( entering_speed + leaving_speed )/ float(2);
       wake := clock + duration(meters_per_segment/avg_speed);
       delay until wake;
-      LR_track.Element(Position).all.leave;
+      LR_track.Element(Position).all.leave(lane);
       Position := Position + 1;
       segment_index := segment_index + 1;
       --calculate when driver must brake to enter next macro segment
@@ -207,15 +207,31 @@ package body Race.Driver is
             -- driver go to box, return to race in next macro segment
             while box_index <= LP_box(1).Segments loop
                -- perform a "drive through"
-               LR_box.Element(box_index).all.enter;
-               wake := clock + duration(meters_per_segment/LP_box(1).Starting_Speed);
+               -- brake first if necessary
+               LR_box.Element(box_index).all.enter(leaving_speed, lane);
+               if leaving_speed > LP_box(1).Starting_Speed then
+                  decel_lenght := decel_lenght - meters_per_segment;
+                  leaving_speed := log(decel_lenght, log_d_base);
+                  avg_speed := ( entering_speed + leaving_speed )/ float(2);
+                  entering_speed := leaving_speed;
+                  wake := clock + duration(meters_per_segment/avg_speed);
+               else
+                  wake := clock + duration(meters_per_segment/LP_box(1).Starting_Speed);
+               end if;
+
                delay until Wake;
-               LR_box.Element(box_index).all.leave;
+               LR_box.Element(box_index).all.leave(lane);
                box_index := box_index + 1;
             end loop;
+            -- recalculate indexes and coeffs
             Position := Position + LP_track(macro_index).Segments;
             macro_index := macro_index + 1;
+            entering_speed := LP_box(1).Starting_speed;
+            leaving_speed := entering_speed;
+            accel_lenght := log_a_base**leaving_speed;
+            decel_lenght := log_d_base**leaving_speed;
 
+            -- if driver must stop again
             if strategy_index < strategy_lenght then
                -- next pit stop
                strategy_index := strategy_index + 1;
@@ -228,8 +244,10 @@ package body Race.Driver is
             --calculate macro segment max speed with respect to driver skills
             max_starting_speed := LP_track(macro_index).Starting_Speed + (float(accel) / float(3_600) * float(1_000));
             max_leaving_speed := LP_track(macro_index).Leaving_Speed + (float(brake) / float(3_600) * float(1_000));
+
+            -- acceleration loop
             while segment_index < brake_point loop
-               LR_track.Element(Position).all.enter;
+               LR_track.Element(Position).all.enter(leaving_speed, lane);
                put(to_string(Name));
                put(" is in segment ");
                ada.Integer_Text_IO.put(Position);
@@ -237,9 +255,18 @@ package body Race.Driver is
 
                -- calc new speed with acceleration coefficient
                if leaving_speed < mspeed and leaving_speed < max_starting_speed then
-                  --  one segment of acceleration
-                  accel_lenght := accel_lenght + meters_per_segment;
-                  leaving_speed := log(accel_lenght, log_a_base);
+                  if leaving_speed < entering_speed then
+                     -- was blocked by a leading car!
+                     -- brake to leading car speed
+                     accel_lenght := log_a_base**leaving_speed;
+                     entering_speed := leaving_speed;
+                     put("[Blocked by leading car!]");new_line;
+
+                  else
+                     --  one segment of acceleration
+                     accel_lenght := accel_lenght + meters_per_segment;
+                     leaving_speed := log(accel_lenght, log_a_base);
+                  end if;
 
                   -- if driver achieve max speed
                   if leaving_speed > mspeed or leaving_speed > max_starting_speed then
@@ -262,7 +289,7 @@ package body Race.Driver is
 --                 put("Wake: ");
 --                 ada.Float_Text_IO.put(meters_per_segment/avg_speed);new_line;
                delay until Wake;
-               LR_track.Element(Position).all.leave;
+               LR_track.Element(Position).all.leave(lane);
 
                put("Speed: ");
                Ada.Integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
@@ -289,13 +316,24 @@ package body Race.Driver is
                segment_index := segment_index + 1;
                Position := Position + 1;
             end loop;
+            -- end acceleration loop
 
+
+            -- brake loop
             while segment_index <= LP_track(macro_index).Segments loop
-               LR_track.Element(Position).all.enter;
+               LR_track.Element(Position).all.enter(entering_speed, lane);
                put(to_string(Name));
                put(" is in segment ");
                ada.Integer_Text_IO.put(Position);
                put("[Brake!]");new_line;
+               if entering_speed < leaving_speed then
+                  -- was blocked by a leading car!
+                  -- save leading car speed in "entering_speed"
+                  -- then try to brake whith normal driver deceleration:
+                  -- if it's not enough assume leading car speed
+                  put("[Blocked by leading car!]");new_line;
+               end if;
+
                -- driver brakes
                -- calc new speed with deceleration coefficient
                if leaving_speed > max_leaving_speed then
@@ -315,16 +353,27 @@ package body Race.Driver is
                      end if;
                   end if;
 
+
+
                   avg_speed := ( entering_speed + leaving_speed )/ float(2);
 
                   accel_lenght := log_a_base**leaving_speed;
                end if;
+
+               if leaving_speed > entering_speed then
+                  -- driver was blocked by a leading car
+                  -- normal brake is not enough: assume leading car speed
+                  avg_speed := entering_speed;
+                  leaving_speed := entering_speed;
+                  accel_lenght := log_a_base**leaving_speed;
+               end if;
+
                -- calc wake time with respect to current driver speed
                wake := clock + duration(meters_per_segment/avg_speed);
 --                 put("Wake: ");
 --                 ada.Float_Text_IO.put(meters_per_segment/avg_speed);new_line;
                delay until Wake;
-               LR_track.Element(Position).all.leave;
+               LR_track.Element(Position).all.leave(lane);
 
                put("Speed: ");
                Ada.Integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
@@ -341,7 +390,7 @@ package body Race.Driver is
 
 
          end loop;
-
+	-- end brake loop
          laps_done := laps_done + 1;
          macro_index := 1;
          Position := 1;

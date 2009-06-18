@@ -41,7 +41,7 @@ package Race.Driver is
 
    -- Brake points array
    -- For every macro segment, this array indicates when start braking
-   type brake_points_T is array (Positive range <>) of Natural;
-   type brake_points_Ref_T is access brake_points_T;
+   --type brake_points_T is array (Positive range <>) of Natural;
+   --type brake_points_Ref_T is access brake_points_T;
 
 end Race.Driver;
