@@ -208,17 +208,27 @@ package body Race.Driver is
             while box_index <= LP_box(1).Segments loop
                -- perform a "drive through"
                -- brake first if necessary
+               put(to_string(Name));
+               put(" drive through box!");new_line;
                LR_box.Element(box_index).all.enter(leaving_speed, lane);
                if leaving_speed > LP_box(1).Starting_Speed then
                   decel_lenght := decel_lenght - meters_per_segment;
-                  leaving_speed := log(decel_lenght, log_d_base);
+                  if decel_lenght > float(1) then
+                     leaving_speed := log(decel_lenght, log_d_base);
+                  else
+                     leaving_speed := LP_box(1).Starting_Speed;
+                  end if;
+
                   avg_speed := ( entering_speed + leaving_speed )/ float(2);
                   entering_speed := leaving_speed;
                   wake := clock + duration(meters_per_segment/avg_speed);
+
                else
                   wake := clock + duration(meters_per_segment/LP_box(1).Starting_Speed);
                end if;
 
+               put("Speed:");
+               ada.integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
                delay until Wake;
                LR_box.Element(box_index).all.leave(lane);
                box_index := box_index + 1;
