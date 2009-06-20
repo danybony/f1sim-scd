@@ -1,0 +1,26 @@
+#Ogni insieme di valori compresi tra #..# rappresenta un pilota e le sue capacità.
+#Il primo valore è il nome del pilota
+#Il secondo valore è la scuderia per la quale il pilota corre
+#Il terzo valore è il numero della vettura (ID) del pilota
+#Il quarto valore è il coefficiente di accelerazione, con range [1..10]
+#Il quinto valore è il coefficiente di decelerazione, con range [1..10]
+#Il sesto valore rappresenta la velocità massima della vettura in Km/h
+#Il settimo valore è un insieme di valori che indicano la strategia:
+#ogni numero, separato da una virgola, rappresenta un giro durante il quale
+#il pilota si fermerà ai box.
+Fernando Alonso
+Renault
+2
+4
+1
+300
+3
+#
+Micheal Schumacher
+Ferrari
+1
+10
+10
+340
+4
+

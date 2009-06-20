@@ -1,0 +1,20 @@
+module RI {
+	typedef sequence<string> StringSequence;
+
+	interface Log_viewer {
+
+	oneway void setEnvironment(
+		in StringSequence Drivers,
+		in long segmentsNumber,
+		in short T1,
+		in short T2,
+		in short RaceLaps
+	);
+
+	oneway void updateLog (in short Driver_ID, in long Segment, in float Speed, in boolean box);
+
+	oneway void endRace();
+
+	};
+
+};
