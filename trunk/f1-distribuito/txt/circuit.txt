@@ -1,0 +1,30 @@
+#Ogni quaterna di valori tra #..# definisce un macro segmento
+#Il primo valore è la lunghezza (in metri) del macro segmento
+#Il secondo valore è la velocità massima all'inizio del macro segmento
+#Il terzo valore è la velocità massima alla fine del macro segmento
+#Il quarto valore è il numero di corsie del macro segmento
+#Il primo macro segmento descrive il tratto di pista dei box
+15
+100
+100
+1
+#
+40
+360
+100
+2
+#
+10
+100
+100
+1
+#
+15
+360
+100
+2
+#
+10
+100
+100
+1

@@ -1,0 +1,1 @@
+gnat clean -P f1sim.gpr
