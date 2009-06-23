@@ -32,7 +32,6 @@ public class Log_viewerImpl extends Log_viewerPOA {
         System.out.println("Race finished!");
         frame.println("Race finished!");
         orb.shutdown(false);
-        frame.setVisible(false);
     }
 
     public void setEnvironment(String[] Drivers, int segmentsNumber, short T1, short T2, short RaceLaps) {

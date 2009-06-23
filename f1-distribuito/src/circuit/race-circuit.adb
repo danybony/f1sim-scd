@@ -147,7 +147,6 @@ package body Race.Circuit is
       	put("NameService IOR: ok ");new_line;
 
         --  Bind in Name Service
-
 	Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
                                          Kind => To_CORBA_String ("")));
 
@@ -156,7 +155,12 @@ package body Race.Circuit is
 
 
          --  Launch the server
-         CORBA.ORB.Run;
+      CORBA.ORB.Run;
+
+      put_line("Race ended.");
+
+      --  Unbind from Name Service
+      unbind(rootCxtExt, obj_name);
 
       end Circuit;
 
