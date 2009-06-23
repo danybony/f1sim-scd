@@ -27,6 +27,7 @@ package Race is
 
    type String_array_T is array (Positive range <>) of
      ada.strings.Unbounded.unbounded_string;
+   type String_array_Ref_T is access String_array_T;
 
    --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
    --++++++	LP-related definitions		++++++++++++++++++++++++++++++--

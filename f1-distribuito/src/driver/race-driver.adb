@@ -79,6 +79,8 @@ package body Race.Driver is
       Position: Positive;
       Wake : Time;
       lane : Positive := 1;
+      current_lane : Positive := 1;
+      change_lane_delay : decimal := 0.001;
 
       -- log base for acceleration
       -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
@@ -207,6 +209,9 @@ package body Race.Driver is
 
 
    begin
+      --------------------------------------------------------------------------
+      --                       DRIVER THREAD BEGIN
+      --------------------------------------------------------------------------
       Text_IO.put_line("Driver started");
 
       -- Start CORBA ORB and wait for init
@@ -305,11 +310,18 @@ package body Race.Driver is
       put(" lined up!");new_line;
 
       -- First segment of the race
---        LR_track.Element(Position).all.enter(entering_speed, lane);
+      -- LR_track.Element(Position).all.enter(entering_speed, lane);
+
       RI.Circuit_RI.enter(circuit,
                           CORBA.Long(Position),
                           CORBA.Float(entering_speed),
                           CORBA.Short(lane));
+      if lane /= current_lane then
+         -- driver changes lane: got bit delay
+         wake := clock + duration(change_lane_delay);
+         delay until wake;
+         current_lane := lane;
+      end if;
 
       RI.Log_viewer.updateLog (logger,
                               id,
@@ -327,7 +339,8 @@ package body Race.Driver is
       wake := clock + duration(meters_per_segment/avg_speed);
       delay until wake;
 
---        LR_track.Element(Position).all.leave(lane);
+      -- LR_track.Element(Position).all.leave(lane);
+
       RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
@@ -423,6 +436,13 @@ package body Race.Driver is
                                    CORBA.Long(Position),
                                    CORBA.Float(leaving_speed),
                                    CORBA.Short(lane));
+               if lane /= current_lane then
+                  -- driver changes lane: got bit delay
+                  wake := clock + duration(change_lane_delay);
+                  delay until wake;
+                  current_lane := lane;
+               end if;
+
 
                RI.Log_viewer.updateLog (logger,
                                         id,
@@ -511,6 +531,13 @@ package body Race.Driver is
                                    CORBA.Long(Position),
                                    CORBA.Float(entering_speed),
                                    CORBA.Short(lane));
+               if lane /= current_lane then
+                  -- driver changes lane: got bit delay
+                  wake := clock + duration(change_lane_delay);
+                  delay until wake;
+                  current_lane := lane;
+               end if;
+
 
                RI.Log_viewer.updateLog (logger,
                                         id,
