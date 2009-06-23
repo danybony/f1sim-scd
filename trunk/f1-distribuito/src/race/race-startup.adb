@@ -78,7 +78,7 @@ package body Race.Startup is
    --  Procedure that read teams, drivers configurations from file
    procedure read_configuration (
                                  text_file:		in	string;
-                                 array_to_configure:	in out	String_Array_T;
+                                 array_to_configure:	in out	String_Array_Ref_T;
                                  array_index:		in out	integer
                                 ) is
       use Ada.Strings.Unbounded;
@@ -89,6 +89,10 @@ package body Race.Startup is
       -- Temporary string and char in wich store lines read in from file
       input_string:string(1..255);
       input_char:character;
+      -- Temporary array in wich store lines read in from file
+      -- Max 200 lines of text in configuration files!
+      array_aux : String_Array_T(1..200);
+      index_aux : Positive := 1;
       --  Sentinel for avoid comments
       sentinel:boolean:=false;
    begin
@@ -98,7 +102,7 @@ package body Race.Startup is
          --read file specs
          open(input_file, in_file, text_file);
          read_file_loop:
-         while not end_of_file(input_file) loop
+         while not end_of_file(input_file) or array_index >= 200 loop
             line_index:=1;
             sentinel:=false;
             --read one line from file
@@ -118,13 +122,17 @@ package body Race.Startup is
             if line_index=1 then skip_line(input_file);
             else
             array_index:=array_index+1;
-            array_to_configure(array_index):=To_unbounded_string(input_string(1..line_index-1));
+            array_aux(array_index):=To_unbounded_string(input_string(1..line_index-1));
             --put(to_string(array_to_configure(array_index)));new_line;
             --skip to the next text line
             skip_line(input_file);
             end if;
          end loop read_file_loop;
 
+         array_to_configure := new String_Array_T(1..array_index);
+         for index_aux in 1..array_index loop
+            array_to_configure(index_aux) := array_aux(index_aux);
+         end loop;
 
       end if;
 
@@ -226,10 +234,9 @@ package body Race.Startup is
       use CosNaming.NamingContextExt;
       use CosNaming;
       use Race.CORBAConverter;
-      Race_params	:String_array_T(1..20);
-      Drivers_params	:String_array_T(1..20);
-      --Drivers   	:Race.Driver.Driver_Vector.Vector;
-      MacroSegments_params :String_array_T(1..20);
+      Race_params	:String_array_Ref_T;
+      Drivers_params	:String_array_Ref_T;
+      MacroSegments_params :String_array_Ref_T;
       Race_file 	:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/race.txt";
       Drivers_file	:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/drivers.txt";
       MacroSegments_file:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/circuit.txt";
@@ -240,7 +247,7 @@ package body Race.Startup is
       LP_track		:LP_track_Ref_T;
       LP_box		:LP_track_Ref_T;
       Drivers_index	:integer:=1;
-      Driver_properties_aux: String_array_T(1..20);
+      Driver_properties_aux: String_array_T(1..7);
       laps		:Positive:=1;
       blocking_speed	:float := 0.00000E+00;
       blocking_lane_one	:Positive := 1;
@@ -272,27 +279,26 @@ package body Race.Startup is
 
       begin
 
-        --  Create and publish startup remote interface in Name Service
+         --  Create and publish startup remote interface in Name Service
          CORBA.ORB.Init (CORBA.ORB.To_CORBA_String ("ORB"), Argv);
 
          Root_POA := PortableServer.POA.Helper.To_Local_Ref
                  (CORBA.ORB.Resolve_Initial_References
                     (CORBA.ORB.To_CORBA_String ("RootPOA")));
 
-      	PortableServer.POAManager.Activate
+         PortableServer.POAManager.Activate
            (PortableServer.POA.Get_The_POAManager (Root_POA));
 
-      	-- Set up new object
-      	Ref := PortableServer.POA.Servant_To_Reference
+         -- Set up new object
+         Ref := PortableServer.POA.Servant_To_Reference
                   (Root_POA, PortableServer.Servant (Obj));
 
-      	-- Bind in Name Service
-      	Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Startup"),
-                                       Kind => To_CORBA_String ("")));
+         -- Bind in Name Service
+         Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Startup"),
+                                       		      Kind => To_CORBA_String ("")));
 
-      	bind(rootCxtExt, obj_name, Ref);
-      	put_line("Race startup Remote Inderface binded in Name Service.");
-
+         bind(rootCxtExt, obj_name, Ref);
+         put_line("Race startup Remote Inderface binded in Name Service.");
 
          -- Launch the server
      	 CORBA.ORB.Run;
@@ -302,8 +308,8 @@ package body Race.Startup is
          RI.Log_viewer.endRace (logger);
          RI.Circuit_RI.endRace (circuit);
 
-      	-- Unbind from Name Service
-      	unbind(rootCxtExt, obj_name);
+         -- Unbind from Name Service
+         unbind(rootCxtExt, obj_name);
 
       end CORBAInit;
       type CORBAInit_Ref is access CORBAInit;
@@ -329,19 +335,19 @@ package body Race.Startup is
         (CORBA.To_CORBA_String (TO_String(IOR)), rootCxtExt);
 
       if Is_Nil (rootCxtExt) then
-          Put_Line ("statup : cannot locate NameService");
-          return;
+         Put_Line ("statup : cannot locate NameService");
+         return;
       end if;
       put("NameService IOR: ok ");new_line;
 
-
       -- Get race properties from configuration
-      build_race(Race_Params, laps);
+      build_race(Race_Params.all, laps);
 
       -- Get circuit Remote Interface from Name Service
       Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
                                        Kind => To_CORBA_String ("")));
-      circuit := RI.Circuit_RI.Helper.To_Ref(resolve_str(
+      circuit := RI.Circuit_RI.Helper.To_Ref(
+                resolve_str(
                 rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
       put_line("Got circuit from Name Service");
 
@@ -355,22 +361,24 @@ package body Race.Startup is
       --+driver
       --+LR will be stored in "Circuit" machine and freely accessible to any
       --+driver.
-      build_track(MacroSegments_params, MacroSegments_file_lines, Segments_total, LP_track, LP_box, circuit);
+      build_track(MacroSegments_params.all, MacroSegments_file_lines, Segments_total, LP_track, LP_box, circuit);
 
 
       -- Get logger Remote Interface from Name Service
-      Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
+      Replace_Element (obj_name,
+                       1,
+                       NameComponent'(Id => To_CORBA_String ("Logger"),
                                        Kind => To_CORBA_String ("")));
       logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
                 rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
       put_line("Got logger from Name Service");
 
       RI.Log_viewer.setEnvironment (logger,
-                                    to_StringSequence(Drivers_params),        	--drivers
+                                    to_StringSequence(Drivers_params.all),--drivers
                                     CORBA.Long(Segments_total),
-                                    CORBA.Short(1),	                        --t1
-                                    CORBA.Short(1), 				--t2
-                                    CORBA.Short(laps));				--number of laps
+                                    CORBA.Short(1),	                  --t1
+                                    CORBA.Short(1), 			  --t2
+                                    CORBA.Short(laps));			  --number of laps
 
       -- Lock first segment for driver initializations
 --        Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, blocking_lane_one);
