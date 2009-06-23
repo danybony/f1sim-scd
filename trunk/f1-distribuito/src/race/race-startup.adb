@@ -25,22 +25,29 @@ with Ada.Strings.Fixed;
 --with Race.Driver;
 with Ada.Integer_Text_IO;
 with Ada.Float_Text_IO;
+with Ada.Command_Line;
 with Ada.Strings.Unbounded;
 with Ada.Containers.Vectors;
 with Ada.Numerics.Elementary_Functions;
 with Race.IorReader;
 with Race.CORBAConverter;
 with CORBA.ORB;
+with CORBA.Impl;
+with CORBA.Object;
 with RI.Circuit_RI;
 with RI.Circuit_RI.Helper;
 with RI.Driver_RI;
 with RI.Driver_RI.Helper;
 with RI.Log_viewer;
 with RI.Log_viewer.Helper;
-with PolyORB.Setup.Client;
-pragma Warnings (Off, PolyORB.Setup.Client);
 with Cosnaming.NamingContextExt;
 with Cosnaming;
+
+with RI.Startup_RI.Impl;
+with PortableServer.POA.Helper;
+with PortableServer.POAManager;
+with Polyorb.Setup.Thread_Per_Request_Server;
+pragma Warnings (Off, PolyORB.Setup.Thread_Per_Request_Server);
 
 package body Race.Startup is
 
@@ -223,9 +230,9 @@ package body Race.Startup is
       Drivers_params	:String_array_T(1..20);
       --Drivers   	:Race.Driver.Driver_Vector.Vector;
       MacroSegments_params :String_array_T(1..20);
-      Race_file 	:String:="/home/daniele/SCD/f1-export_new/txt/race.txt";
-      Drivers_file	:String:="/home/daniele/SCD/f1-export_new/txt/drivers.txt";
-      MacroSegments_file:String:="/home/daniele/SCD/f1-export_new/txt/circuit.txt";
+      Race_file 	:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/race.txt";
+      Drivers_file	:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/drivers.txt";
+      MacroSegments_file:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/circuit.txt";
       Race_file_lines	:integer:=0;
       Drivers_file_lines:integer:=0;
       MacroSegments_file_lines:integer:=0;
@@ -246,6 +253,61 @@ package body Race.Startup is
       circuit 		:RI.Circuit_RI.Ref;
       logger		:RI.Log_viewer.Ref;
       obj_name 		:CosNaming.Name;
+
+
+
+      -- task for publish CORBA interface
+      task type CORBAInit(tot_drivers	:integer);
+      task body CORBAInit is
+
+         use Ada.Strings.Unbounded;
+         use Text_IO;
+         use Ada.Command_Line;
+
+         Argv 		: CORBA.ORB.Arg_List := CORBA.ORB.Command_Line_Arguments;
+      	 Root_POA 	: PortableServer.POA.Local_Ref;
+         -- the object to be published
+      	 Obj 		: constant CORBA.Impl.Object_Ptr := new RI.startup_RI.Impl.Object(tot_drivers);
+      	 Ref 		: CORBA.Object.Ref;
+
+      begin
+
+        --  Create and publish startup remote interface in Name Service
+         CORBA.ORB.Init (CORBA.ORB.To_CORBA_String ("ORB"), Argv);
+
+         Root_POA := PortableServer.POA.Helper.To_Local_Ref
+                 (CORBA.ORB.Resolve_Initial_References
+                    (CORBA.ORB.To_CORBA_String ("RootPOA")));
+
+      	PortableServer.POAManager.Activate
+           (PortableServer.POA.Get_The_POAManager (Root_POA));
+
+      	-- Set up new object
+      	Ref := PortableServer.POA.Servant_To_Reference
+                  (Root_POA, PortableServer.Servant (Obj));
+
+      	-- Bind in Name Service
+      	Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Startup"),
+                                       Kind => To_CORBA_String ("")));
+
+      	bind(rootCxtExt, obj_name, Ref);
+      	put_line("Race startup Remote Inderface binded in Name Service.");
+
+
+         -- Launch the server
+     	 CORBA.ORB.Run;
+
+         put_line("Race ended.");
+
+         RI.Log_viewer.endRace (logger);
+         RI.Circuit_RI.endRace (circuit);
+
+      	-- Unbind from Name Service
+      	unbind(rootCxtExt, obj_name);
+
+      end CORBAInit;
+      type CORBAInit_Ref is access CORBAInit;
+      CORBAInit_P : CORBAInit_Ref;
 
    begin
       -- Read Race, Driver and Track configurations from file
@@ -316,6 +378,7 @@ package body Race.Startup is
       RI.Circuit_RI.enter(circuit,1,CORBA.Float(blocking_speed), CORBA.Short(blocking_lane_one));
       RI.Circuit_RI.enter(circuit,1,CORBA.Float(blocking_speed), CORBA.Short(blocking_lane_two));
 
+
       -- Create drivers and align them as per config file's order
       -- 7 is the number of the parameters for every driver
       while Drivers_index < drivers_file_lines loop
@@ -345,8 +408,12 @@ package body Race.Startup is
       -- Realese the lock in the first segment: Start the Race!
 --        Race.Circuit.LR_track.Element(1).all.leave(1);
 --        Race.Circuit.LR_track.Element(1).all.leave(2);
-	RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_one));
-        RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_two));
+      RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_one));
+      RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_two));
+
+      -- Start CORBA ORB and wait for endRace
+      CORBAInit_P := new CORBAInit(Current_driver);
+
    end startup;
 
 

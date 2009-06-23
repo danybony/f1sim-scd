@@ -50,7 +50,6 @@ public class Driver{
             }
         }
         this.lastEndLap = lastEndLap;
-        System.out.println(lastEndLap);
     }
 
     public void setLastT1(long lastT1) {
