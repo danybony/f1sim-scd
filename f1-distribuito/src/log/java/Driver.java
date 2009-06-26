@@ -15,6 +15,7 @@ public class Driver{
     private short currentLap;
     private int currentSegment;
     private float maxSpeed;
+    private float Speed = 0;
     private long lastT1, lastT2, lastEndLap;
     private long bestT1= Integer.MAX_VALUE; 
     private long bestT2 = Integer.MAX_VALUE;
@@ -37,6 +38,7 @@ public class Driver{
     }
 
     public void updateMaxSpeed(float Speed) {
+        this.Speed = Speed;
         if(Speed > maxSpeed){
             maxSpeed = Speed;
         }
@@ -118,6 +120,10 @@ public class Driver{
 
     void setAtBox(boolean box) {
         this.atBox = box;
+    }
+
+    public float getSpeed() {
+        return Speed;
     }
         
         

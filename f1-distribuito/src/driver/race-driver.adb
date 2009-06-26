@@ -80,7 +80,7 @@ package body Race.Driver is
       Wake : Time;
       lane : Positive := 1;
       current_lane : Positive := 1;
-      change_lane_delay : decimal := 0.001;
+      change_lane_delay : float := 0.001;
 
       -- log base for acceleration
       -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
