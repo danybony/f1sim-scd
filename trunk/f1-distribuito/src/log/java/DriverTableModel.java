@@ -14,7 +14,7 @@ class DriverTableModel extends AbstractTableModel{
 
     Log_viewerImpl logger;
 
-    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Best lap (ms)"};
+    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed", "Top Speed", "Best lap"};
 
     public DriverTableModel(Log_viewerImpl logger) {
         this.logger = logger;
@@ -38,10 +38,18 @@ class DriverTableModel extends AbstractTableModel{
                         return "box";
                     }
                     return logger.getDriver(rowIndex).getCurrentSegment();
-            case 5: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
-                        return logger.getDriver(rowIndex).getBestLap();
+            case 5: return logger.getDriver(rowIndex).getSpeed();
+            case 6: return logger.getDriver(rowIndex).getMaxSpeed();
+            case 7: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
+                        int min = (int) (logger.getDriver(rowIndex).getBestLap() / 60000);
+                        int sec = (int) ((logger.getDriver(rowIndex).getBestLap() / 1000) % 60);
+                        int ms  = (int) (logger.getDriver(rowIndex).getBestLap() % 1000);
+                        if(min != 0){
+                            return ""+ min + ":" + sec + ":" + ms;
+                        }
+                        return ""+ sec + ":" + ms;
                     }
-                    return 0;
+                    return "--:---";
         }
         return null;
     }

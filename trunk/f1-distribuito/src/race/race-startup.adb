@@ -130,8 +130,9 @@ package body Race.Startup is
          end loop read_file_loop;
 
          array_to_configure := new String_Array_T(1..array_index);
-         for index_aux in 1..array_index loop
+         while index_aux <= array_index loop
             array_to_configure(index_aux) := array_aux(index_aux);
+            index_aux := index_aux + 1;
          end loop;
 
       end if;
@@ -139,7 +140,11 @@ package body Race.Startup is
    exception
       when end_error =>
          --  No newline at end of file: do nothing.
-         null;
+         array_to_configure := new String_Array_T(1..array_index);
+         while index_aux <= array_index loop
+            array_to_configure(index_aux) := array_aux(index_aux);
+            index_aux := index_aux + 1;
+         end loop;
    end read_configuration;
 
    -----------------------------------------------------------------------------
