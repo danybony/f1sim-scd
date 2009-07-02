@@ -10,9 +10,10 @@ import RI.*;
 
 
 public class Log_viewerImpl extends Log_viewerPOA {
-    
 
     class InvalidDriverID extends Exception{}
+
+    boolean raceIsRunning;
     
     private ORB orb;
 
@@ -29,9 +30,12 @@ public class Log_viewerImpl extends Log_viewerPOA {
     }
 
     public void endRace() {
-        System.out.println("Race finished!");
-        frame.println("Race finished!");
-        orb.shutdown(false);
+        if(raceIsRunning){
+            System.out.println("Race finished!");
+            frame.println("Race finished!");
+            orb.shutdown(false);
+            raceIsRunning = false;
+        }
     }
 
     public void setEnvironment(String[] Drivers, int segmentsNumber, short T1, short T2, short RaceLaps) {

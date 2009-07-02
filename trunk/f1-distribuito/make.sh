@@ -1,8 +1,11 @@
-echo Building startup..
+echo Building startup...
 gnatmake -P f1sim_startup.gpr -d `polyorb-config`
 
-echo Building Driver..
+echo Building Driver...
 gnatmake -P f1sim_driver.gpr -d `polyorb-config`
 
-echo Building Circuit..
+echo Building Circuit...
 gnatmake -P f1sim_circuit.gpr -d `polyorb-config`
+
+echo Building Logger...
+javac ./src/log/java/Log_main.java -sourcepath ./src/log/java/ -d obj_logger

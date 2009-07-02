@@ -19,35 +19,26 @@
 --------------------------------------------------------
 
 with Ada.Integer_Text_IO;
+with Ada.Exceptions;
 with Text_IO;
 with Ada.Strings.unbounded;
 with Ada.Command_Line;
 --with Race.Circuit;
-with Race.IorReader;
 with Ada.Calendar;
 with Ada.Numerics.Elementary_Functions;
 with Ada.Float_Text_IO;
 
 --CORBA imports
-with CORBA.Impl;
-with CORBA.Object;
-with CORBA.ORB;
-with PortableServer.POA.Helper;
-with PortableServer.POAManager;
+with Race.DriverCORBAInit;
+with CORBA;
 with CosNaming;
 with Cosnaming.NamingContextExt;
 with Cosnaming.NamingContext;
 with RI.driver_RI.Impl;
 with RI.Circuit_RI;
-with RI.Circuit_RI.Helper;
 with RI.Log_viewer;
-with RI.Log_viewer.Helper;
 with RI.Startup_RI;
 with RI.Startup_RI.Helper;
-with PolyORB.CORBA_P.CORBALOC;
-
-with Polyorb.Setup.Thread_Per_Request_Server;
-pragma Warnings (Off, PolyORB.Setup.Thread_Per_Request_Server);
 
 package body Race.Driver is
 
@@ -110,102 +101,15 @@ package body Race.Driver is
       box_index : positive := 1;
       LP_box: LP_Track_Ref_T;
 
-      circuit 	:RI.Circuit_RI.Ref;
-      logger	:RI.Log_viewer.Ref;
-      startup	:RI.Startup_RI.Ref;
-      obj_name 	: CosNaming.Name;
 
-      -- the NamingService
+      -- CORBA
+
+      circuit 		:RI.Circuit_RI.Ref;
+      logger		:RI.Log_viewer.Ref;
+      startup		:RI.Startup_RI.Ref;
+      obj_name 		: CosNaming.Name;
+      CORBAInit_P 	: DriverCORBAInit.CORBAInit_Ref;
       rootCxtExt	: CosNaming.NamingContextExt.Ref;
-      IOR	 	: Ada.Strings.Unbounded.Unbounded_String;
-
-      -- task for publish CORBA interface
-      task type CORBAInit;
-      task body CORBAInit is
-
-
-         use Ada.Strings.Unbounded;
-         use Text_IO;
-         use Ada.Command_Line;
-
-         Argv 		: CORBA.ORB.Arg_List := CORBA.ORB.Command_Line_Arguments;
-         Root_POA 	: PortableServer.POA.Local_Ref;
-
-         --the object to be published
-         Obj 		: constant CORBA.Impl.Object_Ptr := new RI.driver_RI.Impl.Object;
-         Ref 		: CORBA.Object.Ref;
-
-
-
-      begin
-
-         if Argument_Count /= 1 then
-                Put_Line ("Missing driver ID.");
-                Put_Line ("Usage : main_driver <ID>");
-         end if;
-
-
-        --  Retrieve Root POA
-        CORBA.ORB.Init (CORBA.ORB.To_CORBA_String ("ORB"), Argv);
-
-        Root_POA := PortableServer.POA.Helper.To_Local_Ref
-                 (CORBA.ORB.Resolve_Initial_References
-                    (CORBA.ORB.To_CORBA_String ("RootPOA")));
-
-
-        PortableServer.POAManager.Activate
-           (PortableServer.POA.Get_The_POAManager (Root_POA));
-
-
-        --  Set up new object
-        Ref := PortableServer.POA.Servant_To_Reference
-                  (Root_POA, PortableServer.Servant (Obj));
-
-        -- Read NameService IOR from file
-        Race.IorReader.read_IOR(IOR);
-
-        -- Getting the NameService
-        CORBA.ORB.Initialize ("ORB");
-      	CORBA.ORB.String_To_Object
-        (CORBA.To_CORBA_String (TO_String(IOR)), rootCxtExt);
-
-      	if Is_Nil (rootCxtExt) then
-        	  Put_Line ("driver"& Ada.Command_Line.Argument (1) & " : cannot locate NameService");
-    	end if;
-         put("NameService IOR: ok ");new_line;
-
-         -- Get circuit Remote Interface from Name Service
-      	 Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
-                                       Kind => To_CORBA_String ("")));
-      	 circuit := RI.Circuit_RI.Helper.To_Ref(resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-         put_line("Got circuit from Name Service");
-
-         -- Get logger Remote Interface from Name Service
-         Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
-                                       Kind => To_CORBA_String ("")));
-      	 logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-         put_line("Got logger from Name Service");
-
-
-         --  Bind in Name Service
-         Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Driver" & Ada.Command_Line.Argument (1)),
-                                         Kind => To_CORBA_String ("")));
-
-         bind(rootCxtExt, obj_name, Ref);
-         put_line("Driver Remote Inderface binded in Name Service");
-
-
-         --  Launch the server
-         CORBA.ORB.Run;
-
-         --  Unbind from Name Service
-         unbind(rootCxtExt, obj_name);
-
-      end CORBAInit;
-      type CORBAInit_Ref is access CORBAInit;
-      CORBAInit_P : CORBAInit_Ref;
 
 
    begin
@@ -215,7 +119,10 @@ package body Race.Driver is
       Text_IO.put_line("Driver started");
 
       -- Start CORBA ORB and wait for init
-      CORBAInit_P := new CORBAInit;
+      CORBAInit_P := new DriverCORBAInit.CORBAInit;
+      CORBAInit_P.init(circuit,
+                       logger,
+                       rootCxtExt);
 
       accept init (params	: String_array_T;
                    position	: Positive;
@@ -316,6 +223,7 @@ package body Race.Driver is
                           CORBA.Long(Position),
                           CORBA.Float(entering_speed),
                           CORBA.Short(lane));
+      put("accesso");new_line;
       if lane /= current_lane then
          -- driver changes lane: got bit delay
          wake := clock + duration(change_lane_delay);
@@ -625,7 +533,7 @@ package body Race.Driver is
 
 
       -- Get startup Remote Interface from Name Service
-      Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Startup"),
+      Append (obj_name, NameComponent'(Id => To_CORBA_String ("Startup"),
                                        Kind => To_CORBA_String ("")));
       startup := RI.Startup_RI.Helper.To_Ref(resolve_str(
                 rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
@@ -634,6 +542,7 @@ package body Race.Driver is
       RI.Startup_RI.endRace(startup);
 
       put_line("Race ended.");
+
 
 end the_Driver;
 
