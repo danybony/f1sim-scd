@@ -31,6 +31,7 @@ with Ada.Containers.Vectors;
 with Ada.Numerics.Elementary_Functions;
 with Race.IorReader;
 with Race.CORBAConverter;
+with Race.StartupCORBAInit;
 with CORBA.ORB;
 with CORBA.Impl;
 with CORBA.Object;
@@ -266,59 +267,7 @@ package body Race.Startup is
       logger		:RI.Log_viewer.Ref;
       obj_name 		:CosNaming.Name;
 
-
-
-      -- task for publish CORBA interface
-      task type CORBAInit(tot_drivers	:integer);
-      task body CORBAInit is
-
-         use Ada.Strings.Unbounded;
-         use Text_IO;
-         use Ada.Command_Line;
-
-         Argv 		: CORBA.ORB.Arg_List := CORBA.ORB.Command_Line_Arguments;
-      	 Root_POA 	: PortableServer.POA.Local_Ref;
-         -- the object to be published
-      	 Obj 		: constant CORBA.Impl.Object_Ptr := new RI.startup_RI.Impl.Object(tot_drivers);
-      	 Ref 		: CORBA.Object.Ref;
-
-      begin
-
-         --  Create and publish startup remote interface in Name Service
-         CORBA.ORB.Init (CORBA.ORB.To_CORBA_String ("ORB"), Argv);
-
-         Root_POA := PortableServer.POA.Helper.To_Local_Ref
-                 (CORBA.ORB.Resolve_Initial_References
-                    (CORBA.ORB.To_CORBA_String ("RootPOA")));
-
-         PortableServer.POAManager.Activate
-           (PortableServer.POA.Get_The_POAManager (Root_POA));
-
-         -- Set up new object
-         Ref := PortableServer.POA.Servant_To_Reference
-                  (Root_POA, PortableServer.Servant (Obj));
-
-         -- Bind in Name Service
-         Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Startup"),
-                                       		      Kind => To_CORBA_String ("")));
-
-         bind(rootCxtExt, obj_name, Ref);
-         put_line("Race startup Remote Inderface binded in Name Service.");
-
-         -- Launch the server
-     	 CORBA.ORB.Run;
-
-         put_line("Race ended.");
-
-         RI.Log_viewer.endRace (logger);
-         RI.Circuit_RI.endRace (circuit);
-
-         -- Unbind from Name Service
-         unbind(rootCxtExt, obj_name);
-
-      end CORBAInit;
-      type CORBAInit_Ref is access CORBAInit;
-      CORBAInit_P : CORBAInit_Ref;
+      CORBAInit_P 	:StartupCORBAInit.CORBAInit_Ref;
 
    begin
       -- Read Race, Driver and Track configurations from file
@@ -425,7 +374,12 @@ package body Race.Startup is
       RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_two));
 
       -- Start CORBA ORB and wait for endRace
-      CORBAInit_P := new CORBAInit(Current_driver);
+      CORBAInit_P := new StartupCORBAInit.CORBAInit;
+      CORBAInit_P.init(Current_driver,
+                       circuit,
+                       logger,
+                       rootCxtExt);
+
 
    end startup;
 
