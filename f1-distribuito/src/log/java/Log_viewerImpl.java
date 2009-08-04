@@ -1,7 +1,14 @@
 import java.util.Date;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.omg.CORBA.ORB;
 import RI.*;
+import org.omg.CosNaming.NameComponent;
+import org.omg.CosNaming.NamingContext;
+import org.omg.CosNaming.NamingContextPackage.CannotProceed;
+import org.omg.CosNaming.NamingContextPackage.InvalidName;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 /**
  *
@@ -11,6 +18,12 @@ import RI.*;
 
 public class Log_viewerImpl extends Log_viewerPOA {
 
+    private NamingContext rootNC;
+
+    void serRootNC(NamingContext rootNC) {
+        this.rootNC = rootNC;
+    }
+    
     class InvalidDriverID extends Exception{}
 
     boolean raceIsRunning;
@@ -33,25 +46,24 @@ public class Log_viewerImpl extends Log_viewerPOA {
         if(raceIsRunning){
             System.out.println("Race finished!");
             frame.println("Race finished!");
-            orb.shutdown(false);
             raceIsRunning = false;
+
+            System.out.println("Unbinding from Naming Service..");
+            frame.println("Unbinding from Naming Service..");
+            NameComponent[] name = new NameComponent[1];
+            name[0] = new NameComponent("Logger","");
+            try {
+
+                rootNC.unbind(name);
+                
+            } catch (Exception ex) { }
+
+            orb.shutdown(false);     
         }
     }
 
     public void setEnvironment(String[] Drivers, int segmentsNumber, short T1, short T2, short RaceLaps) {
-    /*      Begin test stampa     */   
-        System.out.println("setEnvironment - Ricevuto: ");
-        
-        System.out.println("----------- Drivers: "+ Drivers.length);
-        for(int i=0; i<Drivers.length;i++){
-            System.out.println(Drivers[i]);
-        }
-        System.out.println("----------- T1: "+T1);
-        System.out.println("----------- T2: "+T2);
-        System.out.println("----------- RaceLaps: "+RaceLaps);
-        System.out.println("----------- Segments: "+segmentsNumber);
-    /*       End test stampa       */
-        
+            
         this.T1 = T1;
         this.T2 = T2;
         this.raceLaps = RaceLaps;
@@ -121,8 +133,10 @@ public class Log_viewerImpl extends Log_viewerPOA {
                     currentDriver.setPosition((short) (currentDriver.getPosition() - 1));
                     Driver temp = drivers.remove(currentDriver.getPosition());
                     drivers.add(previousDriver.getPosition(), temp);
-                    previousDriver = drivers.elementAt(currentDriver.getPosition() - 1);
-
+                    if(currentDriver.getPosition()>0){
+                        previousDriver = drivers.elementAt(currentDriver.getPosition() - 1);
+                    }
+                    
                     
                 }
                 
@@ -152,8 +166,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
             String name = Drivers[i*7];
             String team = Drivers[i*7+1];
             short id = (short)Integer.parseInt(Drivers[i*7+2]);
-            //da aggiornare il numero del segmento di partenza!!!!
-            drivers.add(new Driver(name, id, team,(short) i, (short)0));
+            drivers.add(new Driver(name, id, team,(short)i, (short)1));
         }
     }
 

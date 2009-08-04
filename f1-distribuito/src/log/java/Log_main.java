@@ -13,10 +13,7 @@ import RI.*;
  */
 public class Log_main extends javax.swing.JFrame {
 
-   // private Log_viewerImpl log_viewerImpl;
-
-   // private ORB orb;
-
+   
     static String args[];
     private static final String IORFILE = "/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/ior.txt";
 
@@ -58,6 +55,7 @@ public class Log_main extends javax.swing.JFrame {
           org.omg.CORBA.Object ncobj = orb.string_to_object(remoteRegistryIOR);
           NamingContext rootNC = NamingContextHelper.narrow(ncobj);
           frame.println("Obtained Name Service reference.");
+          log_viewerImpl.serRootNC(rootNC);
 
           NameComponent[] name = new NameComponent[1];
           name[0] = new NameComponent("Logger","");
@@ -79,18 +77,18 @@ public class Log_main extends javax.swing.JFrame {
           log_viewerImpl.raceIsRunning = true;
           orb.run();
           
-          //clean the Naming Context
-          rootNC.unbind(name);
           frame.println("Logger Exiting ...");
+          System.out.println("Logger Exiting ...");
+          
       }
 
       catch (Exception e) {
         System.err.println("ERROR: " + e);
 
-        e.printStackTrace(System.out);
+        //e.printStackTrace(System.out);
       }
 
-      System.out.println("Logger Exiting ...");
+
 
        
     }
