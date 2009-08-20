@@ -1,42 +1,63 @@
--------------------------------------------------
---  This file has been generated automatically
---  by IDLAC version 2.4.0-20080521.
---
+pragma Style_Checks ("NM32766");
+---------------------------------------------------
+--  This file has been generated automatically from
+--  src/RI/RI.idl
+--  by IAC (IDL to Ada Compiler) GPL 2009-20090519 (rev. 144248).
+---------------------------------------------------
 --  Do NOT hand-modify this file, as your
 --  changes will be lost when you re-run the
 --  IDL to Ada compiler.
--------------------------------------------------
-pragma Style_Checks ("NM32766");
-
-with RI.Helper;
-with PolyORB.Requests;
+---------------------------------------------------
 with PolyORB.Any.NVList;
+with PolyORB.Types;
+with RI.Helper;
+with PolyORB.Any;
+with PolyORB.Requests;
 with PolyORB.CORBA_P.Interceptors_Hooks;
 with PolyORB.CORBA_P.Exceptions;
-with CORBA;
- use CORBA;
-pragma Elaborate_All (CORBA);
-with PolyORB.Types;
 
 package body RI.Log_viewer is
 
-   Result_Name_Ü : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("Result");
+   setEnvironment_Arg_Name_Drivers_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Drivers");
 
-   setEnvironment_Arg_Name_Ü_Drivers : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("Drivers");
+   setEnvironment_Arg_Name_segmentsNumber_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("segmentsNumber");
 
-   setEnvironment_Arg_Name_Ü_segmentsNumber : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("segmentsNumber");
+   setEnvironment_Arg_Name_T1_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("T1");
 
-   setEnvironment_Arg_Name_Ü_T1 : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("T1");
+   setEnvironment_Arg_Name_T2_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("T2");
 
-   setEnvironment_Arg_Name_Ü_T2 : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("T2");
+   setEnvironment_Arg_Name_RaceLaps_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("RaceLaps");
 
-   setEnvironment_Arg_Name_Ü_RaceLaps : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("RaceLaps");
+   setEnvironment_Result_Name_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Result");
+
+   -----------------------------
+   -- setEnvironment_Result_Ü --
+   -----------------------------
+
+   function setEnvironment_Result_Ü return PolyORB.Any.NamedValue is
+      pragma Inline (setEnvironment_Result_Ü);
+   begin
+      return (Name => setEnvironment_Result_Name_Ü,
+      Argument => CORBA.Internals.Get_Empty_Any
+        (CORBA.TC_Void),
+      Arg_Modes => 0);
+   end setEnvironment_Result_Ü;
+
+   --------------------
+   -- setEnvironment --
+   --------------------
 
    procedure setEnvironment
      (Self : Ref;
@@ -46,95 +67,151 @@ package body RI.Log_viewer is
       T2 : CORBA.Short;
       RaceLaps : CORBA.Short)
    is
-      Arg_CC_Ü_Drivers : aliased PolyORB.Any.Content'Class :=
-         RI.Helper.Wrap (RI.IDL_SEQUENCE_string.Sequence (Drivers)'Unrestricted_Access);
-      Arg_Any_Ü_Drivers : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (RI.Helper.TC_StringSequence, Arg_CC_Ü_Drivers'Unchecked_Access);
-      Arg_CC_Ü_segmentsNumber : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (segmentsNumber'Unrestricted_Access);
-      Arg_Any_Ü_segmentsNumber : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Long, Arg_CC_Ü_segmentsNumber'Unchecked_Access);
-      Arg_CC_Ü_T1 : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (T1'Unrestricted_Access);
-      Arg_Any_Ü_T1 : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_T1'Unchecked_Access);
-      Arg_CC_Ü_T2 : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (T2'Unrestricted_Access);
-      Arg_Any_Ü_T2 : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_T2'Unchecked_Access);
-      Arg_CC_Ü_RaceLaps : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (RaceLaps'Unrestricted_Access);
-      Arg_Any_Ü_RaceLaps : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_RaceLaps'Unchecked_Access);
-
+      Argument_List_Ü : PolyORB.Any.NVList.Ref;
+      Arg_CC_Drivers_Ü : aliased PolyORB.Any.Content'Class :=
+        RI.Helper.Internals.Wrap
+           (RI.IDL_SEQUENCE_string.Sequence
+              (Drivers)'Unrestricted_Access);
+      Arg_Any_Drivers_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (RI.Helper.TC_StringSequence,
+            Arg_CC_Drivers_Ü'Unchecked_Access);
+      Arg_CC_segmentsNumber_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (segmentsNumber'Unrestricted_Access);
+      Arg_Any_segmentsNumber_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Long,
+            Arg_CC_segmentsNumber_Ü'Unchecked_Access);
+      Arg_CC_T1_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (T1'Unrestricted_Access);
+      Arg_Any_T1_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Short,
+            Arg_CC_T1_Ü'Unchecked_Access);
+      Arg_CC_T2_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (T2'Unrestricted_Access);
+      Arg_Any_T2_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Short,
+            Arg_CC_T2_Ü'Unchecked_Access);
+      Arg_CC_RaceLaps_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (RaceLaps'Unrestricted_Access);
+      Arg_Any_RaceLaps_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Short,
+            Arg_CC_RaceLaps_Ü'Unchecked_Access);
       Request_Ü : PolyORB.Requests.Request_Access;
-      Arg_List_Ü : PolyORB.Any.NVList.Ref;
-      Result_Ü_NV : PolyORB.Any.NamedValue;
+      Result_Nv_Ü : PolyORB.Any.NamedValue :=
+        setEnvironment_Result_Ü;
    begin
-
-      if Is_Nil (Self) then
-         CORBA.Raise_Inv_Objref (Default_Sys_Member);
+      if CORBA.Object.Is_Nil
+        (CORBA.Object.Ref
+           (Self))
+      then
+         CORBA.Raise_Inv_Objref
+           (CORBA.Default_Sys_Member);
       end if;
-
-      --  Create argument list
-
+      --  Create the Argument list
       PolyORB.Any.NVList.Create
-        (Arg_List_Ü);
+        (Argument_List_Ü);
+      --  Fill the Argument list
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         setEnvironment_Arg_Name_Ü_Drivers,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_Drivers)),
+        (Argument_List_Ü,
+         setEnvironment_Arg_Name_Drivers_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_Drivers_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         setEnvironment_Arg_Name_Ü_segmentsNumber,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_segmentsNumber)),
+        (Argument_List_Ü,
+         setEnvironment_Arg_Name_segmentsNumber_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_segmentsNumber_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         setEnvironment_Arg_Name_Ü_T1,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_T1)),
+        (Argument_List_Ü,
+         setEnvironment_Arg_Name_T1_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_T1_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         setEnvironment_Arg_Name_Ü_T2,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_T2)),
+        (Argument_List_Ü,
+         setEnvironment_Arg_Name_T2_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_T2_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         setEnvironment_Arg_Name_Ü_RaceLaps,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_RaceLaps)),
+        (Argument_List_Ü,
+         setEnvironment_Arg_Name_RaceLaps_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_RaceLaps_Ü)),
          PolyORB.Any.ARG_IN);
-
-      --  Set result type (maybe void)
-
-      Result_Ü_NV :=
-       (Name     => Result_Name_Ü,
-        Argument =>
-         CORBA.Internals.Get_Empty_Any (CORBA.TC_Void),
-         Arg_Modes => 0);
-
+      --  Creating the request
       PolyORB.Requests.Create_Request
-        (Target    => CORBA.Object.Internals.To_PolyORB_Ref
-           (CORBA.Object.Ref (Self)),
+        (Target => CORBA.Object.Internals.To_PolyORB_Ref
+           (CORBA.Object.Ref
+              (Self)),
          Operation => "setEnvironment",
-         Arg_List  => Arg_List_Ü,
-         Result    => Result_Ü_NV,
-         Req       => Request_Ü,
+         Arg_List => Argument_List_Ü,
+         Result => Result_Nv_Ü,
+         Req => Request_Ü,
          Req_Flags => PolyORB.Requests.Sync_With_Transport);
-
+      --  Invoking the request (synchronously or asynchronously)
       PolyORB.CORBA_P.Interceptors_Hooks.Client_Invoke
-        (Request_Ü, PolyORB.Requests.Flags (0));
-      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence (Request_Ü);
-      PolyORB.Requests.Destroy_Request (Request_Ü);
+        (Request_Ü,
+         PolyORB.Requests.Flags
+           (0));
+      --  Raise exception, if needed
+      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence
+        (Request_Ü);
+      PolyORB.Requests.Destroy_Request
+        (Request_Ü);
    end setEnvironment;
 
-   updateLog_Arg_Name_Ü_Driver_ID : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("Driver_ID");
+   updateLog_Arg_Name_Driver_ID_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Driver_ID");
 
-   updateLog_Arg_Name_Ü_Segment : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("Segment");
+   updateLog_Arg_Name_Segment_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Segment");
 
-   updateLog_Arg_Name_Ü_Speed : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("Speed");
+   updateLog_Arg_Name_Speed_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Speed");
 
-   updateLog_Arg_Name_Ü_box : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("box");
+   updateLog_Arg_Name_box_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("box");
+
+   updateLog_Result_Name_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Result");
+
+   ------------------------
+   -- updateLog_Result_Ü --
+   ------------------------
+
+   function updateLog_Result_Ü return PolyORB.Any.NamedValue is
+      pragma Inline (updateLog_Result_Ü);
+   begin
+      return (Name => updateLog_Result_Name_Ü,
+      Argument => CORBA.Internals.Get_Empty_Any
+        (CORBA.TC_Void),
+      Arg_Modes => 0);
+   end updateLog_Result_Ü;
+
+   ---------------
+   -- updateLog --
+   ---------------
 
    procedure updateLog
      (Self : Ref;
@@ -143,120 +220,164 @@ package body RI.Log_viewer is
       Speed : CORBA.Float;
       box : CORBA.Boolean)
    is
-      Arg_CC_Ü_Driver_ID : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (Driver_ID'Unrestricted_Access);
-      Arg_Any_Ü_Driver_ID : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Short, Arg_CC_Ü_Driver_ID'Unchecked_Access);
-      Arg_CC_Ü_Segment : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (Segment'Unrestricted_Access);
-      Arg_Any_Ü_Segment : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Long, Arg_CC_Ü_Segment'Unchecked_Access);
-      Arg_CC_Ü_Speed : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (Speed'Unrestricted_Access);
-      Arg_Any_Ü_Speed : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Float, Arg_CC_Ü_Speed'Unchecked_Access);
-      Arg_CC_Ü_box : aliased PolyORB.Any.Content'Class :=
-         CORBA.Wrap (box'Unrestricted_Access);
-      Arg_Any_Ü_box : constant CORBA.Any := CORBA.Internals.Get_Wrapper_Any (CORBA.TC_Boolean, Arg_CC_Ü_box'Unchecked_Access);
-
+      Argument_List_Ü : PolyORB.Any.NVList.Ref;
+      Arg_CC_Driver_ID_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (Driver_ID'Unrestricted_Access);
+      Arg_Any_Driver_ID_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Short,
+            Arg_CC_Driver_ID_Ü'Unchecked_Access);
+      Arg_CC_Segment_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (Segment'Unrestricted_Access);
+      Arg_Any_Segment_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Long,
+            Arg_CC_Segment_Ü'Unchecked_Access);
+      Arg_CC_Speed_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (Speed'Unrestricted_Access);
+      Arg_Any_Speed_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Float,
+            Arg_CC_Speed_Ü'Unchecked_Access);
+      Arg_CC_box_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (box'Unrestricted_Access);
+      Arg_Any_box_Ü : constant CORBA.Any :=
+        CORBA.Internals.Get_Wrapper_Any
+           (CORBA.TC_Boolean,
+            Arg_CC_box_Ü'Unchecked_Access);
       Request_Ü : PolyORB.Requests.Request_Access;
-      Arg_List_Ü : PolyORB.Any.NVList.Ref;
-      Result_Ü_NV : PolyORB.Any.NamedValue;
+      Result_Nv_Ü : PolyORB.Any.NamedValue :=
+        updateLog_Result_Ü;
    begin
-
-      if Is_Nil (Self) then
-         CORBA.Raise_Inv_Objref (Default_Sys_Member);
+      if CORBA.Object.Is_Nil
+        (CORBA.Object.Ref
+           (Self))
+      then
+         CORBA.Raise_Inv_Objref
+           (CORBA.Default_Sys_Member);
       end if;
-
-      --  Create argument list
-
+      --  Create the Argument list
       PolyORB.Any.NVList.Create
-        (Arg_List_Ü);
+        (Argument_List_Ü);
+      --  Fill the Argument list
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         updateLog_Arg_Name_Ü_Driver_ID,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_Driver_ID)),
+        (Argument_List_Ü,
+         updateLog_Arg_Name_Driver_ID_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_Driver_ID_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         updateLog_Arg_Name_Ü_Segment,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_Segment)),
+        (Argument_List_Ü,
+         updateLog_Arg_Name_Segment_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_Segment_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         updateLog_Arg_Name_Ü_Speed,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_Speed)),
+        (Argument_List_Ü,
+         updateLog_Arg_Name_Speed_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_Speed_Ü)),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
-        (Arg_List_Ü,
-         updateLog_Arg_Name_Ü_box,
-         PolyORB.Any.Copy_Any (PolyORB.Any.Any (Arg_Any_Ü_box)),
+        (Argument_List_Ü,
+         updateLog_Arg_Name_box_Ü,
+         PolyORB.Any.Copy_Any
+           (PolyORB.Any.Any
+              (Arg_Any_box_Ü)),
          PolyORB.Any.ARG_IN);
-
-      --  Set result type (maybe void)
-
-      Result_Ü_NV :=
-       (Name     => Result_Name_Ü,
-        Argument =>
-         CORBA.Internals.Get_Empty_Any (CORBA.TC_Void),
-         Arg_Modes => 0);
-
+      --  Creating the request
       PolyORB.Requests.Create_Request
-        (Target    => CORBA.Object.Internals.To_PolyORB_Ref
-           (CORBA.Object.Ref (Self)),
+        (Target => CORBA.Object.Internals.To_PolyORB_Ref
+           (CORBA.Object.Ref
+              (Self)),
          Operation => "updateLog",
-         Arg_List  => Arg_List_Ü,
-         Result    => Result_Ü_NV,
-         Req       => Request_Ü,
+         Arg_List => Argument_List_Ü,
+         Result => Result_Nv_Ü,
+         Req => Request_Ü,
          Req_Flags => PolyORB.Requests.Sync_With_Transport);
-
+      --  Invoking the request (synchronously or asynchronously)
       PolyORB.CORBA_P.Interceptors_Hooks.Client_Invoke
-        (Request_Ü, PolyORB.Requests.Flags (0));
-      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence (Request_Ü);
-      PolyORB.Requests.Destroy_Request (Request_Ü);
+        (Request_Ü,
+         PolyORB.Requests.Flags
+           (0));
+      --  Raise exception, if needed
+      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence
+        (Request_Ü);
+      PolyORB.Requests.Destroy_Request
+        (Request_Ü);
    end updateLog;
+
+   endRace_Result_Name_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Result");
+
+   ----------------------
+   -- endRace_Result_Ü --
+   ----------------------
+
+   function endRace_Result_Ü return PolyORB.Any.NamedValue is
+      pragma Inline (endRace_Result_Ü);
+   begin
+      return (Name => endRace_Result_Name_Ü,
+      Argument => CORBA.Internals.Get_Empty_Any
+        (CORBA.TC_Void),
+      Arg_Modes => 0);
+   end endRace_Result_Ü;
+
+   -------------
+   -- endRace --
+   -------------
 
    procedure endRace
      (Self : Ref)
    is
-
+      Argument_List_Ü : PolyORB.Any.NVList.Ref;
       Request_Ü : PolyORB.Requests.Request_Access;
-      Arg_List_Ü : PolyORB.Any.NVList.Ref;
-      Result_Ü_NV : PolyORB.Any.NamedValue;
+      Result_Nv_Ü : PolyORB.Any.NamedValue :=
+        endRace_Result_Ü;
    begin
-
-      if Is_Nil (Self) then
-         CORBA.Raise_Inv_Objref (Default_Sys_Member);
+      if CORBA.Object.Is_Nil
+        (CORBA.Object.Ref
+           (Self))
+      then
+         CORBA.Raise_Inv_Objref
+           (CORBA.Default_Sys_Member);
       end if;
-
-      --  Create argument list
-
+      --  Create the Argument list
       PolyORB.Any.NVList.Create
-        (Arg_List_Ü);
-
-      --  Set result type (maybe void)
-
-      Result_Ü_NV :=
-       (Name     => Result_Name_Ü,
-        Argument =>
-         CORBA.Internals.Get_Empty_Any (CORBA.TC_Void),
-         Arg_Modes => 0);
-
+        (Argument_List_Ü);
+      --  Creating the request
       PolyORB.Requests.Create_Request
-        (Target    => CORBA.Object.Internals.To_PolyORB_Ref
-           (CORBA.Object.Ref (Self)),
+        (Target => CORBA.Object.Internals.To_PolyORB_Ref
+           (CORBA.Object.Ref
+              (Self)),
          Operation => "endRace",
-         Arg_List  => Arg_List_Ü,
-         Result    => Result_Ü_NV,
-         Req       => Request_Ü,
+         Arg_List => Argument_List_Ü,
+         Result => Result_Nv_Ü,
+         Req => Request_Ü,
          Req_Flags => PolyORB.Requests.Sync_With_Transport);
-
+      --  Invoking the request (synchronously or asynchronously)
       PolyORB.CORBA_P.Interceptors_Hooks.Client_Invoke
-        (Request_Ü, PolyORB.Requests.Flags (0));
-      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence (Request_Ü);
-      PolyORB.Requests.Destroy_Request (Request_Ü);
+        (Request_Ü,
+         PolyORB.Requests.Flags
+           (0));
+      --  Raise exception, if needed
+      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence
+        (Request_Ü);
+      PolyORB.Requests.Destroy_Request
+        (Request_Ü);
    end endRace;
 
-   --  The visible Is_A object reference
-   --  operation (a dispatching operation
-   --  of all object reference types).
+   ----------
+   -- Is_A --
+   ----------
 
    function Is_A
      (Self : Ref;
@@ -264,34 +385,31 @@ package body RI.Log_viewer is
      return CORBA.Boolean
    is
    begin
-      return False
-         --  Locally check class membership for this interface
-
-        or else Is_A (Logical_Type_Id)
-         --  Fall back to a remote membership check (may involve
-         --  an actual request invocation on Self).
-
-           or else CORBA.Object.Is_A
-                    (CORBA.Object.Ref (Self), Logical_Type_Id);
-
+      return (False
+         or else (Is_A
+           (Logical_Type_Id)
+            or else CORBA.Object.Is_A
+              (CORBA.Object.Ref
+                 (Self),
+               Logical_Type_Id)));
    end Is_A;
 
-   --  The internal Is_A implementation for
-   --  this interface.
+   ----------
+   -- Is_A --
+   ----------
 
    function Is_A
      (Logical_Type_Id : PolyORB.Std.String)
      return CORBA.Boolean
    is
    begin
-      return CORBA.Is_Equivalent
+      return ((CORBA.Is_Equivalent
         (Logical_Type_Id,
          RI.Log_viewer.Repository_Id)
-        or else CORBA.Is_Equivalent
-          (Logical_Type_Id,
-           "IDL:omg.org/CORBA/Object:1.0")
-        or else False;
-
+         or else CORBA.Is_Equivalent
+           (Logical_Type_Id,
+            "IDL:omg.org/CORBA/Object:1.0"))
+         or else False);
    end Is_A;
 
 end RI.Log_viewer;

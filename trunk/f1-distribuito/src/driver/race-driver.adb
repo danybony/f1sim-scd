@@ -231,11 +231,16 @@ package body Race.Driver is
          current_lane := lane;
       end if;
 
+      begin
       RI.Log_viewer.updateLog (logger,
                               id,
                               CORBA.Long(Position),
                               CORBA.Float(entering_speed*float(3600)/float(1000)),
-                              false);
+                               false);
+      exception
+      when others =>
+            put_line("Logger is down");
+      end;
 
       put(to_string(name));put(":");new_line;
       -- 10 meters of acceleration
@@ -281,13 +286,18 @@ package body Race.Driver is
                RI.Circuit_RI.enter_Box(circuit,
                           CORBA.Long(box_index),
                           CORBA.Float(leaving_speed),
-                          CORBA.Short(lane));
+                                       CORBA.Short(lane));
 
+               begin
                RI.Log_viewer.updateLog (logger,
                                         id,
                                         CORBA.Long(box_index),
                                         CORBA.Float(leaving_speed*float(3600)/float(1000)),
                                         true);
+               exception
+     		when others =>
+           	 put_line("Logger is down");
+     		end;
 
                if leaving_speed > LP_box(1).Starting_Speed then
                   decel_lenght := decel_lenght - meters_per_segment;
@@ -351,12 +361,16 @@ package body Race.Driver is
                   current_lane := lane;
                end if;
 
-
+	       begin
                RI.Log_viewer.updateLog (logger,
                                         id,
                                         CORBA.Long(Position),
                                         CORBA.Float(leaving_speed*float(3600)/float(1000)),
                                         false);
+               exception
+      		when others =>
+           	 put_line("Logger is down");
+      		end;
 
                put(to_string(Name));
                put(" is in segment ");
@@ -447,11 +461,16 @@ package body Race.Driver is
                end if;
 
 
+               begin
                RI.Log_viewer.updateLog (logger,
                                         id,
                                         CORBA.Long(Position),
                                         CORBA.Float(entering_speed*float(3600)/float(1000)),
                                         false);
+               exception
+   		 when others =>
+          	 put_line("Logger is down");
+      	       end;
 
                put(to_string(Name));
                put(" is in segment ");
@@ -543,6 +562,36 @@ package body Race.Driver is
 
       put_line("Race ended.");
 
+
+      --capture exception when Circuit is down
+      exception
+      when others =>
+         begin
+         	put_line("Circuit is down");
+
+      	    	-- Get startup Remote Interface from Name Service
+      		Append (obj_name, NameComponent'(Id => To_CORBA_String ("Startup"),
+                                       Kind => To_CORBA_String ("")));
+      		startup := RI.Startup_RI.Helper.To_Ref(resolve_str(
+                	rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+      		put_line("Got startup from Name Service");
+
+      		RI.Startup_RI.endRace(startup);
+
+        	put_line("Race ended.");
+
+
+
+      		--capture exception when Startup is down
+      		exception
+   			when others =>
+         			put_line("Startup is down");
+
+            			RI.Circuit_RI.endRace (circuit);
+            			RI.Log_viewer.endRace (logger);
+
+               			put_line("Race ended.");
+               end;
 
 end the_Driver;
 

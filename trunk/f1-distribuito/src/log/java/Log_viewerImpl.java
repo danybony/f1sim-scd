@@ -120,10 +120,10 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
                 //-------------------------ATTENZIONE NEL CASO DI PIMO SEGMENTO ALL'INIZIO GIRO!!
                 while(currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == (Segment-1)){
-                    frame.println(currentDriver.getName() + " ha sorpassato "
+                    frame.println(currentDriver.getName() + " overtake "
                             + previousDriver.getName() +
-                            " nel segmento " + Segment +
-                            " al giro "+ currentDriver.getCurrentLap());
+                            " in segment " + Segment +
+                            " at lap "+ currentDriver.getCurrentLap());
 
                     /*Updates the table*/
                     //frame.updateTable(currentDriver.getPosition()-1, currentDriver.getPosition());

@@ -98,10 +98,21 @@ package body Race.StartupCORBAInit is
          -- Launch the server
      	 CORBA.ORB.Run;
 
-         put_line("Race ended.");
+      	 put_line("Race ended.");
 
-         RI.Log_viewer.endRace (logger);
-         RI.Circuit_RI.endRace (circuit);
+	 begin
+         	RI.Log_viewer.endRace (logger);
+         exception
+      	    when others =>
+            	put_line("Logger is down");
+      	 end;
+
+      	 begin
+         	RI.Circuit_RI.endRace (circuit);
+         exception
+      	    when others =>
+            	put_line("Circuit is down");
+      	 end;
 
          -- Unbind from Name Service
          unbind(rootCxtExt, obj_name);

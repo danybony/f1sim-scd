@@ -1,71 +1,86 @@
--------------------------------------------------
---  This file has been generated automatically
---  by IDLAC version 2.4.0-20080521.
---
+pragma Style_Checks ("NM32766");
+---------------------------------------------------
+--  This file has been generated automatically from
+--  src/RI/RI.idl
+--  by IAC (IDL to Ada Compiler) GPL 2009-20090519 (rev. 144248).
+---------------------------------------------------
 --  Do NOT hand-modify this file, as your
 --  changes will be lost when you re-run the
 --  IDL to Ada compiler.
--------------------------------------------------
-pragma Style_Checks ("NM32766");
-
-with PolyORB.Requests;
+---------------------------------------------------
 with PolyORB.Any.NVList;
+with PolyORB.Requests;
+with PolyORB.Any;
+with PolyORB.Types;
 with PolyORB.CORBA_P.Interceptors_Hooks;
 with PolyORB.CORBA_P.Exceptions;
-with CORBA;
- use CORBA;
-pragma Elaborate_All (CORBA);
-with PolyORB.Types;
 
 package body RI.startup_RI is
 
-   Result_Name_Ü : constant PolyORB.Types.Identifier
-     := PolyORB.Types.To_PolyORB_String ("Result");
+   endRace_Result_Name_Ü : constant PolyORB.Types.Identifier :=
+     PolyORB.Types.To_PolyORB_String
+        ("Result");
+
+   ----------------------
+   -- endRace_Result_Ü --
+   ----------------------
+
+   function endRace_Result_Ü return PolyORB.Any.NamedValue is
+      pragma Inline (endRace_Result_Ü);
+   begin
+      return (Name => endRace_Result_Name_Ü,
+      Argument => CORBA.Internals.Get_Empty_Any
+        (CORBA.TC_Void),
+      Arg_Modes => 0);
+   end endRace_Result_Ü;
+
+   -------------
+   -- endRace --
+   -------------
 
    procedure endRace
      (Self : Ref)
    is
-
+      Argument_List_Ü : PolyORB.Any.NVList.Ref;
       Request_Ü : PolyORB.Requests.Request_Access;
-      Arg_List_Ü : PolyORB.Any.NVList.Ref;
-      Result_Ü_NV : PolyORB.Any.NamedValue;
+      Result_Nv_Ü : PolyORB.Any.NamedValue :=
+        endRace_Result_Ü;
    begin
-
-      if Is_Nil (Self) then
-         CORBA.Raise_Inv_Objref (Default_Sys_Member);
+      if CORBA.Object.Is_Nil
+        (CORBA.Object.Ref
+           (Self))
+      then
+         CORBA.Raise_Inv_Objref
+           (CORBA.Default_Sys_Member);
       end if;
-
-      --  Create argument list
-
+      --  Create the Argument list
       PolyORB.Any.NVList.Create
-        (Arg_List_Ü);
-
-      --  Set result type (maybe void)
-
-      Result_Ü_NV :=
-       (Name     => Result_Name_Ü,
-        Argument =>
-         CORBA.Internals.Get_Empty_Any (CORBA.TC_Void),
-         Arg_Modes => 0);
-
+        (Argument_List_Ü);
+      --  Creating the request
       PolyORB.Requests.Create_Request
-        (Target    => CORBA.Object.Internals.To_PolyORB_Ref
-           (CORBA.Object.Ref (Self)),
+        (Target => CORBA.Object.Internals.To_PolyORB_Ref
+           (CORBA.Object.Ref
+              (Self)),
          Operation => "endRace",
-         Arg_List  => Arg_List_Ü,
-         Result    => Result_Ü_NV,
-         Req       => Request_Ü,
+         Arg_List => Argument_List_Ü,
+         Result => Result_Nv_Ü,
+         Req => Request_Ü,
          Req_Flags => PolyORB.Requests.Sync_With_Transport);
-
+      --  Invoking the request (synchronously or asynchronously)
       PolyORB.CORBA_P.Interceptors_Hooks.Client_Invoke
-        (Request_Ü, PolyORB.Requests.Flags (0));
-      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence (Request_Ü);
-      PolyORB.Requests.Destroy_Request (Request_Ü);
+        (Request_Ü,
+         PolyORB.Requests.Flags
+           (0));
+      --  Raise exception, if needed
+      PolyORB.CORBA_P.Exceptions.Request_Raise_Occurrence
+        (Request_Ü);
+      PolyORB.Requests.Destroy_Request
+        (Request_Ü);
    end endRace;
 
-   --  The visible Is_A object reference
-   --  operation (a dispatching operation
-   --  of all object reference types).
+   ----------
+   -- Is_A --
+   ----------
 
    function Is_A
      (Self : Ref;
@@ -73,34 +88,31 @@ package body RI.startup_RI is
      return CORBA.Boolean
    is
    begin
-      return False
-         --  Locally check class membership for this interface
-
-        or else Is_A (Logical_Type_Id)
-         --  Fall back to a remote membership check (may involve
-         --  an actual request invocation on Self).
-
-           or else CORBA.Object.Is_A
-                    (CORBA.Object.Ref (Self), Logical_Type_Id);
-
+      return (False
+         or else (Is_A
+           (Logical_Type_Id)
+            or else CORBA.Object.Is_A
+              (CORBA.Object.Ref
+                 (Self),
+               Logical_Type_Id)));
    end Is_A;
 
-   --  The internal Is_A implementation for
-   --  this interface.
+   ----------
+   -- Is_A --
+   ----------
 
    function Is_A
      (Logical_Type_Id : PolyORB.Std.String)
      return CORBA.Boolean
    is
    begin
-      return CORBA.Is_Equivalent
+      return ((CORBA.Is_Equivalent
         (Logical_Type_Id,
          RI.startup_RI.Repository_Id)
-        or else CORBA.Is_Equivalent
-          (Logical_Type_Id,
-           "IDL:omg.org/CORBA/Object:1.0")
-        or else False;
-
+         or else CORBA.Is_Equivalent
+           (Logical_Type_Id,
+            "IDL:omg.org/CORBA/Object:1.0"))
+         or else False);
    end Is_A;
 
 end RI.startup_RI;
