@@ -1,5 +1,5 @@
 echo Building CORBA remote interfaces..
-idlac -c -s src/RI/RI.idl
+idlac -c -s src/RI/RI.idl -o src/RI/
 
 echo Building startup...
 gnatmake -P f1sim_startup.gpr -d `polyorb-config`

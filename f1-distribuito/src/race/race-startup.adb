@@ -297,6 +297,7 @@ package body Race.Startup is
       -- Get race properties from configuration
       build_race(Race_Params.all, laps);
 
+      begin
       -- Get circuit Remote Interface from Name Service
       Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
                                        Kind => To_CORBA_String ("")));
@@ -316,8 +317,14 @@ package body Race.Startup is
       --+LR will be stored in "Circuit" machine and freely accessible to any
       --+driver.
       build_track(MacroSegments_params.all, MacroSegments_file_lines, Segments_total, LP_track, LP_box, circuit);
+      exception
+         when others =>
+            put_line("Unable to get Circuit from Name Service.");
+            put_line("Circuit needed for building the track.");
+            put_line("Race aborted.");
+      end;
 
-
+      begin
       -- Get logger Remote Interface from Name Service
       Replace_Element (obj_name,
                        1,
@@ -333,6 +340,11 @@ package body Race.Startup is
                                     CORBA.Short(1),	                  --t1
                                     CORBA.Short(1), 			  --t2
                                     CORBA.Short(laps));			  --number of laps
+     exception
+     		 when others =>
+                  put_line("Unable to get logger from Name Service.");
+                  put_line("Race will start without logs.");
+     end;
 
       -- Lock first segment for driver initializations
 --        Race.Circuit.LR_track.Element(1).all.enter(blocking_speed, blocking_lane_one);

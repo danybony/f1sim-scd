@@ -118,12 +118,19 @@ package body Race.DriverCORBAInit is
                 rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
          put_line("Got circuit from Name Service");
 
-         -- Get logger Remote Interface from Name Service
-         Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
+         begin
+            -- Get logger Remote Interface from Name Service
+            Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
                                        Kind => To_CORBA_String ("")));
-      	 logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
+      	    logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
                 rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-         put_line("Got logger from Name Service");
+            put_line("Got logger from Name Service");
+
+            exception
+     		 when others =>
+                  put_line("Unable to get logger from Name Service.");
+                  put_line("Race will start without logs.");
+     	 end;
 
           end;
       end init;
