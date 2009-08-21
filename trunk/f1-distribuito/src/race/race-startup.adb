@@ -243,9 +243,9 @@ package body Race.Startup is
       Race_params	:String_array_Ref_T;
       Drivers_params	:String_array_Ref_T;
       MacroSegments_params :String_array_Ref_T;
-      Race_file 	:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/race.txt";
-      Drivers_file	:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/drivers.txt";
-      MacroSegments_file:String:="/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/circuit.txt";
+      Race_file 	:String:="txt/race.txt";
+      Drivers_file	:String:="txt/drivers.txt";
+      MacroSegments_file:String:="txt/circuit.txt";
       Race_file_lines	:integer:=0;
       Drivers_file_lines:integer:=0;
       MacroSegments_file_lines:integer:=0;

@@ -10,7 +10,7 @@
 #il pilota si fermerà ai box.
 Fernando Alonso
 Renault
-2
+1
 4
 1
 300
@@ -18,8 +18,24 @@ Renault
 #
 Micheal Schumacher
 Ferrari
-1
+2
 10
 10
 340
 4
+#
+Janson Button
+BMW
+3
+4
+5
+340
+4
+#
+Trulli
+Toro Rosso
+4
+4
+1
+330
+3

@@ -60,7 +60,7 @@ package body Race.IorReader is
       -- Temporary string and char in wich store lines read in from file
       input_string:string(1..1024);
       input_char:character;
-	 text_file : string := "/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/ior.txt";
+	 text_file : string := "txt/ior.txt";
    begin
       put("reading IOR...");
       if file_exists(text_file) then
