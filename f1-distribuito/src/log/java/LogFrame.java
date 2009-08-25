@@ -28,6 +28,7 @@ public class LogFrame extends javax.swing.JFrame {
         driversTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("F1Sim SCD");
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
                 formWindowClosing(evt);
@@ -39,6 +40,7 @@ public class LogFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(jTextArea);
 
         driversTable.setModel(new DriverTableModel(logger));
+        driversTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jScrollPane2.setViewportView(driversTable);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

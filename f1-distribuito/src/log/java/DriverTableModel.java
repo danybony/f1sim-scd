@@ -14,7 +14,7 @@ class DriverTableModel extends AbstractTableModel{
 
     Log_viewerImpl logger;
 
-    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed", "Top Speed", "Best lap"};
+    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap"};
 
     public DriverTableModel(Log_viewerImpl logger) {
         this.logger = logger;
@@ -30,7 +30,7 @@ class DriverTableModel extends AbstractTableModel{
 
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex){
-            case 0: return rowIndex;
+            case 0: return rowIndex+1;
             case 1: return logger.getDriver(rowIndex).getName();
             case 2: return logger.getDriver(rowIndex).getTeam();
             case 3: return logger.getDriver(rowIndex).getCurrentLap();
