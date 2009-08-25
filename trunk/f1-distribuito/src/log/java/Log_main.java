@@ -15,7 +15,7 @@ public class Log_main extends javax.swing.JFrame {
 
    
     static String args[];
-    private static final String IORFILE = "/media/disk/Documents and Settings/daniele/Documenti/Docs/Laurea Magistrale/Sistemi concorrenti e distribuiti/f1sim-scd/f1-distribuito/txt/ior.txt";
+    private static final String IORFILE = "txt/ior.txt";
 
 
 
