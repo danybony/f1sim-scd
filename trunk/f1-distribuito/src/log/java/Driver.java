@@ -16,9 +16,7 @@ public class Driver{
     private int currentSegment;
     private float maxSpeed;
     private float Speed = 0;
-    private long lastT1, lastT2, lastEndLap;
-    private long bestT1= Integer.MAX_VALUE; 
-    private long bestT2 = Integer.MAX_VALUE;
+    private long lastEndLap;
     private long bestLap = Integer.MAX_VALUE;
     private boolean atBox;
 
@@ -30,7 +28,7 @@ public class Driver{
         this.currentSegment = currentSegment;
         this.currentLap = 0;
         this.maxSpeed = 0;
-        this.lastT1 = this.lastT2 = this.lastEndLap = new Date().getTime();
+        this.lastEndLap = new Date().getTime();
     }
 
     public void setCurrentSegment(int Segment) {
@@ -52,26 +50,6 @@ public class Driver{
             }
         }
         this.lastEndLap = lastEndLap;
-    }
-
-    public void setLastT1(long lastT1) {
-        if(this.lastT1 != 0){
-            long timeBetween = lastT1 - this.lastT1;
-            if(timeBetween < bestT1){
-                bestT1 = timeBetween;
-            }
-        }
-        this.lastT1 = lastT1;
-    }
-
-    public void setLastT2(long lastT2) {
-        if(this.lastT1 != 0){
-            long timeBetween = lastT2 - this.lastT2;
-            if(timeBetween < bestT2){
-                bestT2 = timeBetween;
-            }
-        }
-        this.lastT2 = lastT2;
     }
 
     public void setCurrentLap(short currentLap) {

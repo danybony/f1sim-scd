@@ -1,14 +1,9 @@
 import java.util.Date;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.omg.CORBA.ORB;
 import RI.*;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
-import org.omg.CosNaming.NamingContextPackage.CannotProceed;
-import org.omg.CosNaming.NamingContextPackage.InvalidName;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 
 /**
  *
@@ -57,8 +52,10 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 rootNC.unbind(name);
                 
             } catch (Exception ex) { }
-
-            orb.shutdown(false);     
+            for(int i =0; i<drivers.size(); i++){
+                drivers.elementAt(i).updateMaxSpeed(0);
+            }
+            frame.updateTable();
         }
     }
 
@@ -102,12 +99,6 @@ public class Log_viewerImpl extends Log_viewerPOA {
             if(Segment == segmentsNumber){
                 currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
                 currentDriver.setLastEndLap(new Date().getTime());
-            }
-            else if(Segment == T1){
-                currentDriver.setLastT1(new Date().getTime());
-            }
-            else if(Segment == T2){
-                currentDriver.setLastT2(new Date().getTime());
             }
 
             currentDriver.updateMaxSpeed(Speed);
