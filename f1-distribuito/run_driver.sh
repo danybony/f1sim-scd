@@ -1,1 +1,1 @@
-obj_driver/main_driver
+obj_driver/main_driver $1
