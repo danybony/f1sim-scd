@@ -19,6 +19,7 @@
 --------------------------------------------------------
 
 with Ada.Strings.Unbounded;
+with Ada.Exceptions;
 
 --  This package contains driver interface definition.
 
@@ -35,13 +36,9 @@ package Race.Driver is
 --     type Driver_Ref_T is access the_Driver;
    subtype Driver_lenght is Positive range 1..20;
 
---     package Driver_Vector is new Ada.Containers.Vectors
---       (Element_type => Driver_Ref_T,
---        Index_type => Driver_lenght);
-
-   -- Brake points array
-   -- For every macro segment, this array indicates when start braking
-   --type brake_points_T is array (Positive range <>) of Natural;
-   --type brake_points_Ref_T is access brake_points_T;
+   Engine_Break : Exception;
+   Tyre_Break : Exception;
+   Box_Retire : Exception;
+   Crash : Exception;
 
 end Race.Driver;

@@ -23,10 +23,10 @@ with Ada.Exceptions;
 with Text_IO;
 with Ada.Strings.unbounded;
 with Ada.Command_Line;
---with Race.Circuit;
 with Ada.Calendar;
 with Ada.Numerics.Elementary_Functions;
 with Ada.Float_Text_IO;
+with Ada.Numerics.Float_Random;
 
 --CORBA imports
 with Race.DriverCORBAInit;
@@ -52,6 +52,7 @@ package body Race.Driver is
       use CosNaming;
       use CosNaming.NamingContext;
       use CosNaming.NamingContextExt;
+      use Ada.Numerics.Float_Random;
       Name: Ada.Strings.Unbounded.Unbounded_String;
       ID_positive: Positive;
       ID : CORBA.Short;
@@ -97,9 +98,11 @@ package body Race.Driver is
       max_starting_speed : float;
       max_leaving_speed : float;
       brake_point_f : float;
-      --brake_point_i : integer;
       box_index : positive := 1;
       LP_box: LP_Track_Ref_T;
+      G : Generator;
+      lucky_number : Ada.Numerics.Float_Random.Uniformly_Distributed;
+
 
 
       -- CORBA
@@ -117,6 +120,7 @@ package body Race.Driver is
       --                       DRIVER THREAD BEGIN
       --------------------------------------------------------------------------
       Text_IO.put_line("Driver started");
+      Reset(G);
 
       -- Start CORBA ORB and wait for init
       CORBAInit_P := new DriverCORBAInit.CORBAInit;
@@ -217,8 +221,6 @@ package body Race.Driver is
       put(" lined up!");new_line;
 
       -- First segment of the race
-      -- LR_track.Element(Position).all.enter(entering_speed, lane);
-
       RI.Circuit_RI.enter(circuit,
                           CORBA.Long(Position),
                           CORBA.Float(entering_speed),
@@ -252,7 +254,6 @@ package body Race.Driver is
       wake := clock + duration(meters_per_segment/avg_speed);
       delay until wake;
 
-      -- LR_track.Element(Position).all.leave(lane);
 
       RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
@@ -282,7 +283,11 @@ package body Race.Driver is
                put(to_string(Name));
                put(" drive through box!");new_line;
 
---               LR_box.Element(box_index).all.enter(leaving_speed, lane);
+               -- Probability of 0,001% to have problems at box and retire
+               lucky_number := Random(G);
+               if lucky_number > 6.00100E-01 and lucky_number < 6.00200E-01 then
+                  raise Box_Retire;
+               end if;
                RI.Circuit_RI.enter_Box(circuit,
                           CORBA.Long(box_index),
                           CORBA.Float(leaving_speed),
@@ -348,7 +353,16 @@ package body Race.Driver is
 
             -- acceleration loop
             while segment_index < brake_point loop
-               --                 LR_track.Element(Position).all.enter(leaving_speed, lane);
+
+               -- Probability of 0,001% to break the engine
+               lucky_number := Random(G);
+               if lucky_number > 1.00100E-01 and lucky_number < 1.00200E-01 then
+                  raise Engine_Break;
+               end if;
+               -- Probability of 0,001% to break a tyre
+               if lucky_number > 3.00100E-01 and lucky_number < 3.00200E-01 then
+                  raise Tyre_Break;
+               end if;
 
                RI.Circuit_RI.enter(circuit,
                                    CORBA.Long(Position),
@@ -382,6 +396,13 @@ package body Race.Driver is
                   if leaving_speed < entering_speed then
                      -- was blocked by a leading car!
                      -- brake to leading car speed
+
+                     -- Probability of 0,001% to crash!
+               	     lucky_number := Random(G);
+               	     if lucky_number > 9.00100E-01 and lucky_number < 9.00200E-01 then
+                        raise Crash;
+                     end if;
+
                      accel_lenght := log_a_base**leaving_speed;
                      entering_speed := leaving_speed;
                      put("[Blocked by leading car!]");new_line;
@@ -410,10 +431,9 @@ package body Race.Driver is
 
                -- calc wake time with respect to current driver speed
                wake := clock + duration(meters_per_segment/avg_speed);
---                 put("Wake: ");
---                 ada.Float_Text_IO.put(meters_per_segment/avg_speed);new_line;
+
                delay until Wake;
---                 LR_track.Element(Position).all.leave(lane);
+
                RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
@@ -426,12 +446,6 @@ package body Race.Driver is
                   current_accel_lenght := log_d_base**leaving_speed;
                   next_segment_accel_lenght := log_d_base**max_leaving_speed;
                   brake_point_f := (current_accel_lenght - next_segment_accel_lenght) / meters_per_segment;
---                    brake_point_i := integer(brake_point_f);
---
---                    if float(brake_point_i) > brake_point_f then
---                       brake_point_f := brake_point_f - 5.00000E-01;
---                       brake_point_i := integer(brake_point_f);
---                    end if;
 
                   brake_point := LP_track(macro_index).Segments -
                     integer(brake_point_f);
@@ -448,7 +462,17 @@ package body Race.Driver is
 
             -- brake loop
             while segment_index <= LP_track(macro_index).Segments loop
---                 LR_track.Element(Position).all.enter(entering_speed, lane);
+
+               -- Probability of 0,001% to break the engine
+               lucky_number := Random(G);
+               if lucky_number > 1.00100E-01 and lucky_number < 1.00200E-01 then
+                  raise Engine_Break;
+               end if;
+               -- Probability of 0,001% to break a tyre
+               if lucky_number > 3.00100E-01 and lucky_number < 3.00200E-01 then
+                  raise Tyre_Break;
+               end if;
+
                RI.Circuit_RI.enter(circuit,
                                    CORBA.Long(Position),
                                    CORBA.Float(entering_speed),
@@ -513,6 +537,13 @@ package body Race.Driver is
                if leaving_speed > entering_speed then
                   -- driver was blocked by a leading car
                   -- normal brake is not enough: assume leading car speed
+
+                  -- Probability of 0,001% to crash!
+                  lucky_number := Random(G);
+                  if lucky_number > 9.00100E-01 and lucky_number < 9.00200E-01 then
+                     raise Crash;
+                  end if;
+
                   avg_speed := entering_speed;
                   leaving_speed := entering_speed;
                   accel_lenght := log_a_base**leaving_speed;
@@ -592,6 +623,21 @@ package body Race.Driver is
 
                			put_line("Race ended.");
                end;
+
+      exception
+
+         when Engine_Break =>
+            put_line("Engine break! Race ended.");
+            null;
+         when Tyre_Break =>
+            put_line("Tyre break! Race ended.");
+            null;
+         when Box_Retire =>
+            put_line("Problems at box! Retired. Race ended");
+            null;
+         when Crash =>
+            put_line("Crash with other car! Retired. Race ended.");
+            null;
 
 end the_Driver;
 
