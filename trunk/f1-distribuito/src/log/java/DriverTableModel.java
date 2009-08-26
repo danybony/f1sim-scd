@@ -14,7 +14,7 @@ class DriverTableModel extends AbstractTableModel{
 
     Log_viewerImpl logger;
 
-    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap"};
+    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap", "Total Time"};
 
     public DriverTableModel(Log_viewerImpl logger) {
         this.logger = logger;

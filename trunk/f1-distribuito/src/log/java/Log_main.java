@@ -70,7 +70,7 @@ public class Log_main extends javax.swing.JFrame {
             System.exit(-1);
           }
 
-          frame.println("Logger Remote Inderface binded in Name Service");
+          frame.println("Logger Remote Inderface bound in Name Service");
 
           // wait for invocations from client
           frame.println("Logger ready and waiting ...");
