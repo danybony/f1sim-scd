@@ -111,33 +111,33 @@ package body Race.DriverCORBAInit is
 
         rootCxtExt_local := rootCxtExt;
 
-         -- Get circuit Remote Interface from Name Service
-      	 Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
-                                       Kind => To_CORBA_String ("")));
-      	 circuit := RI.Circuit_RI.Helper.To_Ref(resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-         put_line("Got circuit from Name Service");
-
-         begin
-            -- Get logger Remote Interface from Name Service
-            Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
-                                       Kind => To_CORBA_String ("")));
-      	    logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-            put_line("Got logger from Name Service");
-
-            exception
-     		 when others =>
-                  put_line("Unable to get logger from Name Service.");
-                  put_line("Race will start without logs.");
-     	 end;
+--           -- Get circuit Remote Interface from Name Service
+--        	 Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
+--                                         Kind => To_CORBA_String ("")));
+--        	 circuit := RI.Circuit_RI.Helper.To_Ref(resolve_str(
+--                  rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+--           put_line("Got circuit from Name Service");
+--
+--           begin
+--              -- Get logger Remote Interface from Name Service
+--              Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
+--                                         Kind => To_CORBA_String ("")));
+--        	    logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
+--                  rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+--              put_line("Got logger from Name Service");
+--
+--              exception
+--       		 when others =>
+--                    put_line("Unable to get logger from Name Service.");
+--                    put_line("Race will start without logs.");
+--       	 end;
 
           end;
       end init;
 
 
          --  Bind in Name Service
-         Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Driver" & Ada.Command_Line.Argument (1)),
+         Append (obj_name, NameComponent'(Id => To_CORBA_String ("Driver" & Ada.Command_Line.Argument (1)),
                                          Kind => To_CORBA_String ("")));
 
          bind(rootCxtExt_local, obj_name, Ref);

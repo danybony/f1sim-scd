@@ -36,11 +36,65 @@ with Cosnaming.NamingContextExt;
 with Cosnaming.NamingContext;
 with RI.driver_RI.Impl;
 with RI.Circuit_RI;
+with RI.Circuit_RI.Helper;
+with RI.Log_viewer.Helper;
 with RI.Log_viewer;
 with RI.Startup_RI;
 with RI.Startup_RI.Helper;
 
 package body Race.Driver is
+
+   procedure notify_end_race (
+                              ID 		: CORBA.Short;
+                              reason		: integer;
+                              rootCxtExt	: CosNaming.NamingContextExt.Ref;
+                              logger		: RI.Log_viewer.Ref
+                             ) is
+      use text_io;
+      use CosNaming;
+      use CosNaming.NamingContext;
+      use CosNaming.NamingContextExt;
+      obj_name 		: CosNaming.Name;
+      startup		: RI.Startup_RI.Ref;
+   begin
+
+      -- Get startup Remote Interface from Name Service
+      Append (obj_name, NameComponent'(Id => To_CORBA_String ("Startup"),
+                                       Kind => To_CORBA_String ("")));
+      startup := RI.Startup_RI.Helper.To_Ref(resolve_str(
+                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+
+      case reason is
+
+         when 1 =>
+            put_line("Engine break!");
+
+         when 2 =>
+            put_line("Tire break!");
+
+         when 3 =>
+            put_line("Problems at box! Retired.");
+
+         when 4 =>
+            put_line("Crash into other car! Retired.");
+
+         when 5 =>
+            put_line("Circuit down.");
+
+
+         when others =>
+            null;
+
+      end case;
+
+      if reason /=0 then
+         RI.Log_viewer.endRace (logger, ID, CORBA.Short(reason));
+      end if;
+      RI.Startup_RI.endRace(startup);
+      put_line("Race ended.");
+
+   end notify_end_race;
+
 
 
    task body the_Driver is
@@ -211,6 +265,27 @@ package body Race.Driver is
                strategy_index := strategy_index + 1;
                go_box := strategy(strategy_index);
             end if;
+
+             -- Get circuit Remote Interface from Name Service
+      	 Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
+                                       Kind => To_CORBA_String ("")));
+      	 circuit := RI.Circuit_RI.Helper.To_Ref(resolve_str(
+                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+         put_line("Got circuit from Name Service");
+
+         begin
+            -- Get logger Remote Interface from Name Service
+            Replace_Element (obj_name, 1, NameComponent'(Id => To_CORBA_String ("Logger"),
+                                       Kind => To_CORBA_String ("")));
+      	    logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
+                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+            put_line("Got logger from Name Service");
+
+            exception
+     		 when others =>
+                  put_line("Unable to get logger from Name Service.");
+                  put_line("Race will start without logs.");
+     	 end;
 
          end;
       end init;
@@ -582,36 +657,22 @@ package body Race.Driver is
       --end of main loop
 
 
-      -- Get startup Remote Interface from Name Service
-      Append (obj_name, NameComponent'(Id => To_CORBA_String ("Startup"),
-                                       Kind => To_CORBA_String ("")));
-      startup := RI.Startup_RI.Helper.To_Ref(resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-      put_line("Got startup from Name Service");
-
-      RI.Startup_RI.endRace(startup);
-
-      put_line("Race ended.");
+      notify_end_race(ID,0,rootCxtExt, logger);
 
 
-      --capture exception when Circuit is down
+      --capture exceptions
       exception
+      when Engine_Break =>
+         notify_end_race(ID,1,rootCxtExt, logger);
+      when Tyre_Break =>
+         notify_end_race(ID,2,rootCxtExt, logger);
+      when Box_Retire =>
+         notify_end_race(ID,3,rootCxtExt, logger);
+      when Crash =>
+         notify_end_race(ID,4,rootCxtExt, logger);
       when others =>
          begin
-         	put_line("Circuit is down");
-
-      	    	-- Get startup Remote Interface from Name Service
-      		Append (obj_name, NameComponent'(Id => To_CORBA_String ("Startup"),
-                                       Kind => To_CORBA_String ("")));
-      		startup := RI.Startup_RI.Helper.To_Ref(resolve_str(
-                	rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-      		put_line("Got startup from Name Service");
-
-      		RI.Startup_RI.endRace(startup);
-
-        	put_line("Race ended.");
-
-
+         	notify_end_race(ID,5,rootCxtExt, logger);
 
       		--capture exception when Startup is down
       		exception
@@ -619,25 +680,12 @@ package body Race.Driver is
          			put_line("Startup is down");
 
             			RI.Circuit_RI.endRace (circuit);
-            			RI.Log_viewer.endRace (logger);
+            			RI.Log_viewer.endRace (logger, ID, CORBA.Short(5));
 
                			put_line("Race ended.");
-               end;
+         end;
 
-      exception
 
-         when Engine_Break =>
-            put_line("Engine break! Race ended.");
-            null;
-         when Tyre_Break =>
-            put_line("Tyre break! Race ended.");
-            null;
-         when Box_Retire =>
-            put_line("Problems at box! Retired. Race ended");
-            null;
-         when Crash =>
-            put_line("Crash with other car! Retired. Race ended.");
-            null;
 
 end the_Driver;
 
