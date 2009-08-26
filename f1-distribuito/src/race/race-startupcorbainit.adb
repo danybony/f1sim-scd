@@ -93,7 +93,7 @@ package body Race.StartupCORBAInit is
                                        Kind => To_CORBA_String ("")));
 
          bind(rootCxtExt, obj_name, Ref);
-         put_line("Race startup Remote Inderface binded in Name Service.");
+         put_line("Race startup Remote Inderface bound in Name Service.");
 
          -- Launch the server
      	 CORBA.ORB.Run;
