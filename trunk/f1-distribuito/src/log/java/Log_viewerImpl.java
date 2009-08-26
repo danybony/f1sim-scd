@@ -27,7 +27,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
     private Vector<Driver> drivers = new Vector<Driver>();
      
-    private short T1, T2, raceLaps;
+    private short raceLaps;
 
     private int segmentsNumber;
 
@@ -37,32 +37,95 @@ public class Log_viewerImpl extends Log_viewerPOA {
       orb = orb_val;
     }
 
-    public void endRace() {
-        if(raceIsRunning){
-            System.out.println("Race finished!");
-            frame.println("Race finished!");
-            raceIsRunning = false;
+    public void endRace(short Driver_ID, short reason) {
+        try {
+        switch (reason){
 
-            System.out.println("Unbinding from Naming Service..");
-            frame.println("Unbinding from Naming Service..");
-            NameComponent[] name = new NameComponent[1];
-            name[0] = new NameComponent("Logger","");
-            try {
+            case 1 :
+                frame.println(driverById(Driver_ID).getName() + " break his engine! His race is finished.");
+                driverById(Driver_ID).setOut(true);
+                break;
 
-                rootNC.unbind(name);
-                
-            } catch (Exception ex) { }
-            for(int i =0; i<drivers.size(); i++){
-                drivers.elementAt(i).updateMaxSpeed(0);
-            }
-            frame.updateTable();
+            case 2 :
+                frame.println(driverById(Driver_ID).getName() + " break a tire! His race is finished.");
+                driverById(Driver_ID).setOut(true);
+                break;
+
+            case 3 :
+                frame.println(driverById(Driver_ID).getName() + " had problems at box! His race is finished.");
+                driverById(Driver_ID).setOut(true);
+                break;
+
+            case 4 :
+                frame.println(driverById(Driver_ID).getName() + " crashed into an other car! His race is finished.");
+                driverById(Driver_ID).setOut(true);
+                break;
+
+            case 5 :
+                frame.println("Circuit down.");
+                break;
+
+            default :
+                if(raceIsRunning){
+                    System.out.println("Race finished!");
+                    frame.println("Race finished!");
+                    raceIsRunning = false;
+
+                    System.out.println("Unbinding from Naming Service..");
+                    frame.println("Unbinding from Naming Service..");
+                    NameComponent[] name = new NameComponent[1];
+                    name[0] = new NameComponent("Logger","");
+                    try {
+
+                        rootNC.unbind(name);
+
+                    } catch (Exception ex) { }
+                    for(int i =0; i<drivers.size(); i++){
+                        drivers.elementAt(i).updateMaxSpeed(0);
+                    }
+                    frame.updateTable();
+
+                    if(drivers.size()>0){
+
+                        int driverIndex = 0;
+                        double topSpeed = 0;
+                        for(int i=0; i<drivers.size(); i++){
+                            if(drivers.elementAt(i).getTopSpeed() > topSpeed){
+                                topSpeed = drivers.elementAt(i).getTopSpeed();
+                                driverIndex = i;
+                            }
+                        }
+                        frame.println("Top Speed: " + topSpeed + " km/h by " + drivers.elementAt(driverIndex).getName());
+
+                        long bestLap = Integer.MAX_VALUE;
+                        for(int i=0; i<drivers.size(); i++){
+                            if(drivers.elementAt(i).getBestLap() < bestLap){
+                                bestLap = drivers.elementAt(i).getBestLap();
+                                driverIndex = i;
+                            }
+                        }
+                        if(bestLap != Integer.MAX_VALUE){
+                            int min = (int) (bestLap / 60000);
+                            int sec = (int) ((bestLap / 1000) % 60);
+                            int ms  = (int) (bestLap % 1000);
+                            if(min != 0){
+                                frame.println("Best Lap: " + min + ":" + sec + ":" + ms + " by " + drivers.elementAt(driverIndex).getName());
+                            }
+                            else{
+                                frame.println("Best Lap: " + sec + ":" + ms + " by " + drivers.elementAt(driverIndex).getName());
+                            }
+                        }
+                    }
+                }
         }
+        
+
+        } catch (InvalidDriverID ex) {}
+        
     }
 
-    public void setEnvironment(String[] Drivers, int segmentsNumber, short T1, short T2, short RaceLaps) {
-            
-        this.T1 = T1;
-        this.T2 = T2;
+    public void setEnvironment(String[] Drivers, int segmentsNumber, short RaceLaps) {
+        
         this.raceLaps = RaceLaps;
         
         this.segmentsNumber = segmentsNumber;
@@ -94,11 +157,12 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
             currentDriver.setAtBox(false);
             currentDriver.setCurrentSegment(Segment);
-            
+
             /* Check if the current lap has finisced */
             if(Segment == segmentsNumber){
                 currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
                 currentDriver.setLastEndLap(new Date().getTime());
+                currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap());
             }
 
             currentDriver.updateMaxSpeed(Speed);
@@ -136,8 +200,6 @@ public class Log_viewerImpl extends Log_viewerPOA {
             frame.updateTable();
             
         } catch (InvalidDriverID ex) {
-            System.err.println("Invalid driver ID: "+Driver_ID);
-            frame.println("Invalid driver ID: "+Driver_ID);
         }
     }
     

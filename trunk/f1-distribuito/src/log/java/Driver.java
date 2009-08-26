@@ -19,6 +19,10 @@ public class Driver{
     private long lastEndLap;
     private long bestLap = Integer.MAX_VALUE;
     private boolean atBox;
+    private boolean out = false;
+    private long difference = 0;
+    private long totalTime = 0;
+
 
     public Driver(String name, short id, String team, short position, short currentSegment) {
         this.name = name;
@@ -43,8 +47,9 @@ public class Driver{
     }
 
     public void setLastEndLap(long lastEndLap) {
-        if(this.lastEndLap != 0){  
+        if(this.lastEndLap != 0){
             long timeBetween = lastEndLap - this.lastEndLap;
+            totalTime = totalTime + timeBetween;
             if(timeBetween < bestLap){
                 bestLap = timeBetween;
             }
@@ -80,8 +85,8 @@ public class Driver{
         return atBox;
     }
 
-    public float getMaxSpeed() {
-        return maxSpeed;
+    public float getTopSpeed() {
+        return Math.round(maxSpeed*100)/100;
     }
 
     public String getName() {
@@ -96,12 +101,42 @@ public class Driver{
         return team;
     }
 
+    long getDifference() {
+        return difference;
+    }
+
+    long getTotalTime() {
+        return totalTime;
+    }
+
     void setAtBox(boolean box) {
         this.atBox = box;
     }
 
     public float getSpeed() {
-        return Speed;
+        return Math.round(Speed*100)/100;
+    }
+
+    public long getLastEndLap() {
+        return lastEndLap;
+    }
+
+    public void setOut(boolean out) {
+        this.out = out;
+        if(out){
+            this.Speed = 0;
+            if(totalTime == 0){
+                totalTime = new Date().getTime() - lastEndLap;
+            }
+        }
+    }
+
+    public boolean isOut() {
+        return out;
+    }
+
+    void updateDifference(long firstDriversTime) {
+        this.difference = this.lastEndLap - firstDriversTime;     
     }
         
         

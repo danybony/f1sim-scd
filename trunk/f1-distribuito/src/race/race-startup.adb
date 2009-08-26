@@ -259,6 +259,7 @@ package body Race.Startup is
       blocking_lane_one	:Positive := 1;
       blocking_lane_two	:Positive := 2;
       Current_driver	:integer:=0;
+      logger_ok		:boolean:=false;
 
       IOR		:Ada.Strings.Unbounded.Unbounded_String;
       rootCxtExt 	:CosNaming.NamingContextExt.Ref;
@@ -322,23 +323,34 @@ package body Race.Startup is
             put_line("Unable to get Circuit from Name Service.");
             put_line("Circuit needed for building the track.");
             put_line("Race aborted.");
+            return;
       end;
+
 
       begin
       -- Get logger Remote Interface from Name Service
       Replace_Element (obj_name,
                        1,
                        NameComponent'(Id => To_CORBA_String ("Logger"),
-                                       Kind => To_CORBA_String ("")));
-      logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+                                      Kind => To_CORBA_String ("")));
+
+         while logger_ok = false loop
+            begin
+               logger := RI.Log_viewer.Helper.To_Ref(resolve_str(
+                 rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+               logger_ok := true;
+            exception
+     		 when others =>
+                  delay Duration(0.5);
+            end;
+         end loop;
+
+
       put_line("Got logger from Name Service");
 
       RI.Log_viewer.setEnvironment (logger,
                                     to_StringSequence(Drivers_params.all),--drivers
                                     CORBA.Long(Segments_total),
-                                    CORBA.Short(1),	                  --t1
-                                    CORBA.Short(1), 			  --t2
                                     CORBA.Short(laps));			  --number of laps
      exception
      		 when others =>
