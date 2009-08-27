@@ -31,18 +31,31 @@ class DriverTableModel extends AbstractTableModel{
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex){
             case 0: return rowIndex+1;
+
             case 1: return logger.getDriver(rowIndex).getName();
+
             case 2: return logger.getDriver(rowIndex).getTeam();
+
             case 3: return logger.getDriver(rowIndex).getCurrentLap();
-            case 4: if(logger.getDriver(rowIndex).isAtBox()) {
+
+            case 4: if(logger.getDriver(rowIndex).getState() == 1) {
                         return "box";
                     }
-                    if(logger.getDriver(rowIndex).isOut()) {
+                    if(logger.getDriver(rowIndex).getState() == -1) {
                         return "Out";
                     }
+                    if(logger.getDriver(rowIndex).getState() == 2) {
+                        return "Race finished";
+                    }
                     return logger.getDriver(rowIndex).getCurrentSegment();
-            case 5: return logger.getDriver(rowIndex).getSpeed();
+
+            case 5: if(logger.getDriver(rowIndex).getState() == 2) {
+                        return "0.0";
+                    }
+                    return logger.getDriver(rowIndex).getSpeed();
+
             case 6: return logger.getDriver(rowIndex).getTopSpeed();
+
             case 7: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
                         int min = (int) (logger.getDriver(rowIndex).getBestLap() / 60000);
                         int sec = (int) ((logger.getDriver(rowIndex).getBestLap() / 1000) % 60);
@@ -53,7 +66,8 @@ class DriverTableModel extends AbstractTableModel{
                         return ""+ sec + ":" + ms;
                     }
                     return "--:---";
-             case 8: if(rowIndex == 0 || logger.getDriver(rowIndex).isOut()){
+
+             case 8: if(rowIndex == 0 || logger.getDriver(rowIndex).getState() == -1){
                         if(logger.getDriver(rowIndex).getTotalTime() != 0){
                             int min = (int) (logger.getDriver(rowIndex).getTotalTime() / 60000);
                             int sec = (int) ((logger.getDriver(rowIndex).getTotalTime() / 1000) % 60);

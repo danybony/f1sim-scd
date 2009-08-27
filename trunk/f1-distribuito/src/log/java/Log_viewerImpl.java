@@ -43,26 +43,27 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
             case 1 :
                 frame.println(driverById(Driver_ID).getName() + " break his engine! His race is finished.");
-                driverById(Driver_ID).setOut(true);
+                driverById(Driver_ID).setState((short)-1);
                 break;
 
             case 2 :
                 frame.println(driverById(Driver_ID).getName() + " break a tire! His race is finished.");
-                driverById(Driver_ID).setOut(true);
+                driverById(Driver_ID).setState((short)-1);
                 break;
 
             case 3 :
                 frame.println(driverById(Driver_ID).getName() + " had problems at box! His race is finished.");
-                driverById(Driver_ID).setOut(true);
+                driverById(Driver_ID).setState((short)-1);
                 break;
 
             case 4 :
                 frame.println(driverById(Driver_ID).getName() + " crashed into an other car! His race is finished.");
-                driverById(Driver_ID).setOut(true);
+                driverById(Driver_ID).setState((short)-1);
                 break;
 
             case 5 :
                 frame.println("Circuit down.");
+                endRace((short)-1, (short) 0);
                 break;
 
             default :
@@ -80,9 +81,6 @@ public class Log_viewerImpl extends Log_viewerPOA {
                         rootNC.unbind(name);
 
                     } catch (Exception ex) { }
-                    for(int i =0; i<drivers.size(); i++){
-                        drivers.elementAt(i).updateMaxSpeed(0);
-                    }
                     frame.updateTable();
 
                     if(drivers.size()>0){
@@ -151,11 +149,13 @@ public class Log_viewerImpl extends Log_viewerPOA {
             Driver currentDriver = driverById(Driver_ID);
 
             if(box){
-                currentDriver.setAtBox(true);
+                currentDriver.setState((short)1);
                 return;
             }
+            else{
+                currentDriver.setState((short)0);
+            }
 
-            currentDriver.setAtBox(false);
             currentDriver.setCurrentSegment(Segment);
 
             /* Check if the current lap has finisced */
@@ -163,6 +163,9 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
                 currentDriver.setLastEndLap(new Date().getTime());
                 currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap());
+                if(currentDriver.getCurrentLap() == raceLaps){                    
+                    currentDriver.setState((short)2);
+                }
             }
 
             currentDriver.updateMaxSpeed(Speed);

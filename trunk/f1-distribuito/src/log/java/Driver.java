@@ -7,7 +7,7 @@ import java.util.Date;
  * @author daniele
  */
 public class Driver{
-    
+
     private String name;
     private short id;
     private String team;
@@ -18,8 +18,14 @@ public class Driver{
     private float Speed = 0;
     private long lastEndLap;
     private long bestLap = Integer.MAX_VALUE;
-    private boolean atBox;
-    private boolean out = false;
+
+    /* Possible states:
+     * 0: running
+     * 1: at box
+     * 2: race finished
+     * -1: out
+     */
+    private short state = 0;
     private long difference = 0;
     private long totalTime = 0;
 
@@ -81,8 +87,8 @@ public class Driver{
         return id;
     }
 
-    public boolean isAtBox() {
-        return atBox;
+    public short getState() {
+        return state;
     }
 
     public float getTopSpeed() {
@@ -109,9 +115,6 @@ public class Driver{
         return totalTime;
     }
 
-    void setAtBox(boolean box) {
-        this.atBox = box;
-    }
 
     public float getSpeed() {
         return Math.round(Speed*100)/100;
@@ -121,18 +124,19 @@ public class Driver{
         return lastEndLap;
     }
 
-    public void setOut(boolean out) {
-        this.out = out;
-        if(out){
-            this.Speed = 0;
-            if(totalTime == 0){
-                totalTime = new Date().getTime() - lastEndLap;
-            }
-        }
-    }
+    public void setState(short s) {
+        state = s;
 
-    public boolean isOut() {
-        return out;
+        //out
+        if(state == -1){
+            this.Speed = (float) 0.0;
+            totalTime = new Date().getTime() - lastEndLap + totalTime;
+        }
+
+        //race finished
+        if(state == 2){
+            updateMaxSpeed((float) 0.0);
+        }
     }
 
     void updateDifference(long firstDriversTime) {
