@@ -360,7 +360,7 @@ package body Race.Driver is
 
                -- Probability of 0,001% to have problems at box and retire
                lucky_number := Random(G);
-               if lucky_number > 6.00100E-01 and lucky_number < 6.00200E-01 then
+               if lucky_number > 6.00010E-01 and lucky_number < 6.00020E-01 then
                   raise Box_Retire;
                end if;
                RI.Circuit_RI.enter_Box(circuit,
@@ -431,11 +431,11 @@ package body Race.Driver is
 
                -- Probability of 0,001% to break the engine
                lucky_number := Random(G);
-               if lucky_number > 1.00100E-01 and lucky_number < 1.00200E-01 then
+               if lucky_number > 1.00010E-01 and lucky_number < 1.00020E-01 then
                   raise Engine_Break;
                end if;
                -- Probability of 0,001% to break a tyre
-               if lucky_number > 3.00100E-01 and lucky_number < 3.00200E-01 then
+               if lucky_number > 3.00010E-01 and lucky_number < 3.00020E-01 then
                   raise Tyre_Break;
                end if;
 
@@ -474,7 +474,7 @@ package body Race.Driver is
 
                      -- Probability of 0,001% to crash!
                	     lucky_number := Random(G);
-               	     if lucky_number > 9.00100E-01 and lucky_number < 9.00200E-01 then
+               	     if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
                         raise Crash;
                      end if;
 
@@ -540,11 +540,11 @@ package body Race.Driver is
 
                -- Probability of 0,001% to break the engine
                lucky_number := Random(G);
-               if lucky_number > 1.00100E-01 and lucky_number < 1.00200E-01 then
+               if lucky_number > 1.00010E-01 and lucky_number < 1.00020E-01 then
                   raise Engine_Break;
                end if;
                -- Probability of 0,001% to break a tyre
-               if lucky_number > 3.00100E-01 and lucky_number < 3.00200E-01 then
+               if lucky_number > 3.00010E-01 and lucky_number < 3.00020E-01 then
                   raise Tyre_Break;
                end if;
 
@@ -613,9 +613,9 @@ package body Race.Driver is
                   -- driver was blocked by a leading car
                   -- normal brake is not enough: assume leading car speed
 
-                  -- Probability of 0,001% to crash!
+                  -- Probability of 0,1% to crash!
                   lucky_number := Random(G);
-                  if lucky_number > 9.00100E-01 and lucky_number < 9.00200E-01 then
+                  if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
                      raise Crash;
                   end if;
 
@@ -626,10 +626,9 @@ package body Race.Driver is
 
                -- calc wake time with respect to current driver speed
                wake := clock + duration(meters_per_segment/avg_speed);
---                 put("Wake: ");
---                 ada.Float_Text_IO.put(meters_per_segment/avg_speed);new_line;
+
                delay until Wake;
---                 LR_track.Element(Position).all.leave(lane);
+
                RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
@@ -649,7 +648,7 @@ package body Race.Driver is
 
 
          end loop;
-	-- end brake loop
+		 -- end brake loop
          laps_done := laps_done + 1;
          macro_index := 1;
          Position := 1;
