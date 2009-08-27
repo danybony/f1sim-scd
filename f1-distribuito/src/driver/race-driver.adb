@@ -472,7 +472,7 @@ package body Race.Driver is
                      -- was blocked by a leading car!
                      -- brake to leading car speed
 
-                     -- Probability of 0,001% to crash!
+                     -- Probability of 0,1% to crash!
                	     lucky_number := Random(G);
                	     if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
                         raise Crash;

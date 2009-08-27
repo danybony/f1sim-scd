@@ -260,6 +260,7 @@ package body Race.Startup is
       blocking_lane_two	:Positive := 2;
       Current_driver	:integer:=0;
       logger_ok		:boolean:=false;
+      circuit_ok	:boolean:=false;
 
       IOR		:Ada.Strings.Unbounded.Unbounded_String;
       rootCxtExt 	:CosNaming.NamingContextExt.Ref;
@@ -302,10 +303,20 @@ package body Race.Startup is
       -- Get circuit Remote Interface from Name Service
       Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
                                        Kind => To_CORBA_String ("")));
-      circuit := RI.Circuit_RI.Helper.To_Ref(
-                resolve_str(
-                rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
-      put_line("Got circuit from Name Service");
+
+      while circuit_ok = false loop
+            begin
+               circuit := RI.Circuit_RI.Helper.To_Ref(
+                	resolve_str(
+                	rootCxtExt,CosNaming.NamingContextExt.to_string(rootCxtExt,obj_name)));
+      		put_line("Got circuit from Name Service");
+               circuit_ok := true;
+            exception
+     		 when others =>
+                  delay Duration(0.5);
+            end;
+      end loop;
+
 
       -- Build the track
       -- This function creates 2 vectors: one is the list of properties for every
