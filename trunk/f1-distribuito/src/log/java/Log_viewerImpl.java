@@ -2,6 +2,7 @@ import java.util.Date;
 import java.util.Vector;
 import org.omg.CORBA.ORB;
 import RI.*;
+import java.util.Collections;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 
@@ -148,11 +149,16 @@ public class Log_viewerImpl extends Log_viewerPOA {
         try {
             Driver currentDriver = driverById(Driver_ID);
 
+            boolean exitsFromBox = false;
+
             if(box){
                 currentDriver.setState((short)1);
                 return;
             }
             else{
+                if(currentDriver.getState() == 1){
+                    exitsFromBox = true;
+                }
                 currentDriver.setState((short)0);
             }
 
@@ -176,23 +182,38 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 /* If so check if it overlap other drivers */
                 Driver previousDriver = drivers.elementAt(currentDriver.getPosition() - 1);
 
-                //-------------------------ATTENZIONE NEL CASO DI PIMO SEGMENTO ALL'INIZIO GIRO!!
-                while(currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == (Segment-1)){
+                //checks only drivers in near segments
+                boolean condition = (currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == Segment-1);
+
+                //checks all previous drivers
+                if(exitsFromBox){
+                    condition = (currentDriver.getPosition() != 0 && currentDriver.precede(previousDriver));
+                }
+                
+                while(condition){
                     frame.println(currentDriver.getName() + " overtake "
                             + previousDriver.getName() +
                             " in segment " + Segment +
                             " at lap "+ currentDriver.getCurrentLap());
 
-                    /*Updates the table*/
-                    //frame.updateTable(currentDriver.getPosition()-1, currentDriver.getPosition());
 
-                    /* Updates the positions */
+                    // Updates the positions 
                     previousDriver.setPosition((short) (previousDriver.getPosition() + 1));
                     currentDriver.setPosition((short) (currentDriver.getPosition() - 1));
                     Driver temp = drivers.remove(currentDriver.getPosition());
                     drivers.add(previousDriver.getPosition(), temp);
                     if(currentDriver.getPosition()>0){
                         previousDriver = drivers.elementAt(currentDriver.getPosition() - 1);
+                    }
+
+
+                    if(exitsFromBox){
+                        //checks all previous drivers
+                        condition = (currentDriver.getPosition() != 0 && currentDriver.precede(previousDriver));
+                    }
+                    else{
+                        //checks only drivers in near segments
+                        condition = (currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == Segment-1);
                     }
                     
                     
@@ -201,7 +222,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
             }
             /*Updates the table*/
             frame.updateTable();
-            
+
         } catch (InvalidDriverID ex) {
         }
     }
@@ -236,6 +257,11 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
     void setFrame(LogFrame frame) {
         this.frame = frame;
+    }
+
+
+    private void orderDrivers() {
+        Collections.sort(drivers);
     }
 
 }

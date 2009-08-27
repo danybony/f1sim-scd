@@ -6,7 +6,7 @@ import java.util.Date;
  *
  * @author daniele
  */
-public class Driver{
+public class Driver implements Comparable{
 
     private String name;
     private short id;
@@ -141,6 +141,23 @@ public class Driver{
 
     void updateDifference(long firstDriversTime) {
         this.difference = this.lastEndLap - firstDriversTime;     
+    }
+
+    boolean precede(Driver other){
+        if(currentLap > other.currentLap
+                || (currentLap == other.currentLap && currentSegment > other.currentSegment)){
+            return true;
+        }
+        return false;
+    }
+
+    public int compareTo(Object o) {
+        if(this.precede((Driver) o)){
+            return -1;
+        }
+        else {
+            return 1;
+        }
     }
         
         
