@@ -19,7 +19,6 @@
 --------------------------------------------------------
 
 with Ada.Integer_Text_IO;
-with Ada.Float_Text_IO;
 with Ada.Exceptions;
 with Text_IO;
 with Ada.Strings.unbounded;
@@ -244,9 +243,6 @@ package body Race.Driver is
             index := 1;
             while index <= box'last loop
                LP_box(index) := box(index);
-               put_line("segmento box:");
-               Ada.Float_Text_IO.put(LP_box(index).Starting_Speed);new_line;
-               ada.Float_Text_IO.put(LP_box(index).Leaving_Speed);new_line;
                index := index + 1;
             end loop;
 
