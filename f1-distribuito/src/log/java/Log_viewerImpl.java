@@ -69,9 +69,9 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
             default :
                 if(raceIsRunning){
+                    raceIsRunning = false;
                     System.out.println("Race finished!");
                     frame.println("Race finished!");
-                    raceIsRunning = false;
 
                     System.out.println("Unbinding from Naming Service..");
                     frame.println("Unbinding from Naming Service..");
@@ -147,6 +147,14 @@ public class Log_viewerImpl extends Log_viewerPOA {
     public void updateLog(short Driver_ID, int Segment, float Speed, boolean box) {        
         
         try {
+            if(!raceIsRunning){
+                raceIsRunning = true;
+                long startTime = new Date().getTime();
+                for(int i=0; i<drivers.size();i++){
+                    drivers.elementAt(i).setStartTime(startTime);
+                }
+            }
+
             Driver currentDriver = driverById(Driver_ID);
 
             boolean exitsFromBox = false;

@@ -408,6 +408,8 @@ package body Race.Startup is
       RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_one));
       RI.Circuit_RI.leave(circuit,1,CORBA.Short(blocking_lane_two));
 
+      put_line("Race started!");
+
       -- Start CORBA ORB and wait for endRace
       CORBAInit_P := new StartupCORBAInit.CORBAInit;
       CORBAInit_P.init(Current_driver,

@@ -34,8 +34,8 @@ with Cosnaming.NamingContext;
 with RI.circuit_RI.Impl;
 with PolyORB.CORBA_P.CORBALOC;
 
-with Polyorb.Setup.Thread_Per_Request_Server;
-pragma Warnings (Off, PolyORB.Setup.Thread_Per_Request_Server);
+with Polyorb.Setup.Thread_Pool_Server;
+pragma Warnings (Off, PolyORB.Setup.Thread_Pool_Server);
 
 package body Race.Circuit is
 

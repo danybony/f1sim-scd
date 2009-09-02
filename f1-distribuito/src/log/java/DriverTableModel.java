@@ -14,7 +14,7 @@ class DriverTableModel extends AbstractTableModel{
 
     Log_viewerImpl logger;
 
-    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap", "Total Time"};
+    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap", "Last lap", "Total Time"};
 
     public DriverTableModel(Log_viewerImpl logger) {
         this.logger = logger;
@@ -67,7 +67,18 @@ class DriverTableModel extends AbstractTableModel{
                     }
                     return "--:---";
 
-             case 8: if(rowIndex == 0 || logger.getDriver(rowIndex).getState() == -1){
+            case 8: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
+                        int min = (int) (logger.getDriver(rowIndex).getLastLap() / 60000);
+                        int sec = (int) ((logger.getDriver(rowIndex).getLastLap() / 1000) % 60);
+                        int ms  = (int) (logger.getDriver(rowIndex).getLastLap() % 1000);
+                        if(min != 0){
+                            return ""+ min + ":" + sec + ":" + ms;
+                        }
+                        return ""+ sec + ":" + ms;
+                    }
+                    return "--:---";
+
+             case 9: if(rowIndex == 0 || logger.getDriver(rowIndex).getState() == -1){
                         if(logger.getDriver(rowIndex).getTotalTime() != 0){
                             int min = (int) (logger.getDriver(rowIndex).getTotalTime() / 60000);
                             int sec = (int) ((logger.getDriver(rowIndex).getTotalTime() / 1000) % 60);
