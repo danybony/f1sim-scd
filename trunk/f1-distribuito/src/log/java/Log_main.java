@@ -74,7 +74,6 @@ public class Log_main extends javax.swing.JFrame {
 
           // wait for invocations from client
           frame.println("Logger ready and waiting ...");
-          log_viewerImpl.raceIsRunning = true;
           orb.run();
           
           frame.println("Logger Exiting ...");

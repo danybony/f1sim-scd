@@ -16,8 +16,9 @@ public class Driver implements Comparable{
     private int currentSegment;
     private float maxSpeed;
     private float Speed = 0;
-    private long lastEndLap;
+    private long lastEndLap = 0;
     private long bestLap = Integer.MAX_VALUE;
+    private long lastLap = 0;
 
     /* Possible states:
      * 0: running
@@ -28,7 +29,7 @@ public class Driver implements Comparable{
     private short state = 0;
     private long difference = 0;
     private long totalTime = 0;
-
+    
 
     public Driver(String name, short id, String team, short position, short currentSegment) {
         this.name = name;
@@ -38,7 +39,6 @@ public class Driver implements Comparable{
         this.currentSegment = currentSegment;
         this.currentLap = 0;
         this.maxSpeed = 0;
-        this.lastEndLap = new Date().getTime();
     }
 
     public void setCurrentSegment(int Segment) {
@@ -52,12 +52,16 @@ public class Driver implements Comparable{
         }
     }
 
+    void setStartTime(long startTime){
+        this.lastEndLap = startTime;
+    }
+
     public void setLastEndLap(long lastEndLap) {
         if(this.lastEndLap != 0){
-            long timeBetween = lastEndLap - this.lastEndLap;
-            totalTime = totalTime + timeBetween;
-            if(timeBetween < bestLap){
-                bestLap = timeBetween;
+            lastLap = lastEndLap - this.lastEndLap;
+            totalTime = totalTime + lastLap;
+            if(lastLap < bestLap){
+                bestLap = lastLap;
             }
         }
         this.lastEndLap = lastEndLap;
@@ -109,6 +113,10 @@ public class Driver implements Comparable{
 
     long getDifference() {
         return difference;
+    }
+
+    long getLastLap() {
+        return lastLap;
     }
 
     long getTotalTime() {

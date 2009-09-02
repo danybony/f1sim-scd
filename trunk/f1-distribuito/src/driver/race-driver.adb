@@ -668,6 +668,9 @@ package body Race.Driver is
       when Box_Retire =>
          notify_end_race(ID,3,rootCxtExt, logger);
       when Crash =>
+         RI.Circuit_RI.leave(circuit,
+                          CORBA.Long(Position),
+                          CORBA.Short(lane));
          notify_end_race(ID,4,rootCxtExt, logger);
       when others =>
          begin
