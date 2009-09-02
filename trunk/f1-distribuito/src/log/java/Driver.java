@@ -91,6 +91,15 @@ public class Driver implements Comparable{
         return id;
     }
 
+    /**
+     *  Possible states:
+     * 0: running
+     * 1: at box
+     * 2: race finished
+     * -1: out
+     *
+     * @return current state
+     */
     public short getState() {
         return state;
     }

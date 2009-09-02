@@ -63,8 +63,10 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 break;
 
             case 5 :
-                frame.println("Circuit down.");
-                endRace((short)-1, (short) 0);
+                if(raceIsRunning){
+                    frame.println("Circuit down.");
+                    endRace((short)-1, (short) 0);
+                }
                 break;
 
             default :
@@ -128,6 +130,8 @@ public class Log_viewerImpl extends Log_viewerPOA {
         this.raceLaps = RaceLaps;
         
         this.segmentsNumber = segmentsNumber;
+
+        drivers.clear();
         
         /* extracts drivers infos from array Drivers and put them into vector
            Drivers */
@@ -157,20 +161,16 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
             Driver currentDriver = driverById(Driver_ID);
 
-            boolean exitsFromBox = false;
+            currentDriver.setCurrentSegment(Segment);
 
             if(box){
                 currentDriver.setState((short)1);
                 return;
             }
             else{
-                if(currentDriver.getState() == 1){
-                    exitsFromBox = true;
-                }
                 currentDriver.setState((short)0);
             }
 
-            currentDriver.setCurrentSegment(Segment);
 
             /* Check if the current lap has finisced */
             if(Segment == segmentsNumber){
@@ -184,7 +184,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
             currentDriver.updateMaxSpeed(Speed);
             
-            /* Check if the current driver is not the first*/
+            /* Check if the current driver is not the first and it's not at box*/
             if(currentDriver.getPosition() != 0){
                 
                 /* If so check if it overlap other drivers */
@@ -192,17 +192,21 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
                 //checks only drivers in near segments
                 boolean condition = (currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == Segment-1);
-
-                //checks all previous drivers
-                if(exitsFromBox){
-                    condition = (currentDriver.getPosition() != 0 && currentDriver.precede(previousDriver));
-                }
                 
                 while(condition){
-                    frame.println(currentDriver.getName() + " overtake "
+                    
+                    if(previousDriver.getState() == 1){
+                        frame.println(currentDriver.getName() + " overtake "
+                            + previousDriver.getName() +
+                            " while he was at box at lap "+ currentDriver.getCurrentLap());
+                    }
+                    else{
+                        frame.println(currentDriver.getName() + " overtake "
                             + previousDriver.getName() +
                             " in segment " + Segment +
                             " at lap "+ currentDriver.getCurrentLap());
+                    }
+                    
 
 
                     // Updates the positions 
@@ -214,15 +218,15 @@ public class Log_viewerImpl extends Log_viewerPOA {
                         previousDriver = drivers.elementAt(currentDriver.getPosition() - 1);
                     }
 
-
+/*
                     if(exitsFromBox){
                         //checks all previous drivers
                         condition = (currentDriver.getPosition() != 0 && currentDriver.precede(previousDriver));
                     }
-                    else{
+                    else{*/
                         //checks only drivers in near segments
                         condition = (currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == Segment-1);
-                    }
+                 //   }
                     
                     
                 }

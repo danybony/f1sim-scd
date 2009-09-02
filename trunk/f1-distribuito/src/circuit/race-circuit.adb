@@ -68,7 +68,9 @@ package body Race.Circuit is
       end loop;
 
       segments_index := 1;
-      main_loop_index := main_loop_index + 4;--skip to next macro segment
+
+      --don't skip to next macro segment:make a segment equal to box
+      --main_loop_index := main_loop_index + 4;
 
       -- track macro segments
       while main_loop_index <= MacroSegments_total loop

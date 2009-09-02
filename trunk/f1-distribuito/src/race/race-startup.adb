@@ -194,17 +194,20 @@ package body Race.Startup is
 
       end loop;
 
-      LP_track := new LP_track_T(1..track.Last_Index-1);
+      LP_track := new LP_track_T(1..track.Last_Index);
       LP_box := new LP_track_T(1..1);
       -- populate property list of box
       LP_box(1) := track.Element(1);
+      LP_box(1).Starting_Speed := float(100)* float(1_000) / float(3_600);
+      LP_box(1).Leaving_Speed := float(100)* float(1_000) / float(3_600);
 
       -- populate property list of track
-      index := 2;
+      index := 1;
       while index <= track.Last_Index loop
-         LP_track(index-1) := track.Element(index);
+         LP_track(index) := track.Element(index);
          index := index + 1;
       end loop;
+
 
       -- build 2nd vector: LR
       --Race.Circuit.build_track(MacroSegments, MacroSegments_total);
@@ -212,6 +215,7 @@ package body Race.Startup is
                                 Race.CORBAConverter.to_StringSequence(MacroSegments),
                                 CORBA.Long(MacroSegments_total),
                                 CORBA.Long(Segments_total));
+
 
    end build_track;
 
