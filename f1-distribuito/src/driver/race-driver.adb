@@ -300,11 +300,11 @@ package body Race.Driver is
                           CORBA.Long(Position),
                           CORBA.Float(entering_speed),
                           CORBA.Short(lane));
+	  wake := clock;
       put("accesso");new_line;
       if lane /= current_lane then
          -- driver changes lane: got bit delay
-         wake := clock + duration(change_lane_delay);
-         delay until wake;
+         wake := wake + duration(change_lane_delay);
          current_lane := lane;
       end if;
 
@@ -326,7 +326,7 @@ package body Race.Driver is
       put("speed (km/h): ");
       ada.Float_Text_IO.put(leaving_speed*float(3600)/float(1000));new_line;
       avg_speed := ( entering_speed + leaving_speed )/ float(2);
-      wake := clock + duration(meters_per_segment/avg_speed);
+      wake := wake + duration(meters_per_segment/avg_speed);
       delay until wake;
 
 
@@ -389,10 +389,10 @@ package body Race.Driver is
 
                   avg_speed := ( entering_speed + leaving_speed )/ float(2);
                   entering_speed := leaving_speed;
-                  wake := clock + duration(meters_per_segment/avg_speed);
+                  wake := wake + duration(meters_per_segment/avg_speed);
 
                else
-                  wake := clock + duration(meters_per_segment/LP_box(1).Starting_Speed);
+                  wake := wake + duration(meters_per_segment/LP_box(1).Starting_Speed);
                end if;
 
                put("Speed:");
@@ -445,8 +445,7 @@ package body Race.Driver is
                                    CORBA.Short(lane));
                if lane /= current_lane then
                   -- driver changes lane: got bit delay
-                  wake := clock + duration(change_lane_delay);
-                  delay until wake;
+                  wake := wake + duration(change_lane_delay);
                   current_lane := lane;
                end if;
 
@@ -505,7 +504,7 @@ package body Race.Driver is
                end if;
 
                -- calc wake time with respect to current driver speed
-               wake := clock + duration(meters_per_segment/avg_speed);
+               wake := wake + duration(meters_per_segment/avg_speed);
 
                delay until Wake;
 
@@ -554,8 +553,7 @@ package body Race.Driver is
                                    CORBA.Short(lane));
                if lane /= current_lane then
                   -- driver changes lane: got bit delay
-                  wake := clock + duration(change_lane_delay);
-                  delay until wake;
+                  wake := wake + duration(change_lane_delay);
                   current_lane := lane;
                end if;
 
@@ -625,7 +623,7 @@ package body Race.Driver is
                end if;
 
                -- calc wake time with respect to current driver speed
-               wake := clock + duration(meters_per_segment/avg_speed);
+               wake := wake + duration(meters_per_segment/avg_speed);
 
                delay until Wake;
 
