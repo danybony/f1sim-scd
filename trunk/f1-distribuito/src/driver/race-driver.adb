@@ -18,6 +18,7 @@
 --  any later version.                                --
 --------------------------------------------------------
 
+with Race.Driver.Constants;
 with Ada.Integer_Text_IO;
 with Ada.Exceptions;
 with Text_IO;
@@ -44,6 +45,10 @@ with RI.Startup_RI.Helper;
 
 package body Race.Driver is
 
+   -- NOTIFY_END_RACE ---------------------------------------
+   -- This procedure is called by Driver when he must retire.
+   -- Interact with Startup and Logger
+   ----------------------------------------------------------
    procedure notify_end_race (
                               ID 		: CORBA.Short;
                               reason		: integer;
@@ -94,109 +99,27 @@ package body Race.Driver is
       put_line("Race ended.");
 
    end notify_end_race;
+   
 
-
-
-   task body the_Driver is
-      use Text_IO;
-      --use Race.Circuit;
-      use Ada.Strings.Unbounded;
-      use ada.Calendar;
-      use Ada.Numerics.Elementary_Functions;
-      use CosNaming;
-      use CosNaming.NamingContext;
-      use CosNaming.NamingContextExt;
-      use Ada.Numerics.Float_Random;
-      Name: Ada.Strings.Unbounded.Unbounded_String;
-      ID_positive: Positive;
-      ID : CORBA.Short;
-      Team: Ada.Strings.Unbounded.Unbounded_String;
-      Accel: Positive;
-      Brake: Positive;
-      MSpeed: float;
-      Strategy: Strategy_T(0..5);--max 5 pit stops
-      Strategy_lenght : Natural := 0;
-      Strategy_index : Natural := 0;
-      go_box : Integer := -1;
-      Laps_Done: Natural := 0;
-      Tot_Laps: Positive;
-      LP_track: LP_Track_Ref_T;
-      Initial_Position: Positive;
-      Position: Positive;
-      Wake : Time;
-      lane : Positive := 1;
-      current_lane : Positive := 1;
-      change_lane_delay : float := 0.001;
-
-      -- log base for acceleration
-      -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
-      -- less log_a_base = more acceleration
-      log_a_base : float := 1.07500E+00;
-
-      -- log base for deceleration
-      -- deceleration is usually 4 g (39 m/s^2) in F1
-      -- less log_d_base = more brake power = delayed brakes
-      log_d_base : float := 1.05450E+00;
-
-      accel_lenght : float:=1.00000E+00;
-      decel_lenght : float:=1.00000E+00;
-      entering_speed : float := 0.00000E+00;
-      leaving_speed : float;
-      avg_speed : float;
-      meters_per_segment : constant float := 1.00000E+01;
-      macro_index : Positive := 1;
-      segment_index : Positive := 1;
-      current_accel_lenght : float;
-      next_segment_accel_lenght : float;
-      brake_point : Natural;
-      max_starting_speed : float;
-      max_leaving_speed : float;
-      brake_point_f : float;
-      box_index : positive := 1;
-      LP_box: LP_Track_Ref_T;
-      G : Generator;
-      lucky_number : Ada.Numerics.Float_Random.Uniformly_Distributed;
-
-
-
-      -- CORBA
-
-      circuit 		:RI.Circuit_RI.Ref;
-      logger		:RI.Log_viewer.Ref;
-      startup		:RI.Startup_RI.Ref;
-      obj_name 		: CosNaming.Name;
-      CORBAInit_P 	: DriverCORBAInit.CORBAInit_Ref;
-      rootCxtExt	: CosNaming.NamingContextExt.Ref;
-
-
-   begin
-      --------------------------------------------------------------------------
-      --                       DRIVER THREAD BEGIN
-      --------------------------------------------------------------------------
-      Text_IO.put_line("Driver started");
-      Reset(G);
-
-      -- Start CORBA ORB and wait for init
-      CORBAInit_P := new DriverCORBAInit.CORBAInit;
-      CORBAInit_P.init(circuit,
-                       logger,
-                       rootCxtExt);
-
-      accept init (params	: String_array_T;
-                   position	: Positive;
-                   track	: LP_track_T;
-                   box		: LP_track_T;
-                   laps		: Positive)
-      do
-         declare
-            use Ada.Integer_Text_IO;
-            use Ada.Strings.unbounded;
-	    Strategy_string:String:=to_String(params(7));
-            buffer_index_first: Natural:=1;
-            buffer_index_last: Natural:=0;
-	    buffer_index:integer:=0;--string_buffer index
-	    index:integer:=1;--strategy string array index
-            last:Positive;
+   -- INIT_DRIVER -----------------------------------------------------
+   -- Called by Startup to initialize the driver with custom parameters
+   --------------------------------------------------------------------
+   procedure init_driver (params	: String_array_T;
+						  position	: Positive;
+                          track		: LP_track_T;
+                          box		: LP_track_T;
+                          laps		: Positive) is
+						  
+		use Ada.Integer_Text_IO;
+        use Ada.Strings.unbounded;
+		
+	    Strategy_string	   : String:=to_String(params(7));
+        buffer_index_first : Natural:=1;
+        buffer_index_last  : Natural:=0;
+	    buffer_index	   : Integer:=0; --string_buffer index
+	    index			   : Integer:=1; --strategy string array index
+        last			   : Positive;
+		ID_positive		   : Positive;
 
          begin
             -- read strategy (lap numbers)  from params. Assume at least 1 pit stop.
@@ -247,19 +170,18 @@ package body Race.Driver is
             end loop;
 
             Tot_Laps := Laps;
-            Initial_Position := Position;
 
             -- convert mspeed from km/h to m/s
-            mspeed := mspeed / float(3_600) * float(1_000);
+            mspeed := to_m_s(mspeed);
 
             --calculate acceleration log base with respect to driver's accel coeff
-            --less log_t_base = more acceleration
-            log_a_base := log_a_base - (float(accel*2)/float(10_000));
+            --less log_a = more acceleration
+            log_a := log_a_base - (float(accel*2)/float(10_000));
 
 
             --calculate deceleration log base with respect to driver's brake coeff
-            --less log_d_base = more brake power = delayed brakes
-            log_d_base := log_d_base - (float(brake)/float(10_000));
+            --less log_d = more brake power = delayed brakes
+            log_d := log_d_base - (float(brake)/float(10_000));
 
             if strategy_lenght > 0 then
                strategy_index := strategy_index + 1;
@@ -286,8 +208,130 @@ package body Race.Driver is
                   put_line("Unable to get logger from Name Service.");
                   put_line("Race will start without logs.");
      	 end;
+				  
+   end init_driver;
+   
+   -- GET_LUCKY -------------------------------------------------------
+   -- Verify if driver got an incident
+   --------------------------------------------------------------------
+   procedure Get_Lucky(Reason : in Incident) is
+         
+		 use Ada.Numerics.Float_Random;
+		 
+		 lucky_number : Ada.Numerics.Float_Random.Uniformly_Distributed;
+		 
+		 begin
+			lucky_number := Random(G);
+			
+			case Reason is
+			
+				when Engine_Tyre => if lucky_number > 1.00010E-01 and lucky_number < 1.00020E-01 then
+										raise Engine_Break;
+									end if;
+               
+									if lucky_number > 3.00010E-01 and lucky_number < 3.00020E-01 then
+										raise Tyre_Break;
+									end if;
+									 
+				when Box         => if lucky_number > 6.00010E-01 and lucky_number < 6.00020E-01 then
+										raise Box_Retire;
+									end if;
+									
+				when Crash       => if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
+										raise Crash_car;
+									end if;
+			end case;
+			
+	end Get_Lucky;
+   
+   
+   
+   -- TO_KM_H ---------------------------------------------------------
+   -- Convert from km/h to m/s
+   --------------------------------------------------------------------
+   function to_km_h(speed : float) return float is
+   begin
+		return speed * float(3600) / float(1000);
+   end to_km_h;
+   
+   
+   
+   -- TO_M_S ----------------------------------------------------------
+   -- Convert from m/s to km/h
+   --------------------------------------------------------------------
+   function to_m_s(speed : float) return float is
+   begin
+		return speed * float (1000) / float(3600);
+   end to_m_s;
+   
+   
+   
+   -- THE_DRIVER ------------------------------------------------------
+   -- The main task of this package. It emulates a driver that take part
+   -- in the race.
+   --------------------------------------------------------------------
 
-         end;
+   task body the_Driver is
+      use Text_IO;
+      use Race.Driver.Constants;
+      use Ada.Strings.Unbounded;
+      use ada.Calendar;
+      use Ada.Numerics.Elementary_Functions;
+      use CosNaming;
+      use CosNaming.NamingContext;
+      use CosNaming.NamingContextExt;
+
+
+      Laps_Done: Natural := 0;
+      Position: Positive;
+      Wake : Time;
+      lane : Positive := 1;
+      current_lane : Positive := 1;
+      accel_lenght : float:=1.00000E+00;
+      decel_lenght : float:=1.00000E+00;
+      entering_speed : float := 0.00000E+00;
+      leaving_speed : float;
+      avg_speed : float;
+
+      macro_index : Positive := 1;
+      segment_index : Positive := 1;
+      current_accel_lenght : float;
+      next_segment_accel_lenght : float;
+      brake_point : Natural;
+      max_starting_speed : float;
+      max_leaving_speed : float;
+      brake_point_f : float;
+      box_index : positive := 1;
+
+      -- CORBA
+
+      circuit 		: RI.Circuit_RI.Ref;
+      logger		: RI.Log_viewer.Ref;
+      startup		: RI.Startup_RI.Ref;
+      obj_name 		: CosNaming.Name;
+      CORBAInit_P 	: DriverCORBAInit.CORBAInit_Ref;
+      rootCxtExt	: CosNaming.NamingContextExt.Ref;
+
+
+   begin
+      --------------------------------------------------------------------------
+      --                       DRIVER THREAD BEGIN
+      --------------------------------------------------------------------------
+      Text_IO.put_line("Driver started");
+
+      -- Start CORBA ORB and wait for init
+      CORBAInit_P := new DriverCORBAInit.CORBAInit;
+      CORBAInit_P.init(circuit,
+                       logger,
+                       rootCxtExt);
+
+      accept init (params	: String_array_T;
+                   position	: Positive;
+                   track	: LP_track_T;
+                   box		: LP_track_T;
+                   laps		: Positive)
+      do
+		 Init_Driver(params, position, track, box, laps);
       end init;
 
       -- line up driver
@@ -295,7 +339,7 @@ package body Race.Driver is
       put(to_string(Name));
       put(" lined up!");new_line;
 
-      -- First segment of the race
+      -- First segment of the race -------------------------------------
       RI.Circuit_RI.enter(circuit,
                           CORBA.Long(Position),
                           CORBA.Float(entering_speed),
@@ -310,9 +354,9 @@ package body Race.Driver is
 
       begin
       RI.Log_viewer.updateLog (logger,
-                              id,
-                              CORBA.Long(Position),
-                              CORBA.Float(entering_speed*float(3600)/float(1000)),
+                               id,
+                               CORBA.Long(Position),
+                               CORBA.Float(to_km_h(entering_speed)),
                                false);
       exception
       when others =>
@@ -322,9 +366,9 @@ package body Race.Driver is
       put(to_string(name));put(":");new_line;
       -- 10 meters of acceleration
       accel_lenght := accel_lenght + meters_per_segment;
-      leaving_speed := log(accel_lenght, log_a_base);
+      leaving_speed := log(accel_lenght, log_a);
       put("speed (km/h): ");
-      ada.Float_Text_IO.put(leaving_speed*float(3600)/float(1000));new_line;
+      ada.Float_Text_IO.put(to_km_h(leaving_speed));new_line;
       avg_speed := ( entering_speed + leaving_speed )/ float(2);
       wake := wake + duration(meters_per_segment/avg_speed);
       delay until wake;
@@ -338,19 +382,21 @@ package body Race.Driver is
       segment_index := segment_index + 1;
       --calculate when driver must brake to enter next macro segment
       if leaving_speed > LP_track(1).Leaving_Speed then
-         current_accel_lenght := log_d_base**leaving_speed;
-         next_segment_accel_lenght := log_d_base**LP_track(1).Leaving_Speed;
+         current_accel_lenght := log_d**leaving_speed;
+         next_segment_accel_lenght := log_d*LP_track(1).Leaving_Speed;
          brake_point := LP_track(1).Segments -
            integer((current_accel_lenght - next_segment_accel_lenght) / meters_per_segment);
       else
          brake_point := LP_track(1).Segments;
       end if;
       entering_speed := leaving_speed;
-      --end first segment of the race
+      --end first segment of the race -------------------------------------------------------
 
-     -- main loop of driver
+     -- MAIN LOOP OF DRIVER -----------------------------------------------------------------
       while laps_done < tot_laps loop
+	     
          if laps_done = go_box then
+		 -- BOX LOOP ------------------------------------------------------------------------
             -- driver go to box, return to race in next macro segment
             while box_index <= LP_box(1).Segments loop
                -- perform a "drive through"
@@ -359,10 +405,8 @@ package body Race.Driver is
                put(" drive through box!");new_line;
 
                -- Probability of 0,001% to have problems at box and retire
-               lucky_number := Random(G);
-               if lucky_number > 6.00010E-01 and lucky_number < 6.00020E-01 then
-                  raise Box_Retire;
-               end if;
+			   Get_Lucky(Box);
+			   
                RI.Circuit_RI.enter_Box(circuit,
                           CORBA.Long(box_index),
                           CORBA.Float(leaving_speed),
@@ -372,7 +416,7 @@ package body Race.Driver is
                RI.Log_viewer.updateLog (logger,
                                         id,
                                         CORBA.Long(box_index),
-                                        CORBA.Float(leaving_speed*float(3600)/float(1000)),
+                                        CORBA.Float(to_km_h(leaving_speed)),
                                         true);
                exception
      		when others =>
@@ -382,7 +426,7 @@ package body Race.Driver is
                if leaving_speed > LP_box(1).Starting_Speed then
                   decel_lenght := decel_lenght - meters_per_segment;
                   if decel_lenght > float(1) then
-                     leaving_speed := log(decel_lenght, log_d_base);
+                     leaving_speed := log(decel_lenght, log_d);
                   else
                      leaving_speed := LP_box(1).Starting_Speed;
                   end if;
@@ -396,9 +440,9 @@ package body Race.Driver is
                end if;
 
                put("Speed:");
-               ada.integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
+               ada.integer_Text_IO.put(integer(to_km_h(leaving_speed));new_line;
                delay until Wake;
---                 LR_box.Element(box_index).all.leave(lane);
+
                RI.Circuit_RI.leave_Box(circuit,
                                        CORBA.Long(box_index),
                           	       CORBA.Short(lane));
@@ -409,8 +453,8 @@ package body Race.Driver is
             macro_index := macro_index + 1;
             entering_speed := LP_box(1).Starting_speed;
             leaving_speed := entering_speed;
-            accel_lenght := log_a_base**leaving_speed;
-            decel_lenght := log_d_base**leaving_speed;
+            accel_lenght := log_a**leaving_speed;
+            decel_lenght := log_d**leaving_speed;
 
             -- if driver must stop again
             if strategy_index < strategy_lenght then
@@ -420,24 +464,19 @@ package body Race.Driver is
             end if;
 
          end if;
+		 -- END BOX LOOP ---------------------------------------------------------------------
 
+		 -- MACRO SEGMENT LOOP ---------------------------------------------------------------
          while macro_index <= LP_track'Last loop
             --calculate macro segment max speed with respect to driver skills
-            max_starting_speed := LP_track(macro_index).Starting_Speed + (float(accel) / float(3_600) * float(1_000));
-            max_leaving_speed := LP_track(macro_index).Leaving_Speed + (float(brake) / float(3_600) * float(1_000));
+            max_starting_speed := LP_track(macro_index).Starting_Speed + to_m_s(float(accel));
+            max_leaving_speed := LP_track(macro_index).Leaving_Speed + to_m_s(float(brake));
 
-            -- acceleration loop
+            -- ACCELERATION LOOP--------------------------------------------------------------
             while segment_index < brake_point loop
 
-               -- Probability of 0,001% to break the engine
-               lucky_number := Random(G);
-               if lucky_number > 1.00010E-01 and lucky_number < 1.00020E-01 then
-                  raise Engine_Break;
-               end if;
-               -- Probability of 0,001% to break a tyre
-               if lucky_number > 3.00010E-01 and lucky_number < 3.00020E-01 then
-                  raise Tyre_Break;
-               end if;
+               -- Probability of 0,001% to break the engine or a tyre
+			   Get_Lucky(Engine_Tyre);
 
                RI.Circuit_RI.enter(circuit,
                                    CORBA.Long(Position),
@@ -453,7 +492,7 @@ package body Race.Driver is
                RI.Log_viewer.updateLog (logger,
                                         id,
                                         CORBA.Long(Position),
-                                        CORBA.Float(leaving_speed*float(3600)/float(1000)),
+                                        CORBA.Float(to_km_h(leaving_speed)),
                                         false);
                exception
       		when others =>
@@ -472,35 +511,32 @@ package body Race.Driver is
                      -- brake to leading car speed
 
                      -- Probability of 0,1% to crash!
-               	     lucky_number := Random(G);
-               	     if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
-                        raise Crash;
-                     end if;
+               	     Get_Lucky(Crash);
 
-                     accel_lenght := log_a_base**leaving_speed;
+                     accel_lenght := log_a**leaving_speed;
                      entering_speed := leaving_speed;
                      put("[Blocked by leading car!]");new_line;
 
                   else
                      --  one segment of acceleration
                      accel_lenght := accel_lenght + meters_per_segment;
-                     leaving_speed := log(accel_lenght, log_a_base);
+                     leaving_speed := log(accel_lenght, log_a);
                   end if;
 
                   -- if driver achieve max speed
                   if leaving_speed > mspeed or leaving_speed > max_starting_speed then
                      if mspeed > max_starting_speed then
                         leaving_speed := max_starting_speed;
-                        accel_lenght := log_a_base**leaving_speed;
+                        accel_lenght := log_a**leaving_speed;
                      else
                         leaving_speed := mspeed;
-                        accel_lenght := log_a_base**leaving_speed;
+                        accel_lenght := log_a**leaving_speed;
                      end if;
                   end if;
 
                   avg_speed := ( entering_speed + leaving_speed )/ float(2);
 
-                  decel_lenght := log_d_base**leaving_speed;
+                  decel_lenght := log_d**leaving_speed;
                end if;
 
                -- calc wake time with respect to current driver speed
@@ -513,12 +549,12 @@ package body Race.Driver is
                           CORBA.Short(lane));
 
                put("Speed: ");
-               Ada.Integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
+               Ada.Integer_Text_IO.put(integer(to_km_h(leaving_speed)));new_line;
 
                --calculate when driver must brake to enter next macro segment
                if leaving_speed > max_leaving_speed then
-                  current_accel_lenght := log_d_base**leaving_speed;
-                  next_segment_accel_lenght := log_d_base**max_leaving_speed;
+                  current_accel_lenght := log_d**leaving_speed;
+                  next_segment_accel_lenght := log_d**max_leaving_speed;
                   brake_point_f := (current_accel_lenght - next_segment_accel_lenght) / meters_per_segment;
 
                   brake_point := LP_track(macro_index).Segments -
@@ -531,21 +567,14 @@ package body Race.Driver is
                segment_index := segment_index + 1;
                Position := Position + 1;
             end loop;
-            -- end acceleration loop
+            -- END ACCELERATION LOOP ---------------------------------------------------
 
 
-            -- brake loop
+            -- BRAKE LOOP --------------------------------------------------------------
             while segment_index <= LP_track(macro_index).Segments loop
 
-               -- Probability of 0,001% to break the engine
-               lucky_number := Random(G);
-               if lucky_number > 1.00010E-01 and lucky_number < 1.00020E-01 then
-                  raise Engine_Break;
-               end if;
-               -- Probability of 0,001% to break a tyre
-               if lucky_number > 3.00010E-01 and lucky_number < 3.00020E-01 then
-                  raise Tyre_Break;
-               end if;
+               -- Probability of 0,001% to break the engine or a tyre
+               Get_Lucky(Engine_Tyre);
 
                RI.Circuit_RI.enter(circuit,
                                    CORBA.Long(Position),
@@ -562,7 +591,7 @@ package body Race.Driver is
                RI.Log_viewer.updateLog (logger,
                                         id,
                                         CORBA.Long(Position),
-                                        CORBA.Float(entering_speed*float(3600)/float(1000)),
+                                        CORBA.Float(to_km_h(entering_speed)),
                                         false);
                exception
    		 when others =>
@@ -593,7 +622,7 @@ package body Race.Driver is
                      leaving_speed := max_leaving_speed;
                   else
                      -- if not, driver perform a deceleration of meters_per_segment
-                     leaving_speed := log(decel_lenght, log_d_base);
+                     leaving_speed := log(decel_lenght, log_d);
 
                      if leaving_speed < max_leaving_speed then
                         leaving_speed := max_leaving_speed;
@@ -604,7 +633,7 @@ package body Race.Driver is
 
                   avg_speed := ( entering_speed + leaving_speed )/ float(2);
 
-                  accel_lenght := log_a_base**leaving_speed;
+                  accel_lenght := log_a**leaving_speed;
                end if;
 
                if leaving_speed > entering_speed then
@@ -612,14 +641,11 @@ package body Race.Driver is
                   -- normal brake is not enough: assume leading car speed
 
                   -- Probability of 0,1% to crash!
-                  lucky_number := Random(G);
-                  if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
-                     raise Crash;
-                  end if;
+                  Get_Lucky(Crash);
 
                   avg_speed := entering_speed;
                   leaving_speed := entering_speed;
-                  accel_lenght := log_a_base**leaving_speed;
+                  accel_lenght := log_a**leaving_speed;
                end if;
 
                -- calc wake time with respect to current driver speed
@@ -632,13 +658,14 @@ package body Race.Driver is
                           CORBA.Short(lane));
 
                put("Speed: ");
-               Ada.Integer_Text_IO.put(integer(leaving_speed*float(3600)/float(1000)));new_line;
+               Ada.Integer_Text_IO.put(integer(to_km_h(leaving_speed)));new_line;
 
                entering_speed := leaving_speed;
                Position := Position + 1;
                segment_index := segment_index + 1;
             end loop;
-
+			-- END BRAKE LOOP --------------------------------------------------------
+			
             macro_index := macro_index + 1;
             segment_index := 1;
             put("Entering macro_segment: ");
@@ -646,14 +673,16 @@ package body Race.Driver is
 
 
          end loop;
-		 -- end brake loop
+		 -- END MACRO SEGMENT LOOP ---------------------------------------------------
+		 
+		 
          laps_done := laps_done + 1;
          macro_index := 1;
          Position := 1;
       end loop;
-      --end of main loop
+      -- END MAIN LOOP ---------------------------------------------------------------
 
-
+      -- Notify to logger that driver ends the race
       notify_end_race(ID,0,rootCxtExt, logger);
 
 
@@ -665,7 +694,7 @@ package body Race.Driver is
          notify_end_race(ID,2,rootCxtExt, logger);
       when Box_Retire =>
          notify_end_race(ID,3,rootCxtExt, logger);
-      when Crash =>
+      when Crash_car =>
          RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
