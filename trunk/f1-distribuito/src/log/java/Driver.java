@@ -20,13 +20,14 @@ public class Driver implements Comparable{
     private long bestLap = Integer.MAX_VALUE;
     private long lastLap = 0;
 
-    /* Possible states:
-     * 0: running
-     * 1: at box
-     * 2: race finished
-     * -1: out
+    /* Possible states:<br>
+     * 0: running<br>
+     * 1: at box<br>
+     * 2: race finished<br>
+     * -1: out<br>
+     * -2: not started yet<br>
      */
-    private short state = 0;
+    private short state = -2;
     private long difference = 0;
     private long totalTime = 0;
     
@@ -91,12 +92,12 @@ public class Driver implements Comparable{
         return id;
     }
 
-    /**
-     *  Possible states:
-     * 0: running
-     * 1: at box
-     * 2: race finished
-     * -1: out
+   /** Possible states:<br>
+     * 0: running<br>
+     * 1: at box<br>
+     * 2: race finished<br>
+     * -1: out<br>
+     * -2: not started yet<br>
      *
      * @return current state
      */
@@ -141,6 +142,14 @@ public class Driver implements Comparable{
         return lastEndLap;
     }
 
+    /** Possible states:<br>
+     * 0: running<br>
+     * 1: at box<br>
+     * 2: race finished<br>
+     * -1: out<br>
+     * -2: not started yet<br>
+     *
+     */
     public void setState(short s) {
         state = s;
 

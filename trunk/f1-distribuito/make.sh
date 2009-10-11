@@ -1,6 +1,6 @@
 echo Building CORBA remote interfaces..
-idlac -c -s src/RI/RI.idl -o src/RI/
-idlj -f all -td src/log/java/ src/log/java/log_viewer.idl
+#idlac -c -s src/RI/RI.idl -o src/RI/
+#idlj -f all -td src/log/java/ src/log/java/log_viewer.idl
 
 echo Building startup...
 gnatmake -P f1sim_startup.gpr -d `polyorb-config`

@@ -101,7 +101,7 @@ package body Race.StartupCORBAInit is
       	 put_line("Race ended.");
 
 	 begin
-         	RI.Log_viewer.endRace (logger, CORBA.Short(-1), 0);
+         	RI.Log_viewer.endRace (logger, CORBA.Short(-1), CORBA.Short(-1));
          exception
       	    when others =>
             	put_line("Logger is down");

@@ -42,6 +42,11 @@ public class Log_viewerImpl extends Log_viewerPOA {
         try {
         switch (reason){
 
+            case 0:
+                updateLog(Driver_ID, 1, 0, false);
+                driverById(Driver_ID).setState((short)2);
+                break;
+
             case 1 :
                 frame.println(driverById(Driver_ID).getName() + " break his engine! His race is finished.");
                 driverById(Driver_ID).setState((short)-1);
@@ -147,8 +152,10 @@ public class Log_viewerImpl extends Log_viewerPOA {
         }
         frame.updateTable();
     }
+    
+    
 
-    public void updateLog(short Driver_ID, int Segment, float Speed, boolean box) {        
+    public synchronized void updateLog(short Driver_ID, int Segment, float Speed, boolean box) {
         
         try {
             if(!raceIsRunning){
@@ -163,35 +170,48 @@ public class Log_viewerImpl extends Log_viewerPOA {
 
             currentDriver.setCurrentSegment(Segment);
 
+            currentDriver.updateMaxSpeed(Speed);
+
+            
+            /* Check if the current lap has finisced */
+            if(Segment == 1){
+                currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
+                if(currentDriver.getState() == -2){
+                    currentDriver.setState((short)0);
+                }
+                else{                    
+                    currentDriver.setLastEndLap(new Date().getTime());
+                    if(currentDriver.getCurrentLap() != drivers.elementAt(0).getCurrentLap()){
+                        currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap() -
+                                                        drivers.elementAt(0).getLastLap());
+                    }
+                    else{
+                        currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap());
+                    }
+                }
+            }
+
+
             if(box){
                 currentDriver.setState((short)1);
-                return;
             }
             else{
                 currentDriver.setState((short)0);
             }
 
-
-            /* Check if the current lap has finisced */
-            if(Segment == segmentsNumber){
-                currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
-                currentDriver.setLastEndLap(new Date().getTime());
-                currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap());
-                if(currentDriver.getCurrentLap() == raceLaps){                    
-                    currentDriver.setState((short)2);
-                }
-            }
-
-            currentDriver.updateMaxSpeed(Speed);
             
-            /* Check if the current driver is not the first and it's not at box*/
+            
+            /* Check if the current driver is not the first*/
             if(currentDriver.getPosition() != 0){
                 
                 /* If so check if it overlap other drivers */
                 Driver previousDriver = drivers.elementAt(currentDriver.getPosition() - 1);
 
                 //checks only drivers in near segments
-                boolean condition = (currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == Segment-1);
+                boolean condition = (currentDriver.getPosition() != 0 &&
+                                        currentDriver.precede(previousDriver));
+                                   //     previousDriver.getCurrentLap() == currentDriver.getCurrentLap() &&
+                                    //    previousDriver.getCurrentSegment() <= Segment-1);
                 
                 while(condition){
                     
@@ -222,10 +242,13 @@ public class Log_viewerImpl extends Log_viewerPOA {
                     if(exitsFromBox){
                         //checks all previous drivers
                         condition = (currentDriver.getPosition() != 0 && currentDriver.precede(previousDriver));
-                    }
+                     }
                     else{*/
                         //checks only drivers in near segments
-                        condition = (currentDriver.getPosition() != 0 && previousDriver.getCurrentSegment() == Segment-1);
+                        condition = (currentDriver.getPosition() != 0 &&
+                                            currentDriver.precede(previousDriver));
+                                           // previousDriver.getCurrentLap() == currentDriver.getCurrentLap() &&
+                                           // previousDriver.getCurrentSegment() <= Segment-1);
                  //   }
                     
                     
