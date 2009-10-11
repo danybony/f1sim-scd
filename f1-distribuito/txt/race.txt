@@ -1,3 +1,2 @@
 #PARAMETRI DI GARA
-#Il primo parametro sono i giri totali da effettuare
 4

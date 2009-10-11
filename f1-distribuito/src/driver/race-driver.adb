@@ -92,34 +92,66 @@ package body Race.Driver is
 
       end case;
 
-      if reason /=0 then
-         RI.Log_viewer.endRace (logger, ID, CORBA.Short(reason));
-      end if;
+      RI.Log_viewer.endRace (logger, ID, CORBA.Short(reason));
+
       RI.Startup_RI.endRace(startup);
       put_line("Race ended.");
 
    end notify_end_race;
-   
+
+
+
+   -- TO_KM_H ---------------------------------------------------------
+   -- Convert from km/h to m/s
+   --------------------------------------------------------------------
+   function to_km_h(speed : float) return float is
+   begin
+		return speed * float(3600) / float(1000);
+   end to_km_h;
+
+
+
+   -- TO_M_S ----------------------------------------------------------
+   -- Convert from m/s to km/h
+   --------------------------------------------------------------------
+   function to_m_s(speed : float) return float is
+   begin
+		return speed * float (1000) / float(3600);
+   end to_m_s;
+
+
+
 
    -- INIT_DRIVER -----------------------------------------------------
    -- Called by Startup to initialize the driver with custom parameters
    --------------------------------------------------------------------
    procedure init_driver (params	: String_array_T;
-						  position	: Positive;
+			  position	: Positive;
                           track		: LP_track_T;
                           box		: LP_track_T;
-                          laps		: Positive) is
-						  
-		use Ada.Integer_Text_IO;
-        use Ada.Strings.unbounded;
-		
-	    Strategy_string	   : String:=to_String(params(7));
-        buffer_index_first : Natural:=1;
-        buffer_index_last  : Natural:=0;
-	    buffer_index	   : Integer:=0; --string_buffer index
-	    index			   : Integer:=1; --strategy string array index
-        last			   : Positive;
-		ID_positive		   : Positive;
+                          laps		: Positive;
+                          circuit	: in out RI.Circuit_RI.Ref;
+                          logger	: in out RI.Log_viewer.Ref;
+			  rootCxtExt	: CosNaming.NamingContextExt.Ref
+                          ) is
+
+      use Text_IO;
+      use Ada.Integer_Text_IO;
+      use Ada.Strings.unbounded;
+      use Race.Driver.Constants;
+      use CosNaming;
+      use CosNaming.NamingContext;
+      use CosNaming.NamingContextExt;
+
+
+     	obj_name 		: CosNaming.Name;
+	Strategy_string	   	: String:=to_String(params(7));
+        buffer_index_first 	: Natural:=1;
+        buffer_index_last  	: Natural:=0;
+	buffer_index	   	: Integer:=0; --string_buffer index
+	index			: Integer:=1; --strategy string array index
+        last			: Positive;
+	ID_positive		: Positive;
 
          begin
             -- read strategy (lap numbers)  from params. Assume at least 1 pit stop.
@@ -208,64 +240,47 @@ package body Race.Driver is
                   put_line("Unable to get logger from Name Service.");
                   put_line("Race will start without logs.");
      	 end;
-				  
+
    end init_driver;
-   
+
+
+
    -- GET_LUCKY -------------------------------------------------------
    -- Verify if driver got an incident
    --------------------------------------------------------------------
    procedure Get_Lucky(Reason : in Incident) is
-         
+
 		 use Ada.Numerics.Float_Random;
-		 
+
 		 lucky_number : Ada.Numerics.Float_Random.Uniformly_Distributed;
-		 
+
 		 begin
 			lucky_number := Random(G);
-			
+
 			case Reason is
-			
+
 				when Engine_Tyre => if lucky_number > 1.00010E-01 and lucky_number < 1.00020E-01 then
 										raise Engine_Break;
 									end if;
-               
+
 									if lucky_number > 3.00010E-01 and lucky_number < 3.00020E-01 then
 										raise Tyre_Break;
 									end if;
-									 
+
 				when Box         => if lucky_number > 6.00010E-01 and lucky_number < 6.00020E-01 then
 										raise Box_Retire;
 									end if;
-									
+
 				when Crash       => if lucky_number > 9.01000E-01 and lucky_number < 9.02000E-01 then
 										raise Crash_car;
 									end if;
 			end case;
-			
+
 	end Get_Lucky;
-   
-   
-   
-   -- TO_KM_H ---------------------------------------------------------
-   -- Convert from km/h to m/s
-   --------------------------------------------------------------------
-   function to_km_h(speed : float) return float is
-   begin
-		return speed * float(3600) / float(1000);
-   end to_km_h;
-   
-   
-   
-   -- TO_M_S ----------------------------------------------------------
-   -- Convert from m/s to km/h
-   --------------------------------------------------------------------
-   function to_m_s(speed : float) return float is
-   begin
-		return speed * float (1000) / float(3600);
-   end to_m_s;
-   
-   
-   
+
+
+
+
    -- THE_DRIVER ------------------------------------------------------
    -- The main task of this package. It emulates a driver that take part
    -- in the race.
@@ -307,8 +322,6 @@ package body Race.Driver is
 
       circuit 		: RI.Circuit_RI.Ref;
       logger		: RI.Log_viewer.Ref;
-      startup		: RI.Startup_RI.Ref;
-      obj_name 		: CosNaming.Name;
       CORBAInit_P 	: DriverCORBAInit.CORBAInit_Ref;
       rootCxtExt	: CosNaming.NamingContextExt.Ref;
 
@@ -331,8 +344,9 @@ package body Race.Driver is
                    box		: LP_track_T;
                    laps		: Positive)
       do
-		 Init_Driver(params, position, track, box, laps);
+		 Init_Driver(params, position, track, box, laps, circuit, logger, rootCxtExt);
       end init;
+
 
       -- line up driver
       Position := 1;
@@ -394,8 +408,9 @@ package body Race.Driver is
 
      -- MAIN LOOP OF DRIVER -----------------------------------------------------------------
       while laps_done < tot_laps loop
-	     
+
          if laps_done = go_box then
+            box_index := 1;
 		 -- BOX LOOP ------------------------------------------------------------------------
             -- driver go to box, return to race in next macro segment
             while box_index <= LP_box(1).Segments loop
@@ -406,7 +421,7 @@ package body Race.Driver is
 
                -- Probability of 0,001% to have problems at box and retire
 			   Get_Lucky(Box);
-			   
+
                RI.Circuit_RI.enter_Box(circuit,
                           CORBA.Long(box_index),
                           CORBA.Float(leaving_speed),
@@ -440,7 +455,7 @@ package body Race.Driver is
                end if;
 
                put("Speed:");
-               ada.integer_Text_IO.put(integer(to_km_h(leaving_speed));new_line;
+               ada.integer_Text_IO.put(integer(to_km_h(leaving_speed)));new_line;
                delay until Wake;
 
                RI.Circuit_RI.leave_Box(circuit,
@@ -665,7 +680,7 @@ package body Race.Driver is
                segment_index := segment_index + 1;
             end loop;
 			-- END BRAKE LOOP --------------------------------------------------------
-			
+
             macro_index := macro_index + 1;
             segment_index := 1;
             put("Entering macro_segment: ");
@@ -674,8 +689,8 @@ package body Race.Driver is
 
          end loop;
 		 -- END MACRO SEGMENT LOOP ---------------------------------------------------
-		 
-		 
+
+
          laps_done := laps_done + 1;
          macro_index := 1;
          Position := 1;

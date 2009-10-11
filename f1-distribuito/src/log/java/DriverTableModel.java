@@ -14,7 +14,7 @@ class DriverTableModel extends AbstractTableModel{
 
     Log_viewerImpl logger;
 
-    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap", "Last lap", "Total Time"};
+    String[] columns = {"Position", "Name", "Team", "Lap", "Segment", "Speed (Km/h)", "Top Speed (Km/h)", "Best lap", "Last lap", "Total Time (Last lap gap)"};
 
     public DriverTableModel(Log_viewerImpl logger) {
         this.logger = logger;
@@ -39,7 +39,7 @@ class DriverTableModel extends AbstractTableModel{
             case 3: return logger.getDriver(rowIndex).getCurrentLap();
 
             case 4: if(logger.getDriver(rowIndex).getState() == 1) {
-                        return "box";
+                        return logger.getDriver(rowIndex).getCurrentSegment() + " - box";
                     }
                     if(logger.getDriver(rowIndex).getState() == -1) {
                         return "Out";
@@ -56,7 +56,8 @@ class DriverTableModel extends AbstractTableModel{
 
             case 6: return logger.getDriver(rowIndex).getTopSpeed();
 
-            case 7: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
+            case 7: if(logger.getDriver(rowIndex).getCurrentLap() != 0 &&
+                            logger.getDriver(rowIndex).getCurrentLap() != 1){
                         int min = (int) (logger.getDriver(rowIndex).getBestLap() / 60000);
                         int sec = (int) ((logger.getDriver(rowIndex).getBestLap() / 1000) % 60);
                         int ms  = (int) (logger.getDriver(rowIndex).getBestLap() % 1000);
@@ -67,7 +68,8 @@ class DriverTableModel extends AbstractTableModel{
                     }
                     return "--:---";
 
-            case 8: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
+            case 8: if(logger.getDriver(rowIndex).getCurrentLap() != 0 &&
+                            logger.getDriver(rowIndex).getCurrentLap() != 1){
                         int min = (int) (logger.getDriver(rowIndex).getLastLap() / 60000);
                         int sec = (int) ((logger.getDriver(rowIndex).getLastLap() / 1000) % 60);
                         int ms  = (int) (logger.getDriver(rowIndex).getLastLap() % 1000);
