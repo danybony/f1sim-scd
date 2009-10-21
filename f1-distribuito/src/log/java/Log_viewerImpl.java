@@ -188,6 +188,13 @@ public class Log_viewerImpl extends Log_viewerPOA {
                     else{
                         currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap());
                     }
+                    int min = (int) (currentDriver.getLastLap() / 60000);
+                        int sec = (int) ((currentDriver.getLastLap() / 1000) % 60);
+                        int ms  = (int) (currentDriver.getLastLap() % 1000);
+                        if(min != 0){
+                            frame.println(""+ min + ":" + sec + ":" + ms);
+                        }
+                    frame.println(currentDriver.getName()+" - Lap "+ currentDriver.getCurrentLap() + ": "+ sec + ":" + ms);
                 }
             }
 
