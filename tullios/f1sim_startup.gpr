@@ -1,0 +1,27 @@
+project F1Sim_startup is
+
+   for Languages use ("Ada");
+   for Source_Dirs use ("src//**", "/usr/local/include/polyorb");
+   for Main use ("main_startup.adb");
+   for Object_Dir use "obj_startup";
+
+   package Builder is
+      for Default_Switches ("Ada") use ("-g");
+   end Builder;
+
+   package Compiler is
+     for Default_Switches ("Ada") use
+       ("-gnat05", "-gnatwkruv", "-gnatyabcehiklnpr",
+        "-I./src", "-I/usr/local/include/polyorb");
+   end Compiler;
+
+   package Linker is
+      for Default_Switches ("ada") use
+       ("-aI/usr/local/include/polyorb",
+        "-aO/usr/local/lib/polyorb",
+        "-aL/usr/local/lib/polyorb", "-largs",
+        "-a/usr/local/lib/polyorb");
+   end Linker;
+
+end F1Sim_startup;
+

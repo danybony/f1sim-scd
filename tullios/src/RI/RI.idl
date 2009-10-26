@@ -1,0 +1,77 @@
+module RI {
+
+	typedef sequence<string> StringSequence;
+	
+	typedef string StringArray[20];
+	
+	struct SegmentProperties {
+		float Starting_Speed;
+		float Leaving_Speed;
+		unsigned short Segments;
+	};
+
+	
+	typedef sequence<SegmentProperties> LPtrack;
+
+
+
+interface driver_RI {
+		
+	//Driver initializationx
+	void init(in StringArray params, 
+			in short position, 
+			in LPtrack track, 
+			in LPtrack box,
+			in short laps);
+	
+};
+
+
+interface circuit_RI {
+
+	void enter(in long segment, 
+			 inout float speed,
+                inout short lane);
+	
+	void leave(in long segment, 
+			 inout short lane);
+			 
+	void enter_Box(in long segment, 
+				inout float speed,
+				inout short lane);
+	
+	void leave_Box(in long segment, 
+				inout short lane);
+	
+	void build_track(
+			in StringSequence MacroSegments, 
+			in long MacroSegments_total,
+			out long Segments_total);
+			
+	oneway void endRace();
+	
+};
+
+
+interface startup_RI {
+
+  oneway void endRace();
+
+};
+
+
+interface Log_viewer {
+
+  oneway void setEnvironment(
+	in StringSequence Drivers,
+	in long segmentsNumber,
+	in short RaceLaps
+  );
+
+  oneway void updateLog (in short Driver_ID, in long Segment, in float Speed, in boolean box);
+  
+  oneway void endRace(in short Driver_ID, in short reason);
+
+};
+
+};
