@@ -1,4 +1,4 @@
---------------------------------------------------------
+f--------------------------------------------------------
 --  Copyright (C) 2009                                --
 --  Daniele Bonaldo, Alberto Zatton                   --
 --                                                    --
@@ -126,13 +126,14 @@ package body Race.Driver is
    -- Called by Startup to initialize the driver with custom parameters
    --------------------------------------------------------------------
    procedure init_driver (params	: String_array_T;
-			  position	: Positive;
+						  position	: Positive;
                           track		: LP_track_T;
                           box		: LP_track_T;
                           laps		: Positive;
+						  start_time: Time;
                           circuit	: in out RI.Circuit_RI.Ref;
                           logger	: in out RI.Log_viewer.Ref;
-			  rootCxtExt	: CosNaming.NamingContextExt.Ref
+						  rootCxtExt: CosNaming.NamingContextExt.Ref
                           ) is
 
       use Text_IO;
@@ -219,6 +220,9 @@ package body Race.Driver is
                strategy_index := strategy_index + 1;
                go_box := strategy(strategy_index);
             end if;
+			
+			-- set the start race time
+			wake := start_time;
 
              -- Get circuit Remote Interface from Name Service
       	 Append (obj_name, NameComponent'(Id => To_CORBA_String ("Circuit"),
@@ -299,7 +303,6 @@ package body Race.Driver is
 
       Laps_Done: Natural := 0;
       Position: Positive;
-      Wake : Time;
       lane : Positive := 1;
       current_lane : Positive := 1;
       accel_lenght : float:=1.00000E+00;
@@ -342,9 +345,10 @@ package body Race.Driver is
                    position	: Positive;
                    track	: LP_track_T;
                    box		: LP_track_T;
-                   laps		: Positive)
+                   laps		: Positive;
+				   start_time:Time)
       do
-		 Init_Driver(params, position, track, box, laps, circuit, logger, rootCxtExt);
+		 Init_Driver(params, position, track, box, laps, start_time, circuit, logger, rootCxtExt);
       end init;
 
 
@@ -358,7 +362,6 @@ package body Race.Driver is
                           CORBA.Long(Position),
                           CORBA.Float(entering_speed),
                           CORBA.Short(lane));
-	  wake := clock;
       put("accesso");new_line;
       if lane /= current_lane then
          -- driver changes lane: got bit delay
@@ -385,13 +388,12 @@ package body Race.Driver is
       ada.Float_Text_IO.put(to_km_h(leaving_speed));new_line;
       avg_speed := ( entering_speed + leaving_speed )/ float(2);
       wake := wake + duration(meters_per_segment/avg_speed);
-      delay until wake;
-
 
       RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
-
+      delay until wake;
+					
       Position := Position + 1;
       segment_index := segment_index + 1;
       --calculate when driver must brake to enter next macro segment
@@ -456,11 +458,14 @@ package body Race.Driver is
 
                put("Speed:");
                ada.integer_Text_IO.put(integer(to_km_h(leaving_speed)));new_line;
-               delay until Wake;
+               
 
                RI.Circuit_RI.leave_Box(circuit,
                                        CORBA.Long(box_index),
                           	       CORBA.Short(lane));
+				delay until Wake;
+				
+								   
                box_index := box_index + 1;
             end loop;
             -- recalculate indexes and coeffs
@@ -557,11 +562,10 @@ package body Race.Driver is
                -- calc wake time with respect to current driver speed
                wake := wake + duration(meters_per_segment/avg_speed);
 
-               delay until Wake;
-
                RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
+				delay until Wake;
 
                put("Speed: ");
                Ada.Integer_Text_IO.put(integer(to_km_h(leaving_speed)));new_line;
@@ -666,11 +670,12 @@ package body Race.Driver is
                -- calc wake time with respect to current driver speed
                wake := wake + duration(meters_per_segment/avg_speed);
 
-               delay until Wake;
 
                RI.Circuit_RI.leave(circuit,
                           CORBA.Long(Position),
                           CORBA.Short(lane));
+						  
+				delay until Wake;		  
 
                put("Speed: ");
                Ada.Integer_Text_IO.put(integer(to_km_h(leaving_speed)));new_line;
