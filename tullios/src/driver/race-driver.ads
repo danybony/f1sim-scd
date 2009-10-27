@@ -32,7 +32,8 @@ package Race.Driver is
                  position	: Positive;
                  track		: LP_track_T;
                  box		: LP_track_T;
-                 laps		: Positive);
+                 laps		: Positive;
+				 start_time	: Time);
    end the_Driver;
 
    subtype Driver_lenght is Positive range 1..20;
@@ -55,6 +56,8 @@ package Race.Driver is
    
    LP_box: LP_Track_Ref_T;
    LP_track: LP_Track_Ref_T;
+   
+   Wake : Time;
    
    Tot_Laps: Positive;
    
