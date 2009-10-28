@@ -25,28 +25,28 @@ package body Race is
    protected body Segment_T is
 
       --  get the segment
-      entry Enter ( speed : in out float; lane : in out positive ) when true is
+      entry Enter ( speed : in out Float; lane : in out Positive ) when True is
       begin
          -----------------------------------------------------------------------
          -------------------CASE 1: SEGMENT WITH ONE LANE-----------------------
          -----------------------------------------------------------------------
          if lanes = 1 then
-            -- only one lane in this segment
+            --  only one lane in this segment
 
             if lane_one_is_free then
-               -- take the segment
+               --  take the segment
                lane_one_speed := speed;
                requeue lane_one;
             else
-               -- the segment is taken: brake if necessary...
+               --  the segment is taken: brake if necessary...
                if speed > lane_one_speed then
                   speed := lane_one_speed;
                end if;
 
-               -- ...and queue in until lane is free
+               --  ...and queue in until lane is free
                requeue lane_one;
 
-               end if;
+            end if;
 
          end if;
 
@@ -54,119 +54,119 @@ package body Race is
          -------------------CASE 2: SEGMENT WITH TWO LANES----------------------
          -----------------------------------------------------------------------
          if lanes = 2 then
-            -- two lanes in this segment
+            --  two lanes in this segment
             if lane = 1 then
                -----------------------------------------------------------------
                -----------------CASE 2.1: DRIVER IN LANE ONE--------------------
                -----------------------------------------------------------------
                if lane_one_is_free then
-                  -- continue in this lane
+                  --  continue in this lane
                   lane_one_speed := speed;
                   requeue lane_one;
                else
                   if lane_two_is_free then
-                     -- lane one is full, but lane two is free: try to pass!
+                     --  lane one is full, but lane two is free: try to pass!
                      lane_two_speed := speed;
                      requeue lane_two;
                   else
-                     -- all lanes are full: choose the lane with less drivers
+                     --  all lanes are full: choose the lane with less drivers
                      if lane_one_queue <= lane_two_queue then
-                        -- choose lane one: brake if necessary...
+                        --  choose lane one: brake if necessary...
                         lane_one_queue := lane_one_queue + 1;
                         if speed > lane_one_speed then
                            speed := lane_one_speed;
                         end if;
-                        -- ...and queue in
+                        --  ...and queue in
                         requeue lane_one;
                      else
-                        -- lane two has less driver in queue
+                        --  lane two has less driver in queue
                         lane_two_queue := lane_two_queue + 1;
-                        -- brake if necessary...
+                        --  brake if necessary...
                         if speed > lane_two_speed then
                            speed := lane_two_speed;
                         end if;
-                        -- ...and queue in
+                        --  ...and queue in
                         requeue lane_two;
-                     end if;-- end case: lanes full
+                     end if; --  end case: lanes full
 
-                  end if;-- end case: test lane two
+                  end if; --  end case: test lane two
 
-               end if;-- end case: test lane one
+               end if; --  end case: test lane one
 
-            end if;-- end case 2.1: driver in lane one
+            end if; --  end case 2.1: driver in lane one
 
             if lane = 2 then
                -----------------------------------------------------------------
                -----------------CASE 2.2: DRIVER IN LANE TWO--------------------
                -----------------------------------------------------------------
                if lane_two_is_free then
-                  -- continue in this lane
+                  --  continue in this lane
                   lane_two_speed := speed;
                   requeue lane_two;
                else
                   if lane_one_is_free then
-                     -- lane two is full but lane one is free: try to pass!
+                     --  lane two is full but lane one is free: try to pass!
                      lane_one_speed := speed;
                      requeue lane_one;
                   else
-                     -- all lanes are full: choose lane with less drivers
+                     --  all lanes are full: choose lane with less drivers
                      if lane_two_queue <= lane_one_queue then
-                        -- choose lane two: brake if necessary...
+                        --  choose lane two: brake if necessary...
                         lane_two_queue := lane_two_queue + 1;
                         if speed > lane_two_speed then
                            speed := lane_two_speed;
                         end if;
-                        -- ... and queue in
+                        --  ... and queue in
                         requeue lane_two;
                      else
-                        -- lane one has less driver in queue
+                        --  lane one has less driver in queue
                         lane_one_queue := lane_one_queue + 1;
-                        -- brake if necessary...
+                        --  brake if necessary...
                         if speed > lane_one_speed then
                            speed := lane_one_speed;
                         end if;
-                        -- ...and queue in
+                        --  ...and queue in
                         requeue lane_one;
-                     end if;-- end case: all lanes full
+                     end if; --  end case: all lanes full
 
-                  end if;-- end case: test lane one
+                  end if; --  end case: test lane one
 
-               end if;--end case: test lane two
-            end if;--end case 2.2: driver in lane two
+               end if; --  end case: test lane two
+            end if; --  end case 2.2: driver in lane two
 
 
-         end if;--end case 2: segment has two lanes
+         end if; --  end case 2: segment has two lanes
 
 
       end Enter;
 
       --  release the segment
-      procedure Leave ( lane : positive ) is
+      procedure Leave ( lane : Positive ) is
       begin
          if lane = 1 then
             if lane_one_queue > 0 then
                lane_one_queue := lane_one_queue - 1;
             end if;
-            lane_one_is_free := true;
+            lane_one_is_free := True;
          else
             if lane_two_queue > 0 then
                lane_two_queue := lane_two_queue - 1;
             end if;
-            lane_two_is_free := true;
+            lane_two_is_free := True;
          end if;
       end Leave;
 
-      entry lane_one ( speed : in out float; lane : in out positive )
+      entry lane_one ( speed : in out Float; lane : in out Positive )
         when lane_one_is_free is
       begin
-         lane_one_is_free := false;
+         lane_one_is_free := False;
          lane := 1;
       end lane_one;
 
-      entry lane_two ( speed : in out float; lane : in out positive )
+      entry lane_two ( speed : in out Float; lane : in out Positive )
         when lane_two_is_free is
       begin
-         lane_two_is_free := false;
+         lane_two_is_free := False;
          lane := 2;
       end lane_two;
 

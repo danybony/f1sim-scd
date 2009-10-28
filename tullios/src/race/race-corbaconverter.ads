@@ -17,9 +17,7 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-
-with RI.Driver_RI;
-with CORBA.Sequences.Unbounded;
+with RI;
 
 package Race.CORBAConverter is
 

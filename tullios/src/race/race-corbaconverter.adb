@@ -18,10 +18,9 @@
 --  any later version.                                --
 --------------------------------------------------------
 
-with text_io;
+with Text_IO;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with CORBA;
-with PolyORB.Sequences.Unbounded;
 
 
 package body Race.CORBAConverter is
@@ -30,7 +29,7 @@ package body Race.CORBAConverter is
    -------------------------TO CORBA--------------------------------
    -----------------------------------------------------------------
 
-   -- Function that convert String_array_T into RI.StringArray
+   --  Function that convert String_array_T into RI.StringArray
    function to_RI_StringArray (
                             array_in : String_array_T
                                      ) return RI.StringArray is
@@ -44,7 +43,7 @@ package body Race.CORBAConverter is
       index := 0;
       while index < array_in'Length loop
          temp_string := array_in(index + 1);
-         -- CORBA arrays' indexes are from 0 to length-1
+         --  CORBA arrays' indexes are from 0 to length-1
          temp_StringArray(index):= CORBA.To_CORBA_String(To_String(temp_string));
          index := index + 1;
       end loop;
@@ -54,7 +53,7 @@ package body Race.CORBAConverter is
    end to_RI_StringArray;
 
 
-   -- Function that convert Segment_Properties_T into RI.SegmentProperties
+   --  Function that convert Segment_Properties_T into RI.SegmentProperties
    function to_RI_SegmentProperties (
                             segment_properties_in : Segment_Properties_T
                                      ) return RI.SegmentProperties is
@@ -72,7 +71,7 @@ package body Race.CORBAConverter is
    end to_RI_SegmentProperties;
 
 
-   -- Function that convert LP_track_T into RI.LPtrack
+   --  Function that convert LP_track_T into RI.LPtrack
    function to_RI_LPtrack (
                             LP_track_in : LP_track_T
                                  ) return RI.LPtrack is
@@ -94,7 +93,7 @@ package body Race.CORBAConverter is
 
 
 
-   -- Function that convert String_array_T into RI.StringSequence
+   --  Function that convert String_array_T into RI.StringSequence
    function to_StringSequence (
                                array_in : String_array_T)
                                return RI.StringSequence is
@@ -119,7 +118,7 @@ package body Race.CORBAConverter is
    -------------------------FROM CORBA------------------------------
    -----------------------------------------------------------------
 
-   -- Function that convert driver_RI.StringArray into String_array_T
+   --  Function that convert driver_RI.StringArray into String_array_T
    function to_String_Array_T (
                                array_in : RI.StringArray
                               ) return String_array_T is
@@ -144,7 +143,7 @@ package body Race.CORBAConverter is
 
 
 
-   -- Function that convert driver_RI.StringArray into String_array_T
+   --  Function that convert driver_RI.StringArray into String_array_T
    function to_String_Array_T (
                                array_in : RI.StringSequence
                               ) return String_array_T is
@@ -168,7 +167,7 @@ package body Race.CORBAConverter is
    end to_String_Array_T;
 
 
-   -- Function that convert driver_RI.SegmentProperties into Segment_Properties_T
+   --  Function that convert driver_RI.SegmentProperties into Segment_Properties_T
    function to_Segment_Properties_T (
                             SegmentProperties_in : RI.SegmentProperties
                                      ) return Segment_Properties_T is

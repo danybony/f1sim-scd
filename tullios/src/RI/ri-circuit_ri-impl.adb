@@ -19,10 +19,8 @@
 --------------------------------------------------------
 
 
-with CORBA;
 with CORBA.ORB;
 with RI.circuit_RI.Skel;
-with Polyorb.Protocols.GIOP;
 with Race.Circuit; use Race.Circuit;
 with Race.CORBAConverter; use Race.CORBAConverter;
 
@@ -61,7 +59,7 @@ package body RI.circuit_RI.Impl is
    begin
 
       LR_track.Element(integer(segment)).all.leave(Positive(lane));
-      --segmento.all.leave;
+      --  segmento.all.leave;
 
    end leave;
 
@@ -94,7 +92,7 @@ package body RI.circuit_RI.Impl is
    begin
 
       LR_box.Element(integer(segment)).all.leave(Positive(lane));
-      --segmento.all.leave;
+      --  segmento.all.leave;
 
    end leave_Box;
 
