@@ -18,7 +18,7 @@
 --  any later version.                                --
 --------------------------------------------------------
 
-with text_io;
+with Text_IO;
 with Ada.Strings.Unbounded;
 
 
@@ -28,21 +28,21 @@ package body Race.IorReader is
    --+ Return true if the file exists
    --+ Return false otherwise
    function file_exists(
-                        name:string
-                       ) return boolean is
-      use text_io;
-      input_file:file_type;
+                        name :String
+                       ) return Boolean is
+      use Text_IO;
+      input_file:File_Type;
 
    begin
-      open(input_file, in_file, name);
-      --if it worked, close the file and return true
-      close(input_file);
-      return true;
+      Open(input_file, in_file, name);
+      --  if it worked, close the file and return true
+      Close(input_file);
+      return True;
 
    exception
-      when name_error =>
-         --couldn't open the file
-         return false;
+      when Name_Error =>
+         --  couldn't open the file
+         return False;
 
    end file_exists;
 
@@ -50,42 +50,42 @@ package body Race.IorReader is
    -----------------------------------------------------------------------------
    --  Procedure that read IOR from file
    procedure read_IOR (
-                                 IOR_str:		in out	Ada.Strings.Unbounded.Unbounded_String
+                                 IOR_str:    in out   Ada.Strings.Unbounded.Unbounded_String
                                 ) is
       use Ada.Strings.Unbounded;
-      use text_io;
-      line_index:integer:=1;
+      use Text_IO;
+      line_index:Integer:=1;
       --  Temporary input file for every file reading
-      input_file:file_type;
-      -- Temporary string and char in wich store lines read in from file
-      input_string:string(1..1024);
-      input_char:character;
-	 text_file : string := "txt/ior.txt";
+      input_file:File_Type;
+      --  Temporary string and char in wich store lines read in from file
+      input_string:String(1..1024);
+      input_char:Character;
+      text_file : constant String := "txt/ior.txt";
    begin
-      put("reading IOR...");
+      Put("reading IOR...");
       if file_exists(text_file) then
-         put("file present!");new_line;
-         --read file specs
-         open(input_file, in_file, text_file);
+         Put("file present!"); New_Line;
+         --  read file specs
+         Open(input_file, in_file, text_file);
 
-            --read one line from file
+            --  read one line from file
             read_line_loop:
-            while not end_of_line(input_file) and line_index < 1024 loop
-               get(input_file,input_char);
+            while not End_Of_Line(input_file) and line_index < 1024 loop
+               Get(input_file,input_char);
                input_string(line_index):=input_char;
                line_index:=line_index+1;
             end loop read_line_loop;
 
-            --store the IOR
-            IOR_str:=To_unbounded_string(input_string(1..line_index-1));
+            --  store the IOR
+            IOR_str:=To_Unbounded_String(input_string(1..line_index-1));
 
-            --skip to the next text line
-         skip_line(input_file);
-         close(input_file);
+            --  skip to the next text line
+         Skip_Line(input_file);
+         Close(input_file);
       end if;
 
    exception
-      when end_error =>
+      when End_Error =>
          --  No newline at end of file: do nothing.
          null;
    end read_IOR;

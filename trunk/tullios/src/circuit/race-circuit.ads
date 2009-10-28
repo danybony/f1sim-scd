@@ -24,9 +24,9 @@ package Race.Circuit is
 
    LR_Box: LR.Vector;
 
-   procedure build_track (MacroSegments		:in String_array_T;
-                          MacroSegments_total	:in integer;
-                          Segments_total	:out integer);
+   procedure build_track (MacroSegments         :in String_array_T;
+                          MacroSegments_total   :in integer;
+                          Segments_total        :out integer);
 
    task type Circuit;
 

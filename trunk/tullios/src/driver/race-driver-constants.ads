@@ -22,17 +22,17 @@ package Race.Driver.Constants is
 
       CHANGE_LANE_DELAY : constant float := 0.001;
 
-      -- log base for acceleration
-      -- acceleration is usually 1,45 g (14,25 m/s^2) in F1
-      -- less log_a_base = more acceleration
+      --  log base for acceleration
+      --  acceleration is usually 1,45 g (14,25 m/s^2) in F1
+      --  less log_a_base = more acceleration
       LOG_A_BASE : constant float := 1.07500E+00;
 
-      -- log base for deceleration
-      -- deceleration is usually 4 g (39 m/s^2) in F1
-      -- less log_d_base = more brake power = delayed brakes
+      --  log base for deceleration
+      --  deceleration is usually 4 g (39 m/s^2) in F1
+      --  less log_d_base = more brake power = delayed brakes
       LOG_D_BASE : constant float := 1.05450E+00;
 
-	  METERS_PER_SEGMENT : constant float := 1.00000E+01;
+      METERS_PER_SEGMENT : constant float := 1.00000E+01;
 
 
 end Race.Driver.Constants;

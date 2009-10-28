@@ -15,18 +15,6 @@ module RI {
 
 
 
-interface driver_RI {
-		
-	//Driver initializationx
-	void init(in StringArray params, 
-			in short position, 
-			in LPtrack track, 
-			in LPtrack box,
-			in short laps);
-	
-};
-
-
 interface circuit_RI {
 
 	void enter(in long segment, 
@@ -52,12 +40,6 @@ interface circuit_RI {
 	
 };
 
-
-interface startup_RI {
-
-  oneway void endRace();
-
-};
 
 
 interface Log_viewer {

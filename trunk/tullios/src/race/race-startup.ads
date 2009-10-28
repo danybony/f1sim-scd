@@ -18,8 +18,18 @@
 --  any later version.                                --
 --------------------------------------------------------
 
-
+with RI.Circuit_RI;
+with RI.Log_viewer;
 
 package Race.Startup is
    procedure startup;
+
+   procedure end_Race;
+
+   drivers_Running : Integer;
+
+
+   circuit         : RI.Circuit_RI.Ref;
+   logger          : RI.Log_viewer.Ref;
+
 end Race.Startup;

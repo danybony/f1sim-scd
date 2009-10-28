@@ -1,7 +1,5 @@
 with Race; use Race;
 with Race.Circuit;
-with Text_IO;
-with ada.strings.unbounded;use ada.strings.unbounded;
 
 
 

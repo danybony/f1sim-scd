@@ -21,7 +21,7 @@
 
 package Race.IorReader is
 
-   procedure read_IOR (IOR_str:		in out	Ada.Strings.Unbounded.Unbounded_String);
+   procedure read_IOR (IOR_str:   in out   Ada.Strings.Unbounded.Unbounded_String);
 
 end Race.IorReader;
 
