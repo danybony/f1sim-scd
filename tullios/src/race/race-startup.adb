@@ -20,7 +20,8 @@
 
 --  Using text_io to read the race configuration from file
 with Text_IO;
---  with Race.Circuit;
+with Ada.Numerics.Float_Random;
+with Ada.Calendar;
 with Race.Driver;
 with Ada.Integer_Text_IO;
 with Ada.Float_Text_IO;
@@ -228,6 +229,7 @@ package body Race.Startup is
    procedure startup is
 
       use text_io;
+	  use Ada.Calendar;
       use Ada, Ada.Strings;
       use Ada.Strings.Unbounded;
       use CosNaming.NamingContextExt;
@@ -254,6 +256,8 @@ package body Race.Startup is
       blocking_lane_two :Positive := 2;
       logger_ok         :boolean:=false;
       circuit_ok        :boolean:=false;
+	  start_time		:Time;
+	  positions			:array(integer range 1..20) of integer;
 
       IOR               :Ada.Strings.Unbounded.Unbounded_String;
       rootCxtExt        :CosNaming.NamingContextExt.Ref;
@@ -367,25 +371,51 @@ package body Race.Startup is
 
       --  Create drivers and align them as per config file's order
       --  7 is the number of the parameters for every driver
-      while Drivers_index < drivers_file_lines loop
-         Driver_properties_aux(1..7):=Drivers_params(Drivers_index..(Drivers_index+6));
-         Drivers.Append(new Race.Driver.Driver);
-         Drivers.Last_Element.all.init(Driver_properties_aux,
+	  --  1 second to race start
+	  
+	  declare
+	  use Ada.Numerics.Float_Random;
+	  lucky_number : Ada.Numerics.Float_Random.Uniformly_Distributed;
+	  driver_selected : integer;
+	  G : Ada.Numerics.Float_Random.Generator;
+	  Positions : array(integer range 1..(drivers_file_lines / 7)) of integer;
+	  begin
+		while Drivers_index < (drivers_file_lines / 7) loop
+			Positions(Drivers_index) := Drivers_index;
+		end loop;
+		
+		Drivers_index := 1;
+		start_time := clock + duration(1.000);
+ 
+		
+	  
+		while Drivers_index < drivers_file_lines loop
+		
+			lucky_number := Random (G);
+			driver_selected := integer(lucky_number * float(1_000)) mod (Positions.Length - drivers_running);
+			
+		
+			Driver_properties_aux(1..7):=Drivers_params(Positions(driver_selected)..(Positions(driver_selected)+6));
+			Drivers.Append(new Race.Driver.Driver);
+			Drivers.Last_Element.all.init(Driver_properties_aux,
                                        Drivers.Last_Index,
                                        LP_track.all,
                                        LP_box.all,
                                        laps,
-                                       Ada.Calendar.Clock,
+									   start_time,
                                        circuit,
-                                       logger); --  da cambiare!!
+                                       logger);
 
-         Drivers_index := Drivers_index + 7;
+			Drivers_index := Drivers_index + 7;
+			
+			Positions(driver_selected) := Positions(Positions.Length - drivers_running);
 
-         drivers_Running := drivers_Running + 1;
+			drivers_Running := drivers_Running + 1;
+			
+			
 
-      end loop;
-
-
+		end loop;
+	end;
 
 
       --  Realese the lock in the first segment: Start the Race!
