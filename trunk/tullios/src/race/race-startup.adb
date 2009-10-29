@@ -378,10 +378,11 @@ package body Race.Startup is
 	  lucky_number : Ada.Numerics.Float_Random.Uniformly_Distributed;
 	  driver_selected : integer;
 	  G : Ada.Numerics.Float_Random.Generator;
-	  Positions : array(integer range 1..(drivers_file_lines / 7)) of integer;
+	  Positions : array(integer range 1..((drivers_file_lines / 7) - 1)) of integer;
 	  begin
 		while Drivers_index < (drivers_file_lines / 7) loop
 			Positions(Drivers_index) := Drivers_index;
+			Drivers_index := drivers_index + 1;
 		end loop;
 		
 		Drivers_index := 1;
@@ -391,10 +392,11 @@ package body Race.Startup is
 	  
 		while Drivers_index < drivers_file_lines loop
 		
+			Reset(G);
 			lucky_number := Random (G);
 			driver_selected := integer(lucky_number * float(1_000)) mod (Positions.Length - drivers_running);
 			
-		
+			if (driver_selected = 0) then driver_selected := 1; end if;
 			Driver_properties_aux(1..7):=Drivers_params(Positions(driver_selected)..(Positions(driver_selected)+6));
 			Drivers.Append(new Race.Driver.Driver);
 			Drivers.Last_Element.all.init(Driver_properties_aux,
@@ -402,13 +404,13 @@ package body Race.Startup is
                                        LP_track.all,
                                        LP_box.all,
                                        laps,
-									   start_time,
+				       start_time,
                                        circuit,
                                        logger);
 
 			Drivers_index := Drivers_index + 7;
 			
-			Positions(driver_selected) := Positions(Positions.Length - drivers_running);
+			Positions(driver_selected) := Positions((drivers_file_lines / 7) - drivers_running);
 
 			drivers_Running := drivers_Running + 1;
 			
