@@ -51,7 +51,7 @@ package body Race.Driver is
             Put_Line ("Problems at box! Retired.");
 
          when 4 =>
-            Put_Line ("Crash into other car! Retired.");
+            Put_Line ("Go off the road! Retired.");
 
          when 5 =>
             Put_Line ("Circuit down.");
@@ -505,7 +505,7 @@ package body Race.Driver is
                      --  was blocked by a leading car!
                      --  brake to leading car speed
 
-                     --  Probability of 0,1% to crash!
+                     --  Probability of 0,1% to go off the road!
                      Get_Lucky (Crash);
 
                      accel_lenght   := Log_a ** leaving_speed;
@@ -645,7 +645,7 @@ package body Race.Driver is
                   --  driver was blocked by a leading car
                   --  normal brake is not enough: assume leading car speed
 
-                  --  Probability of 0,1% to crash!
+                  --  Probability of 0,1% to go off the road!
                   Get_Lucky (Crash);
 
                   avg_speed     := entering_speed;
