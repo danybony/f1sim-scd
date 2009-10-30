@@ -1,0 +1,1 @@
+po_cos_naming -file txt/ior.txt
