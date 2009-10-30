@@ -1,1 +1,12 @@
-gnatmake -P f1sim.gpr main.adb -d -aP/usr/local/lib/gnat -aI/usr/local/include/polyorb -aO/usr/local/lib/polyorb -aL/usr/local/lib/polyorb -largs -L/usr/local/lib -lpolyorb-corba -lpolyorb-corba-dynamicany -lpolyorb-corba-iop -lpolyorb-corba-messaging -lpolyorb-corba-portableinterceptor -lpolyorb-corba-rtcorba -lpolyorb-giop -lpolyorb-giop-diop -lpolyorb-giop-iiop -lpolyorb-giop-miop -lpolyorb-setup
+echo Building CORBA remote interfaces..
+idlac -c -s src/RI/RI.idl -o src/RI/
+idlj -f all -td src/log/java/ src/log/java/log_viewer.idl
+
+echo Building startup...
+gnatmake -P f1sim_startup.gpr 
+
+echo Building Circuit...
+gnatmake -P f1sim_circuit.gpr 
+
+echo Building Logger...
+javac -Xlint:unchecked ./src/log/java/Log_main.java -sourcepath ./src/log/java/ -d obj_logger

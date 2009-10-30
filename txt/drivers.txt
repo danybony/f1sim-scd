@@ -8,18 +8,75 @@
 #Il settimo valore è un insieme di valori che indicano la strategia:
 #ogni numero, separato da una virgola, rappresenta un giro durante il quale
 #il pilota si fermerà ai box.
-#Micheal Schumacher
-#Ferrari
-#1
-#10
-#10
-#340
-#2,4
-#
 Fernando Alonso
 Renault
-2
+1
 6
-1
-320
-1
+6
+308
+16
+#
+Jenson Button
+BrawnGP
+2
+8
+8
+306
+17
+#
+Jarno Trulli
+Toyota
+3
+5
+5
+306
+17
+#
+Robert Kubica
+Williams
+4
+5
+6
+307
+16
+#
+Felipe Massa
+Ferrari
+5
+9
+10
+315
+14
+#
+Lewis Hamilton
+McLaren
+6
+9
+9
+316
+15
+#
+Sebastien Vettel
+Red Bull
+7
+8
+8
+306
+17
+#
+Kimi Raikkonen
+Ferrari
+8
+9
+10
+313
+16
+#
+Adrian Sutil
+Force India
+9
+6
+6
+309
+14
+

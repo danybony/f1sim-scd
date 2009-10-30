@@ -1,19 +1,36 @@
 
+import java.util.Date;
+
+
 /**
  *
  * @author daniele
  */
-public class Driver{
-    
+public class Driver implements Comparable{
+
     private String name;
     private short id;
     private String team;
     private short position;
     private short currentLap;
-    private short currentSegment;   
-    private short maxSpeed;
-    private long lastT1, lastT2, lastEndLap;
-    private long bestT1, bestT2, bestLap;
+    private int currentSegment;
+    private float maxSpeed;
+    private float Speed = 0;
+    private long lastEndLap = 0;
+    private long bestLap = Integer.MAX_VALUE;
+    private long lastLap = 0;
+
+    /* Possible states:<br>
+     * 0: running<br>
+     * 1: at box<br>
+     * 2: race finished<br>
+     * -1: out<br>
+     * -2: not started yet<br>
+     */
+    private short state = -2;
+    private long difference = 0;
+    private long totalTime = 0;
+    
 
     public Driver(String name, short id, String team, short position, short currentSegment) {
         this.name = name;
@@ -23,41 +40,32 @@ public class Driver{
         this.currentSegment = currentSegment;
         this.currentLap = 0;
         this.maxSpeed = 0;
-        this.lastT1 = this.lastT2 = this.lastEndLap = 0;
     }
 
-    public void setCurrentSegment(short Segment) {
+    public void setCurrentSegment(int Segment) {
         currentSegment = Segment;
     }
 
-    public void updateMaxSpeed(short Speed) {
+    public void updateMaxSpeed(float Speed) {
+        this.Speed = Speed;
         if(Speed > maxSpeed){
             maxSpeed = Speed;
         }
     }
 
+    void setStartTime(long startTime){
+        this.lastEndLap = startTime;
+    }
+
     public void setLastEndLap(long lastEndLap) {
-        long timeBetween = lastEndLap - this.lastEndLap;
-        if(timeBetween < bestLap){
-            bestLap = timeBetween;
+        if(this.lastEndLap != 0){
+            lastLap = lastEndLap - this.lastEndLap;
+            totalTime = totalTime + lastLap;
+            if(lastLap < bestLap){
+                bestLap = lastLap;
+            }
         }
         this.lastEndLap = lastEndLap;
-    }
-
-    public void setLastT1(long lastT1) {
-        long timeBetween = lastT1 - this.lastT1;
-        if(timeBetween < bestT1){
-            bestT1 = timeBetween;
-        }
-        this.lastT1 = lastT1;
-    }
-
-    public void setLastT2(long lastT2) {
-        long timeBetween = lastT2 - this.lastT2;
-        if(timeBetween < bestT2){
-            bestT2 = timeBetween;
-        }
-        this.lastT2 = lastT2;
     }
 
     public void setCurrentLap(short currentLap) {
@@ -76,7 +84,7 @@ public class Driver{
         return bestLap;
     }
 
-    public short getCurrentSegment() {
+    public long getCurrentSegment() {
         return currentSegment;
     }
 
@@ -84,8 +92,21 @@ public class Driver{
         return id;
     }
 
-    public short getMaxSpeed() {
-        return maxSpeed;
+   /** Possible states:<br>
+     * 0: running<br>
+     * 1: at box<br>
+     * 2: race finished<br>
+     * -1: out<br>
+     * -2: not started yet<br>
+     *
+     * @return current state
+     */
+    public short getState() {
+        return state;
+    }
+
+    public float getTopSpeed() {
+        return Math.round(maxSpeed*100)/100;
     }
 
     public String getName() {
@@ -98,6 +119,71 @@ public class Driver{
 
     public String getTeam() {
         return team;
+    }
+
+    long getDifference() {
+        return difference;
+    }
+
+    long getLastLap() {
+        return lastLap;
+    }
+
+    long getTotalTime() {
+        return totalTime;
+    }
+
+
+    public float getSpeed() {
+        return Math.round(Speed*100)/100;
+    }
+
+    public long getLastEndLap() {
+        return lastEndLap;
+    }
+
+    /** Possible states:<br>
+     * 0: running<br>
+     * 1: at box<br>
+     * 2: race finished<br>
+     * -1: out<br>
+     * -2: not started yet<br>
+     *
+     */
+    public void setState(short s) {
+        state = s;
+
+        //out
+        if(state == -1){
+            this.Speed = (float) 0.0;
+            totalTime = new Date().getTime() - lastEndLap + totalTime;
+        }
+
+        //race finished
+        if(state == 2){
+            updateMaxSpeed((float) 0.0);
+        }
+    }
+
+    void updateDifference(long firstDriversTime) {
+        this.difference = this.lastEndLap - firstDriversTime;     
+    }
+
+    boolean precede(Driver other){
+        if(currentLap > other.currentLap
+                || (currentLap == other.currentLap && currentSegment > other.currentSegment)){
+            return true;
+        }
+        return false;
+    }
+
+    public int compareTo(Object o) {
+        if(this.precede((Driver) o)){
+            return -1;
+        }
+        else {
+            return 1;
+        }
     }
         
         

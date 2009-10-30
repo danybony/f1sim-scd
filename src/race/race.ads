@@ -17,7 +17,7 @@
 --  version 2 of the License, or (at your option)     --
 --  any later version.                                --
 --------------------------------------------------------
-with Ada.strings.unbounded;
+with Ada.Strings.Unbounded;
 with Ada.Containers.Vectors;
 
 package Race is
@@ -26,10 +26,11 @@ package Race is
    type Strategy_Ref_T is access Strategy_T;
 
    type String_array_T is array (Positive range <>) of
-     ada.strings.Unbounded.unbounded_string;
+     Ada.Strings.Unbounded.Unbounded_String;
+   type String_array_Ref_T is access String_array_T;
 
    --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
-   --++++++	LP-related definitions		++++++++++++++++++++++++++++++--
+   --++++++       LP-related definitions        ++++++++++++++++++++++++++++++--
    type Segment_Properties_T is
    --  info about a macro segment
       record
@@ -39,7 +40,7 @@ package Race is
       end record;
 
    type Segment_properties_Ref_T is access Segment_Properties_T;
-   subtype LP_lenght is Positive range 1..Positive'last;
+   subtype LP_lenght is Positive range 1..Positive'Last;
 
 
    package LP is new Ada.Containers.Vectors
@@ -53,35 +54,35 @@ package Race is
 
 
    --+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
-   --++++++	LR-related definitions		++++++++++++++++++++++++++++++--
+   --++++++      LR-related definitions         ++++++++++++++++++++++++++++++--
 
    protected type Segment_T (tot_lanes :Positive) is
 
       --  request the segment
-      entry Enter(speed : in out float;
-                  lane : in out positive);
+      entry Enter(speed : in out Float;
+                  lane : in out Positive);
 
       --  release the segment
-      procedure Leave (lane : positive);
+      procedure Leave (lane : Positive);
 
    private
 
-      entry lane_one(speed : in out float;
-                     lane : in out positive);
+      entry lane_one(speed : in out Float;
+                     lane : in out Positive);
 
-      entry lane_two(speed : in out float;
-                     lane : in out positive);
+      entry lane_two(speed : in out Float;
+                     lane : in out Positive);
 
       Lanes : Positive := tot_lanes;
 
-      lane_one_is_free : boolean := true;
-      lane_two_is_free : boolean := true;
+      lane_one_is_free : Boolean := True;
+      lane_two_is_free : Boolean := True;
 
-      lane_one_speed : float := 0.00000E+00;
-      lane_two_speed : float := 0.00000E+00;
+      lane_one_speed : Float := 0.00000E+00;
+      lane_two_speed : Float := 0.00000E+00;
 
-      lane_one_queue : integer := 0;
-      lane_two_queue : integer := 0;
+      lane_one_queue : Integer := 0;
+      lane_two_queue : Integer := 0;
 
 
    end Segment_T;
