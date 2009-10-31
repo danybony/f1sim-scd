@@ -30,6 +30,7 @@ with RI.Log_viewer;
 package Race.Driver is
 
    task type Driver is
+
       entry init(params         : String_array_T;
                  position       : Positive;
                  track          : LP_track_T;
@@ -47,29 +48,6 @@ package Race.Driver is
      (Element_type => Driver_Ref_T,
       Index_type => Driver_lenght);
 
-
-   --  Driver parameters
-   Name                 : Ada.Strings.Unbounded.Unbounded_String;
-   ID                   : CORBA.Short;
-   Team                 : Ada.Strings.Unbounded.Unbounded_String;
-   Accel                : Positive;
-   Brake                : Positive;
-   MSpeed               : float;
-   Strategy             : Strategy_T(0..5); --  max 5 pit stops
-   Strategy_lenght : Natural := 0;
-   Strategy_index  : Natural := 0;
-
-   Log_a : float;
-   Log_d : float;
-
-   go_box : Integer := -1;
-
-   LP_box: LP_Track_Ref_T;
-   LP_track: LP_Track_Ref_T;
-
-   Wake : Time;
-
-   Tot_Laps: Positive;
 
    G : Ada.Numerics.Float_Random.Generator;
 

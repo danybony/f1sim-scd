@@ -26,7 +26,7 @@ package Race.Startup is
 
    procedure end_Race;
 
-   drivers_Running : Integer;
+   drivers_Running : Integer := 0;
 
 
    circuit         : RI.Circuit_RI.Ref;
