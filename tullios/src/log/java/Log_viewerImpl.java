@@ -294,9 +294,4 @@ public class Log_viewerImpl extends Log_viewerPOA {
         this.frame = frame;
     }
 
-
-    private void orderDrivers() {
-        Collections.sort(drivers);
-    }
-
 }

@@ -84,111 +84,6 @@ package body Race.Driver is
       return speed * Float (1000) / Float (3600);
    end to_m_s;
 
-   --  INIT_DRIVER -----------------------------------------------------
-   --  Called by Startup to initialize the driver with custom parameters
-   ---------------------------------------------------------------------
-   procedure Init_Driver
-     (params       : String_array_T;
-      position     : Positive;
-      track        : LP_track_T;
-      box          : LP_track_T;
-      laps         : Positive;
-      start_time   : Time)
-   is
-
-      use Text_IO;
-      use Ada.Integer_Text_IO;
-      use Ada.Strings.Unbounded;
-      use Race.Driver.Constants;
-
-      Strategy_string    : String  := To_String (params (7));
-      buffer_index_first : Natural := 1;
-      buffer_index_last  : Natural := 0;
-      buffer_index       : Integer := 0; --  string_buffer index
-      index              : Integer := 1; --  strategy string array index
-      last               : Positive;
-      ID_positive        : Positive;
-
-   begin
-      --  read strategy (lap numbers)  from params. Assume at least 1 pit
-      --  stop.
-      while (index <= Strategy_string'Last) loop
-
-         if Strategy_string (index) >= '0' and
-            Strategy_string (index) <= '9'
-         then
-            --  accumulate digits in the buffer
-            buffer_index_last := buffer_index_last + 1;
-            index             := index + 1;
-         else
-            --  convert string to lap number and flush the buffer
-            Strategy_lenght := Strategy_lenght + 1;
-            Get
-              (Strategy_string (buffer_index_first .. buffer_index_last),
-               Strategy (Strategy_lenght),
-               last);
-            buffer_index_first := index + 1;
-            buffer_index_last  := index;
-            index              := index + 1;
-         end if;
-
-      end loop;
-
-      --  finally, convert last string to lap number and flush the buffer
-      Strategy_lenght := Strategy_lenght + 1;
-      Get
-        (Strategy_string (buffer_index_first .. buffer_index_last),
-         Strategy (Strategy_lenght),
-         last);
-
-      --  initialize all other parameters
-      Name := params (1);
-      Get (To_String (params (3)), ID_positive, last);
-      ID   := CORBA.Short (ID_positive);
-      Team := params (2);
-      Get (To_String (params (4)), Accel, last);
-      Get (To_String (params (5)), Brake, last);
-      Ada.Float_Text_IO.Get (To_String (params (6)), MSpeed, last);
-
-      LP_track := new LP_track_T (track'Range);
-      index    := 1;
-      while index <= track'Last loop
-         LP_track (index) := track (index);
-         index            := index + 1;
-      end loop;
-
-      LP_box := new LP_track_T (box'Range);
-      index  := 1;
-      while index <= box'Last loop
-         LP_box (index) := box (index);
-         index          := index + 1;
-      end loop;
-
-      Tot_Laps := laps;
-
-      --  convert mspeed from km/h to m/s
-      MSpeed := to_m_s (MSpeed);
-
-      --  calculate acceleration log base with respect to driver's accel coeff
-      --  less log_a = more acceleration
-      Log_a := LOG_A_BASE - (Float (Accel * 2) / Float (10_000));
-
-      --  calculate deceleration log base with respect to driver's brake coeff
-      --  less log_d = more brake power = delayed brakes
-      Log_d := LOG_D_BASE - (Float (Brake) / Float (10_000));
-
-      if Strategy_lenght > 0 then
-         Strategy_index := Strategy_index + 1;
-         go_box         := Strategy (Strategy_index);
-      end if;
-
-      --  set the start race time
-      Wake := start_time;
-
-
-   end Init_Driver;
-
-
    --  GET_LUCKY -------------------------------------------------------
    --  Verify if driver got an incident
    ---------------------------------------------------------------------
@@ -233,7 +128,6 @@ package body Race.Driver is
 
    end Get_Lucky;
 
-
    --  THE_DRIVER ------------------------------------------------------
    --  The main task of this package. It emulates a driver that take part
    --  in the race.
@@ -242,9 +136,32 @@ package body Race.Driver is
    task body Driver is
       use Text_IO;
       use Race.Driver.Constants;
+      use Ada.Integer_Text_IO;
       use Ada.Strings.Unbounded;
       use Ada.Numerics.Elementary_Functions;
 
+      --  Driver parameters
+      Name            : Ada.Strings.Unbounded.Unbounded_String;
+      ID              : CORBA.Short;
+      Team            : Ada.Strings.Unbounded.Unbounded_String;
+      Accel           : Positive;
+      Brake           : Positive;
+      MSpeed          : Float;
+      Strategy        : Strategy_T (0 .. 5); --  max 5 pit stops
+      Strategy_lenght : Natural := 0;
+      Strategy_index  : Natural := 0;
+
+      Log_a : Float;
+      Log_d : Float;
+
+      go_box : Integer := -1;
+
+      LP_box   : LP_track_Ref_T;
+      LP_track : LP_track_Ref_T;
+
+      Wake : Time;
+
+      Tot_Laps       : Positive;
       Laps_Done      : Natural  := 0;
       Position       : Positive;
       lane           : Positive := 1;
@@ -277,20 +194,113 @@ package body Race.Driver is
       ---
       Text_IO.Put_Line ("Driver started");
 
+      --  INIT_DRIVER -----------------------------------------------------
+      --  Called by Startup to initialize the driver with custom parameters
+      ---------------------------------------------------------------------
       accept init (
-         params      : String_array_T;
-         position   : Positive;
-         track      : LP_track_T;
-         box        : LP_track_T;
-         laps       : Positive;
-         start_time : Time;
-         circuit_ref: RI.circuit_RI.Ref;
-         logger_ref : RI.Log_viewer.Ref)
-      do
+        params       : String_array_T;
+         position    : Positive;
+         track       : LP_track_T;
+         box         : LP_track_T;
+         laps        : Positive;
+         start_time  : Time;
+         circuit_ref : RI.circuit_RI.Ref;
+         logger_ref  : RI.Log_viewer.Ref) do
+         declare
+            Strategy_string    : String  := To_String (params (7));
+            buffer_index_first : Natural := 1;
+            buffer_index_last  : Natural := 0;
+            buffer_index       : Integer := 0; --  string_buffer index
+            index              : Integer := 1; --  strategy string array index
+            last               : Positive;
+            ID_positive        : Positive;
 
-         circuit := circuit_ref;
-         logger := logger_ref;
-         Init_Driver(params, position, track, box, laps, start_time);
+         begin
+
+            Strategy_lenght := 0;
+            Strategy_index  := 0;
+
+            --  read strategy (lap numbers)  from params. Assume at least 1 pit
+            --  stop.
+            while (index <= Strategy_string'Last) loop
+
+               if Strategy_string (index) >= '0' and
+                  Strategy_string (index) <= '9'
+               then
+                  --  accumulate digits in the buffer
+                  buffer_index_last := buffer_index_last + 1;
+                  index             := index + 1;
+               else
+                  --  convert string to lap number and flush the buffer
+                  Strategy_lenght := Strategy_lenght + 1;
+                  Get
+                    (Strategy_string (buffer_index_first .. buffer_index_last),
+                     Strategy (Strategy_lenght),
+                     last);
+                  buffer_index_first := index + 1;
+                  buffer_index_last  := index;
+                  index              := index + 1;
+               end if;
+
+            end loop;
+
+            --  finally, convert last string to lap number and flush the buffer
+            Strategy_lenght := Strategy_lenght + 1;
+            Get
+              (Strategy_string (buffer_index_first .. buffer_index_last),
+               Strategy (Strategy_lenght),
+               last);
+
+            --  initialize all other parameters
+            Name := params (1);
+            Get (To_String (params (3)), ID_positive, last);
+            ID   := CORBA.Short (ID_positive);
+            Team := params (2);
+            Get (To_String (params (4)), Accel, last);
+            Get (To_String (params (5)), Brake, last);
+            Ada.Float_Text_IO.Get (To_String (params (6)), MSpeed, last);
+
+            LP_track := new LP_track_T (track'Range);
+            index    := 1;
+            while index <= track'Last loop
+               LP_track (index) := track (index);
+               index            := index + 1;
+            end loop;
+
+            LP_box := new LP_track_T (box'Range);
+            index  := 1;
+            while index <= box'Last loop
+               LP_box (index) := box (index);
+               index          := index + 1;
+            end loop;
+
+
+            Tot_Laps := laps;
+
+            --  convert mspeed from km/h to m/s
+            MSpeed := to_m_s (MSpeed);
+
+            --  calculate acceleration log base with respect to driver's accel
+            --coeff
+            --  less log_a = more acceleration
+            Log_a := LOG_A_BASE - (Float (Accel * 2) / Float (10_000));
+
+            --  calculate deceleration log base with respect to driver's brake
+            --coeff
+            --  less log_d = more brake power = delayed brakes
+            Log_d := LOG_D_BASE - (Float (Brake) / Float (10_000));
+
+            if Strategy_lenght > 0 then
+               Strategy_index := Strategy_index + 1;
+               go_box         := Strategy (Strategy_index);
+            end if;
+
+            --  set the start race time
+            Wake := start_time;
+
+            circuit := circuit_ref;
+            logger  := logger_ref;
+         end;
 
       end init;
 
@@ -461,7 +471,8 @@ package body Race.Driver is
                                   to_m_s (Float (Brake));
 
             --  ACCELERATION
-            --  LOOP-------------------------------------------------------------
+            --  LOOP-----------------------------------------------------------
+            ----
             ---
             while segment_index < brake_point loop
 
