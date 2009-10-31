@@ -388,7 +388,7 @@ package body Race.Startup is
          while Drivers_index < drivers_file_lines loop
             Reset(G);
             lucky_number := Random (G);
-            driver_selected := driver_selected +1; --  integer(lucky_number * float(1_000)) mod (Positions'Length - drivers_running);
+            driver_selected := integer(lucky_number * float(1_000)) mod (Positions'Length - drivers_running);
 
             if (driver_selected = 0) then
                driver_selected := 1;
