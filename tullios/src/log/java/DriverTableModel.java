@@ -56,8 +56,7 @@ class DriverTableModel extends AbstractTableModel{
 
             case 6: return logger.getDriver(rowIndex).getTopSpeed();
 
-            case 7: if(logger.getDriver(rowIndex).getCurrentLap() != 0 &&
-                            logger.getDriver(rowIndex).getCurrentLap() != 1){
+            case 7: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
                         int min = (int) (logger.getDriver(rowIndex).getBestLap() / 60000);
                         int sec = (int) ((logger.getDriver(rowIndex).getBestLap() / 1000) % 60);
                         int ms  = (int) (logger.getDriver(rowIndex).getBestLap() % 1000);
@@ -68,8 +67,7 @@ class DriverTableModel extends AbstractTableModel{
                     }
                     return "--:---";
 
-            case 8: if(logger.getDriver(rowIndex).getCurrentLap() != 0 &&
-                            logger.getDriver(rowIndex).getCurrentLap() != 1){
+            case 8: if(logger.getDriver(rowIndex).getCurrentLap() != 0){
                         int min = (int) (logger.getDriver(rowIndex).getLastLap() / 60000);
                         int sec = (int) ((logger.getDriver(rowIndex).getLastLap() / 1000) % 60);
                         int ms  = (int) (logger.getDriver(rowIndex).getLastLap() % 1000);

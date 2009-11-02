@@ -175,14 +175,16 @@ public class Log_viewerImpl extends Log_viewerPOA {
             
             /* Check if the current lap has finisced */
             if(Segment == 1){
-                currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
+                
                 if(currentDriver.getState() == -2){
                     currentDriver.setState((short)0);
                 }
-                else{                    
+                else{  
+		    currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));                  
                     currentDriver.setLastEndLap(new Date().getTime());
                     if(currentDriver.getCurrentLap() != drivers.elementAt(0).getCurrentLap()){
-                        currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap() -
+			int lapDifference = drivers.elementAt(0).getCurrentLap() - currentDriver.getCurrentLap();
+                        currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap()*lapDifference -
                                                         drivers.elementAt(0).getLastLap());
                     }
                     else{
