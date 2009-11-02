@@ -179,13 +179,13 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 if(currentDriver.getState() == -2){
                     currentDriver.setState((short)0);
                 }
-                else{  
-		    currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));                  
+                else{
+                    currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
                     currentDriver.setLastEndLap(new Date().getTime());
                     if(currentDriver.getCurrentLap() != drivers.elementAt(0).getCurrentLap()){
-			int lapDifference = drivers.elementAt(0).getCurrentLap() - currentDriver.getCurrentLap();
-                        currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap()*lapDifference -
-                                                        drivers.elementAt(0).getLastLap());
+                        int lapDifference = drivers.elementAt(0).getCurrentLap() - currentDriver.getCurrentLap();
+                        currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap() -
+                                                        drivers.elementAt(0).getLastLap()*lapDifference);
                     }
                     else{
                         currentDriver.updateDifference(drivers.elementAt(0).getLastEndLap());
