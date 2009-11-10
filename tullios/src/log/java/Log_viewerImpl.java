@@ -2,7 +2,6 @@ import java.util.Date;
 import java.util.Vector;
 import org.omg.CORBA.ORB;
 import RI.*;
-import java.util.Collections;
 import org.omg.CosNaming.NameComponent;
 import org.omg.CosNaming.NamingContext;
 
@@ -31,6 +30,8 @@ public class Log_viewerImpl extends Log_viewerPOA {
     private short raceLaps;
 
     private int segmentsNumber;
+
+    private long startTime;
 
     private LogFrame frame;
 
@@ -151,6 +152,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
             System.out.println("------ Position: "+drivers.elementAt(i).getPosition());
         }
         frame.updateTable();
+        return;
     }
     
     
@@ -160,10 +162,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
         try {
             if(!raceIsRunning){
                 raceIsRunning = true;
-                long startTime = new Date().getTime();
-                for(int i=0; i<drivers.size();i++){
-                    drivers.elementAt(i).setStartTime(startTime);
-                }
+                startTime = new Date().getTime();
             }
 
             Driver currentDriver = driverById(Driver_ID);
@@ -178,6 +177,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 
                 if(currentDriver.getState() == -2){
                     currentDriver.setState((short)0);
+                    currentDriver.setStartTime(startTime);
                 }
                 else{
                     currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));
