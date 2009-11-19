@@ -3,7 +3,7 @@ module RI {
 
 	interface Log_viewer {
 
-	oneway void setEnvironment(
+	boolean setEnvironment(
 		in StringSequence Drivers,
 		in long segmentsNumber,
 		in short RaceLaps

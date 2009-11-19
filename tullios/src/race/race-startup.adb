@@ -347,7 +347,7 @@ package body Race.Startup is
 
          put_line("Got logger from Name Service");
 
-         RI.Log_viewer.setEnvironment (logger,
+         logger_ok := RI.Log_viewer.setEnvironment (logger,
                                     to_StringSequence(Drivers_params.all), --  drivers
                                     CORBA.Long(Segments_total),
                                     CORBA.Short(laps));              --  number of laps

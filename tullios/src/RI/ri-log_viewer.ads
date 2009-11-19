@@ -21,11 +21,12 @@ package RI.Log_viewer is
    Repository_Id : constant PolyORB.Std.String :=
      "IDL:RI/Log_viewer:1.0";
 
-   procedure setEnvironment
+   function setEnvironment
      (Self : Ref;
       Drivers : RI.StringSequence;
       segmentsNumber : CORBA.Long;
-      RaceLaps : CORBA.Short);
+      RaceLaps : CORBA.Short)
+     return CORBA.Boolean;
 
    setEnvironment_Repository_Id : constant PolyORB.Std.String :=
      "IDL:RI/Log_viewer/setEnvironment:1.0";
