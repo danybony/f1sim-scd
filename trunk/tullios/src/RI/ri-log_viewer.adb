@@ -9,9 +9,9 @@ pragma Style_Checks ("NM32766");
 --  IDL to Ada compiler.
 ---------------------------------------------------
 with PolyORB.Any.NVList;
+with PolyORB.Any;
 with PolyORB.Types;
 with RI.Helper;
-with PolyORB.Any;
 with PolyORB.Requests;
 with PolyORB.CORBA_P.Interceptors_Hooks;
 with PolyORB.CORBA_P.Exceptions;
@@ -43,7 +43,7 @@ package body RI.Log_viewer is
    begin
       return (Name => setEnvironment_Result_Name_Ü,
       Argument => CORBA.Internals.Get_Empty_Any
-        (CORBA.TC_Void),
+        (CORBA.TC_Boolean),
       Arg_Modes => 0);
    end setEnvironment_Result_Ü;
 
@@ -51,13 +51,19 @@ package body RI.Log_viewer is
    -- setEnvironment --
    --------------------
 
-   procedure setEnvironment
+   function setEnvironment
      (Self : Ref;
       Drivers : RI.StringSequence;
       segmentsNumber : CORBA.Long;
       RaceLaps : CORBA.Short)
+     return CORBA.Boolean
    is
       Argument_List_Ü : PolyORB.Any.NVList.Ref;
+      Result_Ü : CORBA.Boolean;
+      pragma Warnings (Off, Result_Ü);
+      Arg_CC_Result_Ü_Ü : aliased PolyORB.Any.Content'Class :=
+        CORBA.Wrap
+           (Result_Ü'Unrestricted_Access);
       Arg_CC_Drivers_Ü : aliased PolyORB.Any.Content'Class :=
         RI.Helper.Internals.Wrap
            (RI.IDL_SEQUENCE_string.Sequence
@@ -98,24 +104,26 @@ package body RI.Log_viewer is
       PolyORB.Any.NVList.Add_Item
         (Argument_List_Ü,
          setEnvironment_Arg_Name_Drivers_Ü,
-         PolyORB.Any.Copy_Any
-           (PolyORB.Any.Any
-              (Arg_Any_Drivers_Ü)),
+         PolyORB.Any.Any
+           (Arg_Any_Drivers_Ü),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
         (Argument_List_Ü,
          setEnvironment_Arg_Name_segmentsNumber_Ü,
-         PolyORB.Any.Copy_Any
-           (PolyORB.Any.Any
-              (Arg_Any_segmentsNumber_Ü)),
+         PolyORB.Any.Any
+           (Arg_Any_segmentsNumber_Ü),
          PolyORB.Any.ARG_IN);
       PolyORB.Any.NVList.Add_Item
         (Argument_List_Ü,
          setEnvironment_Arg_Name_RaceLaps_Ü,
-         PolyORB.Any.Copy_Any
-           (PolyORB.Any.Any
-              (Arg_Any_RaceLaps_Ü)),
+         PolyORB.Any.Any
+           (Arg_Any_RaceLaps_Ü),
          PolyORB.Any.ARG_IN);
+      --  Setting the result value
+      PolyORB.Any.Set_Value
+        (PolyORB.Any.Get_Container
+           (Result_Nv_Ü.Argument).all,
+         Arg_CC_Result_Ü_Ü'Unrestricted_Access);
       --  Creating the request
       PolyORB.Requests.Create_Request
         (Target => CORBA.Object.Internals.To_PolyORB_Ref
@@ -124,8 +132,7 @@ package body RI.Log_viewer is
          Operation => "setEnvironment",
          Arg_List => Argument_List_Ü,
          Result => Result_Nv_Ü,
-         Req => Request_Ü,
-         Req_Flags => PolyORB.Requests.Sync_With_Transport);
+         Req => Request_Ü);
       --  Invoking the request (synchronously or asynchronously)
       PolyORB.CORBA_P.Interceptors_Hooks.Client_Invoke
         (Request_Ü,
@@ -136,6 +143,8 @@ package body RI.Log_viewer is
         (Request_Ü);
       PolyORB.Requests.Destroy_Request
         (Request_Ü);
+      --  Return value
+      return Result_Ü;
    end setEnvironment;
 
    updateLog_Arg_Name_Driver_ID_Ü : constant PolyORB.Types.Identifier :=

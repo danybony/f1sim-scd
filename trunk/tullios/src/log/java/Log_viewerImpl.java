@@ -131,7 +131,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
         
     }
 
-    public void setEnvironment(String[] Drivers, int segmentsNumber, short RaceLaps) {
+    public boolean setEnvironment(String[] Drivers, int segmentsNumber, short RaceLaps) {
         
         this.raceLaps = RaceLaps;
         
@@ -152,7 +152,7 @@ public class Log_viewerImpl extends Log_viewerPOA {
             System.out.println("------ Position: "+drivers.elementAt(i).getPosition());
         }
         frame.updateTable();
-        return;
+        return true;
     }
     
     
@@ -163,6 +163,9 @@ public class Log_viewerImpl extends Log_viewerPOA {
             if(!raceIsRunning){
                 raceIsRunning = true;
                 startTime = new Date().getTime();
+                for(int i=0; i<drivers.size(); i++){
+                    drivers.elementAt(i).setStartTime(startTime);
+                }
             }
 
             Driver currentDriver = driverById(Driver_ID);
@@ -177,7 +180,6 @@ public class Log_viewerImpl extends Log_viewerPOA {
                 
                 if(currentDriver.getState() == -2){
                     currentDriver.setState((short)0);
-                    currentDriver.setStartTime(startTime);
                 }
                 else{
                     currentDriver.setCurrentLap((short) (currentDriver.getCurrentLap() + 1));

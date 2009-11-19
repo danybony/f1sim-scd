@@ -153,6 +153,15 @@ package body RI.Log_viewer.Skel is
                  CORBA.Internals.Get_Wrapper_Any
                     (CORBA.TC_Short,
                      Arg_CC_RaceLaps_Ü'Unchecked_Access);
+               Result_Ü : CORBA.Boolean;
+               pragma Warnings (Off, Result_Ü);
+               Arg_CC_Result_Ü_Ü : aliased PolyORB.Any.Content'Class :=
+                 CORBA.Wrap
+                    (Result_Ü'Unrestricted_Access);
+               Arg_Any_Result_Ü_Ü : constant CORBA.Any :=
+                 CORBA.Internals.Get_Wrapper_Any
+                    (CORBA.TC_Boolean,
+                     Arg_CC_Result_Ü_Ü'Unchecked_Access);
             begin
                CORBA.NVList.Add_Item
                  (Argument_List_Ü,
@@ -174,12 +183,17 @@ package body RI.Log_viewer.Skel is
                  (Request,
                   Argument_List_Ü);
                --  Call Implementation
-               RI.Log_viewer.Impl.setEnvironment
-                 (RI.Log_viewer.Impl.Object'Class
-                    (Self.all)'Access,
-                  Argument_Drivers_Ü,
-                  Argument_segmentsNumber_Ü,
-                  Argument_RaceLaps_Ü);
+               Result_Ü :=
+                 RI.Log_viewer.Impl.setEnvironment
+                    (RI.Log_viewer.Impl.Object'Class
+                       (Self.all)'Access,
+                     Argument_Drivers_Ü,
+                     Argument_segmentsNumber_Ü,
+                     Argument_RaceLaps_Ü);
+               --  Setting the result
+               CORBA.ServerRequest.Set_Result
+                 (Request,
+                  Arg_Any_Result_Ü_Ü);
                CORBA.NVList.Internals.Clone_Out_Args
                  (Argument_List_Ü);
             end;

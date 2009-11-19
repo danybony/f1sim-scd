@@ -5,22 +5,17 @@
 #Il quarto valore è il numero di corsie del macro segmento
 #La corsia dei box viene generata automaticamente delle stesse 
 #dimensioni del primo macro segmento, con una velocità massima di 100 km/h
-45
+50
 360
 165
 2
 #
-65
+75
 165
-120
+330
 1
 #
-40
-120
-330
-2
-#
-100
+50
 330
 180
 2
@@ -30,7 +25,7 @@
 220
 2
 #
-50
+75
 220
 190
 1
